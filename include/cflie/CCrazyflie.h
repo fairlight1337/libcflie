@@ -57,6 +57,7 @@ class CCrazyflie {
   struct DSPose m_dspCurrentPose;
   struct DSPose m_dspDesiredPose;
   enum Controller m_enumCtrl;
+  double m_dSecondsLast;
 
  public:
   CCrazyflie(CCrazyRadio *crRadio);

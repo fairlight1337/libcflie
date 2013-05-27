@@ -8,14 +8,14 @@ CPController::CPController() {
 CPController::~CPController() {
 }
 
-struct DSTwist CPController::twistForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired) {
-  struct DSTwist dstResult;
+struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired) {
+  struct DSVelocityControlSignal dvcsResult;
   
-  dstResult.dsvLinear.fX = m_fPGain * (dspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX);
-  dstResult.dsvLinear.fY = m_fPGain * (dspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY);
-  dstResult.dsvLinear.fZ = m_fPGain * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
+  // dvcsResult.dsvLinear.fX = m_fPGain * (dspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX);
+  // dstResult.dsvLinear.fY = m_fPGain * (dspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY);
+  // dstResult.dsvLinear.fZ = m_fPGain * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
   
-  return dstResult;
+  return dvcsResult;
 }
 
 void CPController::setPGain(float fPGain) {

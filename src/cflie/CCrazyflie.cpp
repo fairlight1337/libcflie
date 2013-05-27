@@ -33,6 +33,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nLastRequestedVariableIndex = -1;
   m_nThrust = 0;
   m_ctrlController = NULL;
+  m_dSecondsLast = 0;
   this->disableController();
   
   //this->updateTOC();
@@ -214,20 +215,34 @@ void CCrazyflie::setDesiredPose(struct DSPose dspDesired) {
 }
 
 void CCrazyflie::applyControllerResult() {
-  struct DSTwist dstResult;
+  struct DSVelocityControlSignal dvcsResult;
   
-  if(m_enumCtrl != CTRL_NONE) {
-    switch(m_enumCtrl) {
-    case CTRL_P: {
-      dstResult = ((CPController*)m_ctrlController)->twistForDesiredPose(m_dspCurrentPose, m_dspDesiredPose);
-    } break;
-      
-    case CTRL_NONE:  
-    default: {
-      // Unknown controller, don't do anything.
-    } break;
-    }
+  struct timeval  tv;
+  gettimeofday(&tv, NULL);
+  double dTimeNow = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+  
+  if(m_dSecondsLast > 0) {
+    double dSecondsElapsed = m_dSecondsLast - dTimeNow;
     
-    // TODO(winkler): Now do something smart with the resulting controller values.
+    if(m_enumCtrl != CTRL_NONE) {
+      switch(m_enumCtrl) {
+      case CTRL_P: {
+	dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_dspDesiredPose);
+      } break;
+	
+      case CTRL_NONE:  
+      default: {
+	// Unknown controller, don't do anything.
+      } break;
+      }
+      
+      // Apply the relative velocity signal to the set point according to the elapsed time
+      this->setRoll(this->roll() + dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
+      this->setPitch(this->pitch() + dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
+      this->setYaw(this->yaw() + dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
+      this->setThrust(this->thrust() + dSecondsElapsed * dvcsResult.nThrust);
+    }
   }
+  
+  m_dSecondsLast = dTimeNow;
 }

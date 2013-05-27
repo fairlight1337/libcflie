@@ -11,7 +11,7 @@ class CController {
   CController();
   ~CController();
   
-  virtual struct DSTwist twistForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired);
+  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired);
 };
 
 

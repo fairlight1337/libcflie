@@ -28,4 +28,10 @@ struct DSTwist {
 };
 
 
+struct DSVelocityControlSignal {
+  int nThrust;
+  struct DSOrientation dsoAngular;
+};
+
+
 #endif /* __DATA_STRUCTURES_H__ */
