@@ -34,6 +34,14 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nThrust = 0;
   m_ctrlController = NULL;
   m_dSecondsLast = 0;
+  
+  // Review these values
+  m_fMaxAbsRoll = 0.5;
+  m_fMaxAbsPitch = 0.5;
+  m_fMaxAbsYaw = 0.5;
+  m_nMaxThrust = 60000;
+  m_nMinThrust = 15000;
+  
   this->disableController();
   
   //this->updateTOC();
@@ -148,6 +156,12 @@ void CCrazyflie::populateNextLOGElement() {
 
 void CCrazyflie::setThrust(int nThrust) {
   m_nThrust = nThrust;
+  
+  if(m_nThrust < m_nMinThrust) {
+    m_nThrust = m_nMinThrust;
+  } else if(m_nThrust > m_nMaxThrust) {
+    m_nThrust = m_nMaxThrust;
+  }
 }
 
 int CCrazyflie::thrust() {
@@ -169,6 +183,10 @@ void CCrazyflie::cycle() {
 
 void CCrazyflie::setRoll(float fRoll) {
   m_fRoll = fRoll;
+  
+  if(fabs(m_fRoll) > m_fMaxAbsRoll) {
+    m_fRoll = copysign(m_fRoll, m_fMaxAbsRoll);
+  }
 }
 
 float CCrazyflie::roll() {
@@ -177,6 +195,10 @@ float CCrazyflie::roll() {
 
 void CCrazyflie::setPitch(float fPitch) {
   m_fPitch = fPitch;
+  
+  if(fabs(m_fPitch) > m_fMaxAbsPitch) {
+    m_fPitch = copysign(m_fPitch, m_fMaxAbsPitch);
+  }
 }
 
 float CCrazyflie::pitch() {
@@ -185,6 +207,10 @@ float CCrazyflie::pitch() {
 
 void CCrazyflie::setYaw(float fYaw) {
   m_fYaw = fYaw;
+  
+  if(fabs(m_fYaw) > m_fMaxAbsYaw) {
+    m_fYaw = copysign(m_fYaw, m_fMaxAbsYaw);
+  }
 }
 
 float CCrazyflie::yaw() {

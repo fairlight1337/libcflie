@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <math.h>
 
 #include "CCrazyRadio.h"
 #include "CController.h"
@@ -58,6 +59,13 @@ class CCrazyflie {
   struct DSPose m_dspDesiredPose;
   enum Controller m_enumCtrl;
   double m_dSecondsLast;
+  
+  // Control related parameters
+  float m_fMaxAbsRoll;
+  float m_fMaxAbsPitch;
+  float m_fMaxAbsYaw;
+  int m_nMaxThrust;
+  int m_nMinThrust;
 
  public:
   CCrazyflie(CCrazyRadio *crRadio);
