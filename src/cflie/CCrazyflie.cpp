@@ -32,6 +32,8 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_crRadio = crRadio;
   m_nLastRequestedVariableIndex = -1;
   m_nThrust = 0;
+  m_ctrlController = NULL;
+  this->disableController();
   
   //this->updateTOC();
   this->updateLogTOC();
@@ -152,8 +154,6 @@ int CCrazyflie::thrust() {
 }
 
 void CCrazyflie::cycle() {
-  this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
-  
   if(m_crRadio->populatesTOCCache()) {
     //this->populateNextTOCElement();
   }
@@ -161,6 +161,9 @@ void CCrazyflie::cycle() {
   if(m_crRadio->populatesLOGCache()) {
     this->populateNextLOGElement();
   }
+  
+  this->applyControllerResult();
+  this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
 }
 
 void CCrazyflie::setRoll(float fRoll) {
@@ -185,4 +188,46 @@ void CCrazyflie::setYaw(float fYaw) {
 
 float CCrazyflie::yaw() {
   return m_fYaw;
+}
+
+void CCrazyflie::disableController() {
+  m_enumCtrl = CTRL_NONE;
+  
+  if(m_ctrlController != NULL) {
+    delete m_ctrlController;
+    m_ctrlController = NULL;
+  }
+}
+
+void CCrazyflie::setPController(float fPGain) {
+  if(m_enumCtrl != CTRL_P) {
+    this->disableController();
+    
+    m_enumCtrl = CTRL_P;
+    m_ctrlController = new CPController();
+    ((CPController*)m_ctrlController)->setPGain(fPGain);
+  }
+}
+
+void CCrazyflie::setDesiredPose(struct DSPose dspDesired) {
+  m_dspDesiredPose = dspDesired;
+}
+
+void CCrazyflie::applyControllerResult() {
+  struct DSTwist dstResult;
+  
+  if(m_enumCtrl != CTRL_NONE) {
+    switch(m_enumCtrl) {
+    case CTRL_P: {
+      dstResult = ((CPController*)m_ctrlController)->twistForDesiredPose(m_dspCurrentPose, m_dspDesiredPose);
+    } break;
+      
+    case CTRL_NONE:  
+    default: {
+      // Unknown controller, don't do anything.
+    } break;
+    }
+    
+    // TODO(winkler): Now do something smart with the resulting controller values.
+  }
 }

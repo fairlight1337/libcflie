@@ -14,7 +14,9 @@ find_library(USB_LIB usb-1.0)
 add_library(${PROJECT_NAME}
   src/cflie/CCrazyRadio.cpp
   src/cflie/CCrazyflie.cpp
-  src/cflie/CCRTPPacket.cpp)
+  src/cflie/CCRTPPacket.cpp
+  src/cflie/CController.cpp
+  src/cflie/CPController.cpp)
 
 add_executable(test src/main.cpp)
 

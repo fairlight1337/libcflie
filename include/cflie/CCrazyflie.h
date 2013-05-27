@@ -33,8 +33,16 @@
 #include <sstream>
 
 #include "CCrazyRadio.h"
+#include "CController.h"
+#include "CPController.h"
 
 using namespace std;
+
+
+enum Controller {
+  CTRL_NONE = 0,
+  CTRL_P = 1
+};
 
 
 class CCrazyflie {
@@ -45,6 +53,10 @@ class CCrazyflie {
   float m_fRoll;
   float m_fPitch;
   float m_fYaw;
+  CController *m_ctrlController;
+  struct DSPose m_dspCurrentPose;
+  struct DSPose m_dspDesiredPose;
+  enum Controller m_enumCtrl;
 
  public:
   CCrazyflie(CCrazyRadio *crRadio);
@@ -73,6 +85,12 @@ class CCrazyflie {
   float yaw();
   
   void cycle();
+  
+  void disableController();
+  void setPController(float fPGain);
+  
+  void setDesiredPose(struct DSPose dspDesired);
+  void applyControllerResult();
 };
 
 
