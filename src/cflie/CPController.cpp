@@ -15,6 +15,9 @@ struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DS
   // dstResult.dsvLinear.fY = m_fPGain * (dspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY);
   // dstResult.dsvLinear.fZ = m_fPGain * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
   
+  // Only thrust at the moment, to try out stuff.
+  dvcsResult.nThrust = 20000 + 20000 * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
+  
   return dvcsResult;
 }
 
