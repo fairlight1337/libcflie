@@ -38,7 +38,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   // Review these values
   m_fMaxAbsRoll = 0.5;
   m_fMaxAbsPitch = m_fMaxAbsRoll;
-  m_fMaxYaw = M_PI;
+  m_fMaxYaw = 2 * M_PI;
   m_nMaxThrust = 60000;
   m_nMinThrust = 15000;
   
@@ -209,7 +209,7 @@ void CCrazyflie::setYaw(float fYaw) {
   m_fYaw = fYaw;
   
   if(m_fYaw < 0) {
-    m_fYaw += M_PI - m_fYaw;
+    m_fYaw += 2 * M_PI - m_fYaw;
   }
   
   while(m_fYaw > m_fMaxYaw) {
