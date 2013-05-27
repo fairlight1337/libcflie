@@ -9,12 +9,14 @@ set(crazyflie_VERSION_MINOR_1)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
+find_library(USB_LIB usb-1.0)
+
 add_library(cflie
   src/cflie/CCrazyRadio.cpp
   src/cflie/CCrazyflie.cpp
   src/cflie/CCRTPPacket.cpp)
 
-target_link_libraries(cflie usb-1.0)
+add_executable(test src/main.cpp)
 
-add_executable(crazyflie src/main.cpp)
-target_link_libraries(crazyflie cflie)
+target_link_libraries(cflie ${USB_LIB})
+target_link_libraries(test cflie)
