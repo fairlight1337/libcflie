@@ -63,7 +63,7 @@ class CCrazyflie {
   // Control related parameters
   float m_fMaxAbsRoll;
   float m_fMaxAbsPitch;
-  float m_fMaxAbsYaw;
+  float m_fMaxYaw;
   int m_nMaxThrust;
   int m_nMinThrust;
 
