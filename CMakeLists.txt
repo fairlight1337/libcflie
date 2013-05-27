@@ -14,5 +14,7 @@ add_library(cflie
   src/cflie/CCrazyflie.cpp
   src/cflie/CCRTPPacket.cpp)
 
+target_link_libraries(cflie usb-1.0)
+
 add_executable(crazyflie src/main.cpp)
-target_link_libraries(crazyflie cflie usb-1.0)
+target_link_libraries(crazyflie cflie)
