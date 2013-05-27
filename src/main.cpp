@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "classes/CCrazyflie.h"
+#include "cflie/CCrazyflie.h"
 
 using namespace std;
 
