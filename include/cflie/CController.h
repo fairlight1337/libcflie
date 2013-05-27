@@ -2,6 +2,8 @@
 #define __C_CONTROLLER_H__
 
 
+#include <math.h>
+
 #include "DataStructures.h"
 
 
@@ -11,7 +13,7 @@ class CController {
   CController();
   ~CController();
   
-  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired);
+  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
 };
 
 

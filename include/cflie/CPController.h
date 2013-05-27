@@ -13,7 +13,7 @@ class CPController : public CController {
   CPController();
   ~CPController();
   
-  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired);
+  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
   
   void setPGain(float fPGain);
   float pGain();

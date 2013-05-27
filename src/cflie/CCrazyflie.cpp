@@ -37,8 +37,8 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   
   // Review these values
   m_fMaxAbsRoll = 0.5;
-  m_fMaxAbsPitch = 0.5;
-  m_fMaxAbsYaw = 0.5;
+  m_fMaxAbsPitch = m_fMaxAbsRoll;
+  m_fMaxAbsYaw = 3.1415;
   m_nMaxThrust = 60000;
   m_nMinThrust = 15000;
   
@@ -236,8 +236,8 @@ void CCrazyflie::setPController(float fPGain) {
   }
 }
 
-void CCrazyflie::setDesiredPose(struct DSPose dspDesired) {
-  m_dspDesiredPose = dspDesired;
+void CCrazyflie::setDesiredSetPoint(struct DSControlSetPoint cspDesired) {
+  m_cspDesired = cspDesired;
 }
 
 void CCrazyflie::applyControllerResult() {
@@ -253,7 +253,7 @@ void CCrazyflie::applyControllerResult() {
     if(m_enumCtrl != CTRL_NONE) {
       switch(m_enumCtrl) {
       case CTRL_P: {
-	dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_dspDesiredPose);
+	dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
       } break;
 	
       case CTRL_NONE:  

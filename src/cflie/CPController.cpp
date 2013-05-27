@@ -8,15 +8,25 @@ CPController::CPController() {
 CPController::~CPController() {
 }
 
-struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSPose dspDesired) {
+struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired) {
   struct DSVelocityControlSignal dvcsResult;
   
-  // dvcsResult.dsvLinear.fX = m_fPGain * (dspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX);
-  // dstResult.dsvLinear.fY = m_fPGain * (dspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY);
-  // dstResult.dsvLinear.fZ = m_fPGain * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
+  float fDistanceToGoXY = sqrt((cspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX) * (cspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX) +
+			       (cspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY) * (cspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY) +
+			       (cspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ) * (cspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ));
+  float fDifferenceZ = cspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ;
   
-  // Only thrust at the moment, to try out stuff.
-  dvcsResult.nThrust = 20000 + 20000 * (dspDesired.dsvPosition.fZ - dspCurrent.dsvPosition.fZ);
+  // Upwards driven thrust motion
+  dvcsResult.nThrust = 30000 + m_fPGain * 20000 * fDifferenceZ;
+  
+  // Angle driven sideways motion
+  float fAngle = atan2(cspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX,
+		       cspDesired.dsvPosition.fY - dspCurrent.dsvPosition.fY) + dspCurrent.dsoOrientation.fYaw;
+  
+  dvcsResult.dsoAngular.fRoll = m_fPGain * fDistanceToGoXY * sin(fAngle);
+  dvcsResult.dsoAngular.fPitch = m_fPGain * fDistanceToGoXY * cos(fAngle);
+  
+  dvcsResult.dsoAngular.fYaw = m_fPGain * (dspCurrent.dsoOrientation.fYaw - cspDesired.fYaw);
   
   return dvcsResult;
 }

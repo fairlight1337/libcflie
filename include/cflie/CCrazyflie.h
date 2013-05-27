@@ -56,7 +56,7 @@ class CCrazyflie {
   float m_fYaw;
   CController *m_ctrlController;
   struct DSPose m_dspCurrentPose;
-  struct DSPose m_dspDesiredPose;
+  struct DSControlSetPoint m_cspDesired;
   enum Controller m_enumCtrl;
   double m_dSecondsLast;
   
@@ -98,7 +98,7 @@ class CCrazyflie {
   void disableController();
   void setPController(float fPGain);
   
-  void setDesiredPose(struct DSPose dspDesired);
+  void setDesiredSetPoint(struct DSControlSetPoint cspDesired);
   void applyControllerResult();
 };
 
