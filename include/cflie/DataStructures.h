@@ -34,4 +34,10 @@ struct DSVelocityControlSignal {
 };
 
 
+struct DSControlSetPoint {
+  DSVector dsvPosition;
+  float fYaw;
+};
+
+
 #endif /* __DATA_STRUCTURES_H__ */
