@@ -152,7 +152,7 @@ int CCrazyflie::thrust() {
 }
 
 void CCrazyflie::cycle() {
-  this->sendSetpoint(0, 0, 0, m_nThrust);
+  this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
   
   if(m_crRadio->populatesTOCCache()) {
     //this->populateNextTOCElement();
@@ -161,4 +161,28 @@ void CCrazyflie::cycle() {
   if(m_crRadio->populatesLOGCache()) {
     this->populateNextLOGElement();
   }
+}
+
+void CCrazyflie::setRoll(float fRoll) {
+  m_fRoll = fRoll;
+}
+
+float CCrazyflie::roll() {
+  return m_fRoll;
+}
+
+void CCrazyflie::setPitch(float fPitch) {
+  m_fPitch = fPitch;
+}
+
+float CCrazyflie::pitch() {
+  return m_fPitch;
+}
+
+void CCrazyflie::setYaw(float fYaw) {
+  m_fYaw = fYaw;
+}
+
+float CCrazyflie::yaw() {
+  return m_fYaw;
 }

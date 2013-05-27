@@ -42,6 +42,9 @@ class CCrazyflie {
   CCrazyRadio *m_crRadio;
   int m_nLastRequestedVariableIndex;
   int m_nThrust;
+  float m_fRoll;
+  float m_fPitch;
+  float m_fYaw;
 
  public:
   CCrazyflie(CCrazyRadio *crRadio);
@@ -59,7 +62,16 @@ class CCrazyflie {
   
   void setThrust(int nThrust);
   int thrust();
+  
+  void setRoll(float fRoll);
+  float roll();
 
+  void setPitch(float fPitch);
+  float pitch();
+
+  void setYaw(float fYaw);
+  float yaw();
+  
   void cycle();
 };
 
