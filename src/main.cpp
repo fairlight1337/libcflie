@@ -33,8 +33,6 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
-  int nSamplesExit = 100;//2000;
-  int nSamples = 0;
   int nThrust = 0;//10001;
   
   string strRadioURI = "radio://0/10/250K";
@@ -45,7 +43,6 @@ int main(int argc, char **argv) {
   if(crRadio->startRadio()) {
     cout << "Radio started" << endl;
     cout << " - Default Thrust: " << nThrust << endl;
-    cout << " - Will exit after: " << nSamplesExit << " cycles" << endl;
     
     CCRTPPacket *crtpReceived = NULL;
     CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
@@ -54,14 +51,18 @@ int main(int argc, char **argv) {
     cflieCopter->setThrust(nThrust);
       
     while(bGoon) {
-      cflieCopter->cycle();
-	
-      nSamples++;
-      if(nSamples == nSamplesExit) {
+      if(cflieCopter->cycle()) {
+	if(cflieCopter->copterInRange()) {
+	  cout << "In range" << endl;
+	} else {
+	  cout << "Not in range" << endl;
+	}
+      } else {
+	cerr << "Connection to radio dongle lost." << endl;
 	bGoon = false;
       }
     }
-      
+    
     delete cflieCopter;
   } else {
     cerr << "Radio dongle could not be opened. Did you plug it in?" << endl;

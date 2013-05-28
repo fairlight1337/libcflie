@@ -425,7 +425,7 @@ CCRTPPacket *CCrazyRadio::readACK() {
   if(this->readData(cBuffer, nBytesRead)) {
     if(nBytesRead > 0) {
       // Analyse status byte
-      //bool bAckReceived = cBuffer[0] & 0x1;
+      m_bAckReceived = cBuffer[0] & 0x1;
       //bool bPowerDetector = cBuffer[0] & 0x2;
       //int nRetransmissions = cBuffer[0] & 0xf0;
       
@@ -501,4 +501,14 @@ bool CCrazyRadio::logElementPopulated() {
 
 int CCrazyRadio::countLOGElements() {
   return m_lstLOGElements.size();
+}
+
+bool CCrazyRadio::ackReceived() {
+  return m_bAckReceived;
+}
+
+bool CCrazyRadio::usbOK() {
+  libusb_device_descriptor ddDescriptor;
+  return (libusb_get_device_descriptor(m_devDevice,
+				       &ddDescriptor) == 0);
 }

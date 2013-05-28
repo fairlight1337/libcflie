@@ -168,7 +168,7 @@ int CCrazyflie::thrust() {
   return m_nThrust;
 }
 
-void CCrazyflie::cycle() {
+bool CCrazyflie::cycle() {
   if(m_crRadio->populatesTOCCache()) {
     //this->populateNextTOCElement();
   }
@@ -179,6 +179,12 @@ void CCrazyflie::cycle() {
   
   this->applyControllerResult();
   this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+  
+  return m_crRadio->usbOK();
+}
+
+bool CCrazyflie::copterInRange() {
+  return m_crRadio->ackReceived();
 }
 
 void CCrazyflie::setRoll(float fRoll) {

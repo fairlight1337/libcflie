@@ -93,7 +93,8 @@ class CCrazyflie {
   void setYaw(float fYaw);
   float yaw();
   
-  void cycle();
+  bool cycle();
+  bool copterInRange();
   
   void disableController();
   void setPController(float fPGain);

@@ -82,6 +82,7 @@ private:
   list<struct LOGElement> m_lstLOGElements;
   bool m_bPopulatesLOGCache;
   bool m_bLogelementPopulated;
+  bool m_bAckReceived;
   
   // Functions
   list<libusb_device*> listDevices(int nVendorID, int nProductID);
@@ -136,6 +137,9 @@ public:
   
   int nextLogVarID();
   int countLOGElements();
+  
+  bool ackReceived();
+  bool usbOK();
 };
 
 
