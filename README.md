@@ -33,7 +33,7 @@ $ git clone https://github.com/fairlight1337/libcflie.git libcflie
 `
 
 In the cloned folder, do:
-`
+```
 $ mkdir build
 
 $ cd build
@@ -41,6 +41,6 @@ $ cd build
 $ cmake ..
 
 $ make
-`
+```
 
 After that, you will find two directories in the base directory: `lib` and `bin`. `lib` includes the built `libcflie` library (with fitting extension, depending on where you build it). `bin` includes a `test` program which is defined by the content of `src/main.cpp` that shows the basic usage of the library.
