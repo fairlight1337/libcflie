@@ -24,7 +24,7 @@ struct DSPose {
 
 struct DSTwist {
   struct DSVector dsvLinear;
-  struct DSOrientation dsvAngular;
+  struct DSOrientation dsoAngular;
 };
 
 

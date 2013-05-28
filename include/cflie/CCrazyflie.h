@@ -56,6 +56,7 @@ class CCrazyflie {
   float m_fYaw;
   CController *m_ctrlController;
   struct DSPose m_dspCurrentPose;
+  struct DSTwist m_dstCurrentTwist;
   struct DSControlSetPoint m_cspDesired;
   enum Controller m_enumCtrl;
   double m_dSecondsLast;
@@ -71,6 +72,7 @@ class CCrazyflie {
   CCrazyflie(CCrazyRadio *crRadio);
   ~CCrazyflie();
   
+  void resetState();
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
   void updateTOC();
   void populateTOCElement(int nIndex);
@@ -105,6 +107,7 @@ class CCrazyflie {
   struct DSVelocityControlSignal identityControlSignal();
   void applyControllerResult(double dElapsedTime);
   void calculatePoseIntegral(double dElapsedTime);
+  void calculateCartesianVelocity();
 };
 
 

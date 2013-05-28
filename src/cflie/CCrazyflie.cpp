@@ -51,9 +51,29 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   
   //this->updateTOC();
   this->updateLogTOC();
+  
+  this->resetState();
 }
 
 CCrazyflie::~CCrazyflie() {
+}
+
+void CCrazyflie::resetState() {
+  m_dspCurrentPose.dsvPosition.fX = 0;
+  m_dspCurrentPose.dsvPosition.fY = 0;
+  m_dspCurrentPose.dsvPosition.fZ = 0;
+  
+  m_dspCurrentPose.dsoOrientation.fRoll = 0;
+  m_dspCurrentPose.dsoOrientation.fPitch = 0;
+  m_dspCurrentPose.dsoOrientation.fYaw = 0;
+  
+  m_dstCurrentTwist.dsvLinear.fX = 0;
+  m_dstCurrentTwist.dsvLinear.fY = 0;
+  m_dstCurrentTwist.dsvLinear.fZ = 0;
+  
+  m_dstCurrentTwist.dsoAngular.fRoll = 0;
+  m_dstCurrentTwist.dsoAngular.fPitch = 0;
+  m_dstCurrentTwist.dsoAngular.fYaw = 0;
 }
 
 bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust) {
@@ -187,6 +207,12 @@ bool CCrazyflie::cycle() {
   double dSecondsElapsed = m_dSecondsLast - dTimeNow;
   m_dSecondsLast = dTimeNow;
   
+  // Calculate the linear twist (i.e. cartesian velocity) from the
+  // angular twist (RPY). This is mainly based on taking the current
+  // angles of the device into account (from the current pose) and
+  // then applying the values from the gyroscope.
+  this->calculateCartesianVelocity();
+  
   // Calculate pose integral and apply the calculated control signals
   this->calculatePoseIntegral(dSecondsElapsed);
   this->applyControllerResult(dSecondsElapsed);
@@ -271,8 +297,15 @@ double CCrazyflie::currentTime() {
   return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 }
 
+void CCrazyflie::calculateCartesianVelocity() {
+  // TODO(winkler): Calculate the cartesian velocity from the angular
+  // and gyro values here.
+}
+
 void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
-  //
+  m_dspCurrentPose.dsvPosition.fX += dElapsedTime * m_dstCurrentTwist.dsvLinear.fX;
+  m_dspCurrentPose.dsvPosition.fY += dElapsedTime * m_dstCurrentTwist.dsvLinear.fY;
+  m_dspCurrentPose.dsvPosition.fZ += dElapsedTime * m_dstCurrentTwist.dsvLinear.fZ;
 }
 
 struct DSVelocityControlSignal CCrazyflie::identityControlSignal() {
