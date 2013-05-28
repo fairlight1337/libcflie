@@ -271,7 +271,7 @@ void CCrazyflie::applyControllerResult() {
       
     case CTRL_NONE:  
     default: {
-      // Unknown controller, don't do anything.
+      // Unknown or no controller, don't do anything.
     } break;
     }
     
