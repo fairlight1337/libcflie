@@ -52,8 +52,8 @@ int main(int argc, char **argv) {
   cout << "Opening radio URI '" << strRadioURI << "'" << endl;
   CCrazyRadio *crRadio = new CCrazyRadio(strRadioURI);
   
-  bool bDongleConnected = false;
   g_bGoon = true;
+  bool bDongleConnected = false;
   bool bDongleNotConnectedNotified = false;
   
   while(g_bGoon) {
@@ -73,6 +73,8 @@ int main(int argc, char **argv) {
       }
     }
     
+    bool bRangeStateChangedNotified = false;
+    bool bCopterWasInRange = false;
     
     if(g_bGoon) {
       bDongleNotConnectedNotified = false;
@@ -84,12 +86,29 @@ int main(int argc, char **argv) {
       while(g_bGoon && bDongleConnected) {
 	if(cflieCopter->cycle()) {
 	  if(cflieCopter->copterInRange()) {
-	    cout << "In range" << endl;
+	    if(!bCopterWasInRange || !bRangeStateChangedNotified) {
+	      // Event triggered when the copter first comes in range.
+	      cout << "In range" << endl;
+	      
+	      bCopterWasInRange = true;
+	      bRangeStateChangedNotified = true;
+	    }
+	    
+	    // Loop body for when the copter is in range continuously
 	  } else {
-	    cout << "Not in range" << endl;
+	    if(bCopterWasInRange || !bRangeStateChangedNotified) {
+	      // Event triggered when the copter leaves the range.
+	      cout << "Not in range" << endl;
+	      
+	      bCopterWasInRange = false;
+	      bRangeStateChangedNotified = true;
+	    }
+	    
+	    // Loop body for when the copter is not in range
 	  }
 	} else {
 	  cerr << "Connection to radio dongle lost." << endl;
+	  
 	  bDongleConnected = false;
 	}
       }
