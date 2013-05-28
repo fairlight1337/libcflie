@@ -41,6 +41,7 @@ CCRTPPacket::CCRTPPacket(char *cData, int nDataLength, int nPort) {
 }
 
 CCRTPPacket::~CCRTPPacket() {
+  this->clearData();
 }
 
 void CCRTPPacket::basicSetup() {
