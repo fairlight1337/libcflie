@@ -28,7 +28,7 @@
 #include <iostream>
 #include <signal.h>
 
-#include "cflie/CCrazyflie.h"
+#include <cflie/CCrazyflie.h>
 
 using namespace std;
 
