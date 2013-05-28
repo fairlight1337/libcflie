@@ -35,8 +35,11 @@ $ git clone https://github.com/fairlight1337/libcflie.git libcflie
 In the cloned folder, do:
 `
 $ mkdir build
+
 $ cd build
+
 $ cmake ..
+
 $ make
 `
 
