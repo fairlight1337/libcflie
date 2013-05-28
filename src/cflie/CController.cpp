@@ -2,9 +2,18 @@
 
 
 CController::CController() {
+  this->setIgnoresYaw(false);
 }
 
 CController::~CController() {
+}
+
+void CController::setIgnoresYaw(bool bIgnoresYaw) {
+  m_bIgnoresYaw = bIgnoresYaw;
+}
+
+bool CController::ignoresYaw() {
+  return m_bIgnoresYaw;
 }
 
 struct DSVelocityControlSignal CController::inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired) {

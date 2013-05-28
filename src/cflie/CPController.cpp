@@ -26,7 +26,10 @@ struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DS
   dvcsResult.dsoAngular.fRoll = m_fPGain * fDistanceToGoXY * sin(fAngle);
   dvcsResult.dsoAngular.fPitch = m_fPGain * fDistanceToGoXY * cos(fAngle);
   
-  dvcsResult.dsoAngular.fYaw = m_fPGain * (cspDesired.fYaw - dspCurrent.dsoOrientation.fYaw);
+  if(!this->ignoresYaw()) {
+    // Only do this if we actually care about the yaw.
+    dvcsResult.dsoAngular.fYaw = m_fPGain * (cspDesired.fYaw - dspCurrent.dsoOrientation.fYaw);
+  }
   
   return dvcsResult;
 }

@@ -67,6 +67,7 @@ class CCrazyflie {
   float m_fMaxYaw;
   int m_nMaxThrust;
   int m_nMinThrust;
+  bool m_bControllerIgnoresYaw;
 
  public:
   CCrazyflie(CCrazyRadio *crRadio);
@@ -108,6 +109,15 @@ class CCrazyflie {
   void applyControllerResult(double dElapsedTime);
   void calculatePoseIntegral(double dElapsedTime);
   void calculateCartesianVelocity();
+  
+  double distanceBetweenPositions(struct DSVector dsvPosition1, struct DSVector dsvPosition2);
+  double distanceToPosition(struct DSVector dsvPosition);
+  double distanceToDesiredPosition();
+  void goToRelativePosition(struct DSVector dsvRelative);
+  void goToAbsolutePosition(struct DSVector dsvAbsolute);
+  
+  void setControllerIgnoresYaw(bool bControllerIgnoresYaw);
+  bool controllerIgnoresYaw();
 };
 
 

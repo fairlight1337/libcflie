@@ -9,9 +9,14 @@
 
 class CController {
  private:
+  bool m_bIgnoresYaw;
+
  public:
   CController();
   ~CController();
+  
+  void setIgnoresYaw(bool bIgnoresYaw);
+  bool ignoresYaw();
   
   virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
 };

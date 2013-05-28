@@ -47,6 +47,8 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_fYaw = 0;
   m_nThrust = 0;
   
+  m_bControllerIgnoresYaw = false;
+  
   this->disableController();
   
   //this->updateTOC();
@@ -282,6 +284,8 @@ void CCrazyflie::setPController(float fPGain) {
     
     m_enumCtrl = CTRL_P;
     m_ctrlController = new CPController();
+    m_ctrlController->setIgnoresYaw(this->controllerIgnoresYaw());
+    
     ((CPController*)m_ctrlController)->setPGain(fPGain);
   }
 }
@@ -343,4 +347,54 @@ void CCrazyflie::applyControllerResult(double dElapsedTime) {
 	       dElapsedTime * dvcsResult.dsoAngular.fYaw);
   this->setThrust(this->thrust() +
 		  dElapsedTime * dvcsResult.nThrust);
+}
+
+double CCrazyflie::distanceBetweenPositions(struct DSVector dsvPosition1, struct DSVector dsvPosition2) {
+  return sqrt(((dsvPosition1.fX - dsvPosition2.fX) *
+	       (dsvPosition1.fX - dsvPosition2.fX)) +
+	      ((dsvPosition1.fY - dsvPosition2.fY) *
+	       (dsvPosition1.fY - dsvPosition2.fY)) +
+	      ((dsvPosition1.fZ - dsvPosition2.fZ) *
+	       (dsvPosition1.fZ - dsvPosition2.fZ)));
+}
+
+double CCrazyflie::distanceToPosition(struct DSVector dsvPosition) {
+  return this->distanceBetweenPositions(dsvPosition,
+					m_cspDesired.dsvPosition);
+}
+
+double CCrazyflie::distanceToDesiredPosition() {
+  return this->distanceToPosition(m_dspCurrentPose.dsvPosition);
+}
+
+void CCrazyflie::goToRelativePosition(struct DSVector dsvRelative) {
+  struct DSVector dsvAbsolute;
+  
+  dsvAbsolute = m_dspCurrentPose.dsvPosition;
+  dsvAbsolute.fX += dsvRelative.fX;
+  dsvAbsolute.fY += dsvRelative.fY;
+  dsvAbsolute.fZ += dsvRelative.fZ;
+  
+  this->goToAbsolutePosition(dsvAbsolute);
+}
+
+void CCrazyflie::goToAbsolutePosition(struct DSVector dsvAbsolute) {
+  struct DSControlSetPoint cspDesired;
+  
+  cspDesired.fYaw = m_dspCurrentPose.dsoOrientation.fYaw;
+  cspDesired.dsvPosition = dsvAbsolute;
+  
+  this->setDesiredSetPoint(cspDesired);
+}
+
+void CCrazyflie::setControllerIgnoresYaw(bool bControllerIgnoresYaw) {
+  if(m_ctrlController) {
+    m_ctrlController->setIgnoresYaw(bControllerIgnoresYaw);
+  }
+  
+  m_bControllerIgnoresYaw = bControllerIgnoresYaw;
+}
+
+bool CCrazyflie::controllerIgnoresYaw() {
+  return m_bControllerIgnoresYaw;
 }
