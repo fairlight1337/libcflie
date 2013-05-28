@@ -29,6 +29,14 @@
 #define __DATA_STRUCTURES_H__
 
 
+/*! \brief Struct describing a R^3 vector
+  
+  Struct that holds information about extends in three directions,
+  namely X, Y, and Z.
+  
+  \param fX Extent in X direction
+  \param fY Extent in Y direction
+  \param fZ Extent in Z direction */
 struct DSVector {
   float fX;
   float fY;
@@ -36,6 +44,14 @@ struct DSVector {
 };
 
 
+/*! \brief Struct describing a R^3 orientation
+  
+  Struct that holds information about orientation in the R^3, namely
+  roll, pitch, and yaw.
+  
+  \param fRoll Rotation around the X axis
+  \param fPitch Rotation around the Y axis
+  \param fYaw Rotation around the Z axis */
 struct DSOrientation {
   float fRoll;
   float fPitch;
@@ -43,24 +59,56 @@ struct DSOrientation {
 };
 
 
+/*! \brief Struct describing position and orientation
+  
+  Struct that holds information about position and orientation in the
+  R^3 space.
+  
+  \param dsvPosition Position vector in R^3
+  \param dsoOrientation Orientation vector in R^3 */
 struct DSPose {
   struct DSVector dsvPosition;
   struct DSOrientation dsoOrientation;
 };
 
 
+/*! \brief Struct describing linear and angular twist
+  
+  Struct that holds information about twist in linear and angular
+  respect, describing how the `velocity' in both currently is.
+  
+  \param dsvLinear Linear velocity in R^3
+  \param dsoAngular Angular velocity R^3 */
 struct DSTwist {
   struct DSVector dsvLinear;
   struct DSOrientation dsoAngular;
 };
 
 
+/*! \brief Struct holding a controller output signal
+  
+  As the copter internal controller takes fixed angles and a thrust
+  value as input, the controllers in the client library generate the
+  corresponding values and store it in this struct.
+  
+  \param nThrust The amount of thrust to give to the copter controller
+  \param dsoAngular The fixed angles to give to the copter controller */
 struct DSVelocityControlSignal {
   int nThrust;
   struct DSOrientation dsoAngular;
 };
 
 
+/*! \brief Set point struct for the client library controller(s)
+  
+  In order to go to a certain position using the client library
+  controller(s), a set point must be supplied. It is defined using
+  this struct. Also, the yaw can be defined here (CController and it's
+  subclasses only take it into account when setIgnoresYaw(bool
+  bControllerIgnoresYaw) in the CCrazyflie class is set to 'false').
+  
+  \param dsvPosition The set point position to reach (control goal)
+  \param dsoAngular The yaw to achieve (control goal, if option is enabled) */
 struct DSControlSetPoint {
   DSVector dsvPosition;
   float fYaw;
