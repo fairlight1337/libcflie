@@ -83,7 +83,9 @@ list<libusb_device*> CCrazyRadio::listDevices(int nVendorID, int nProductID) {
     }
   }
   
-  libusb_free_device_list(ptDevices, 1);
+  if(szCount > 0) {
+    libusb_free_device_list(ptDevices, 1);
+  }
   
   return lstDevices;
 }
