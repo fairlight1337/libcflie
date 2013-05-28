@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
   while(g_bGoon) {
     // Is the dongle connected? If not, try to connect it.
     if(!bDongleConnected) {
-      while(!crRadio->startRadio()) {
+      while(!crRadio->startRadio() && g_bGoon) {
 	if(!bDongleNotConnectedNotified) {
 	  cout << "Waiting for dongle." << endl;
 	  bDongleNotConnectedNotified = true;
@@ -68,35 +68,40 @@ int main(int argc, char **argv) {
 	sleep(0.5);
       }
       
-      cout << "Dongle connected, radio started." << endl;
-    }
-    
-    bDongleNotConnectedNotified = false;
-    bDongleConnected = true;
-    
-    CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
-    cflieCopter->setThrust(nThrust);
-    
-    while(g_bGoon && bDongleConnected) {
-      if(cflieCopter->cycle()) {
-	if(cflieCopter->copterInRange()) {
-	  cout << "In range" << endl;
-	} else {
-	  cout << "Not in range" << endl;
-	}
-      } else {
-	cerr << "Connection to radio dongle lost." << endl;
-	bDongleConnected = false;
+      if(g_bGoon) {
+	cout << "Dongle connected, radio started." << endl;
       }
     }
     
-    if(!g_bGoon) {
-      // NOTE(winkler): Here would be the perfect place to initiate a
-      // landing sequence (i.e. ramping down the altitude of the
-      // copter). Right now, this is a dummy branch.
-    }
     
-    delete cflieCopter;
+    if(g_bGoon) {
+      bDongleNotConnectedNotified = false;
+      bDongleConnected = true;
+      
+      CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
+      cflieCopter->setThrust(nThrust);
+      
+      while(g_bGoon && bDongleConnected) {
+	if(cflieCopter->cycle()) {
+	  if(cflieCopter->copterInRange()) {
+	    cout << "In range" << endl;
+	  } else {
+	    cout << "Not in range" << endl;
+	  }
+	} else {
+	  cerr << "Connection to radio dongle lost." << endl;
+	  bDongleConnected = false;
+	}
+      }
+      
+      if(!g_bGoon) {
+	// NOTE(winkler): Here would be the perfect place to initiate a
+	// landing sequence (i.e. ramping down the altitude of the
+	// copter). Right now, this is a dummy branch.
+      }
+      
+      delete cflieCopter;
+    }
   }
   
   cout << "Cleaning up" << endl;
