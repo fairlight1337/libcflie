@@ -274,8 +274,19 @@ void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
   //
 }
 
+struct DSVelocityControlSignal CCrazyflie::identityControlSignal() {
+  struct DSVelocityControlSignal dvcsIdentity;
+  
+  dvcsIdentity.nThrust = 0;
+  dvcsIdentity.dsoAngular.fRoll = 0;
+  dvcsIdentity.dsoAngular.fPitch = 0;
+  dvcsIdentity.dsoAngular.fYaw = 0;
+  
+  return dvcsIdentity;
+}
+
 void CCrazyflie::applyControllerResult(double dElapsedTime) {
-  struct DSVelocityControlSignal dvcsResult;
+  struct DSVelocityControlSignal dvcsResult = this->identityControlSignal();
   
   switch(m_enumCtrl) {
   case CTRL_P: {

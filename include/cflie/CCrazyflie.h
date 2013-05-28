@@ -102,6 +102,7 @@ class CCrazyflie {
   void setDesiredSetPoint(struct DSControlSetPoint cspDesired);
   double currentTime();
   
+  struct DSVelocityControlSignal identityControlSignal();
   void applyControllerResult(double dElapsedTime);
   void calculatePoseIntegral(double dElapsedTime);
 };
