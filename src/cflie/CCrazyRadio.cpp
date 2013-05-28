@@ -32,6 +32,7 @@ CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
   m_strRadioIdentifier = strRadioIdentifier;
   m_bUpdatesParameterCount = false;
   m_nNextLogVarID = 0;
+  m_enumPower = P_M18DBM;
   
   m_ctxContext = NULL;
   m_hndlDevice = NULL;
@@ -147,7 +148,7 @@ bool CCrazyRadio::startRadio() {
 	  cAddress[3] = 0xe7;
 	  cAddress[4] = 0xe7;
 	  this->setAddress(cAddress);
-	  this->setPower(3); // P_0DBM
+	  this->setPower(P_0DBM);
 	  this->setARC(3);
 	  this->setARDBytes(32);
 	}
@@ -260,10 +261,14 @@ void CCrazyRadio::setARDBytes(int nARDBytes) {
   this->writeControl(NULL, 0, 0x05, 0x80 | nARDBytes, 0);
 }
 
-void CCrazyRadio::setPower(int nPower) {
-  m_nPower = nPower;
+enum Power CCrazyRadio::power() {
+  return m_enumPower;
+}
 
-  this->writeControl(NULL, 0, 0x04, nPower, 0);
+void CCrazyRadio::setPower(enum Power enumPower) {
+  m_enumPower = enumPower;
+
+  this->writeControl(NULL, 0, 0x04, enumPower, 0);
 }
 
 void CCrazyRadio::setAddress(char *cAddress) {

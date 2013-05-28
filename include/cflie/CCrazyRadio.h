@@ -55,6 +55,13 @@ struct LOGElement {
   string strIdentifier;
 };
 
+enum Power {
+  P_M18DBM = 0,
+  P_M12DBM = 1,
+  P_M6DBM = 2,
+  P_0DBM = 3
+};
+
 
 class CCrazyRadio {
 private:
@@ -68,7 +75,7 @@ private:
   string m_strDataRate;
   int m_nARDTime;
   int m_nARDBytes;
-  int m_nPower;
+  enum Power m_enumPower;
   char *m_cAddress;
   int m_bContCarrier;
   float m_fDeviceVersion;
@@ -99,7 +106,8 @@ public:
   void setDataRate(string strDataRate);
   void setARDBytes(int nARDBytes);
   void setARDTime(int nARDTime);
-  void setPower(int nPower);
+  enum Power power();
+  void setPower(enum Power enumPower);
   void setAddress(char *cAddress);
   void setContCarrier(bool bContCarrier);
   
