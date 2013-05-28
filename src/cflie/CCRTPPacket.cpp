@@ -46,7 +46,8 @@ CCRTPPacket::~CCRTPPacket() {
 void CCRTPPacket::basicSetup() {
   m_cData = NULL;
   m_nDataLength = 0;
-  m_nPort = -1;
+  m_nPort = 0;
+  m_nChannel = 0;
 }
 
 void CCRTPPacket::setData(char *cData, int nDataLength) {
@@ -76,8 +77,13 @@ void CCRTPPacket::clearData() {
 char *CCRTPPacket::sendableData() {
   char *cSendable = new char[m_nDataLength + 2]();
   
-  cSendable[0] = (m_nPort << 4) | 0b00001100 | m_nChannel;
+  // Header byte
+  cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
+  
+  // Payload
   memcpy(&cSendable[1], m_cData, m_nDataLength);
+  
+  // Finishing byte
   cSendable[m_nDataLength + 1] = 0x27;
   
   return cSendable;

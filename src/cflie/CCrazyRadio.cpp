@@ -36,6 +36,11 @@ CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
   m_ctxContext = NULL;
   m_hndlDevice = NULL;
   
+  m_bPopulatesTOCCache = false;
+  m_bPopulatesLOGCache = false;
+  
+  m_bAckReceived = false;
+  
   /*int nReturn = */libusb_init(&m_ctxContext);
   
   // Do error checking here.
@@ -79,7 +84,9 @@ bool CCrazyRadio::openUSBDongle() {
   list<libusb_device*> lstDevices = this->listDevices(0x1915, 0x7777);
   
   if(lstDevices.size() > 0) {
-    // For now, just take the first device.
+    // For now, just take the first device. Give it a second to
+    // initialize the system permissions.
+    sleep(1.0);
     libusb_device *devFirst = lstDevices.front();
     m_devDevice = devFirst;
     int nError = libusb_open(m_devDevice, &m_hndlDevice);

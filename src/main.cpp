@@ -33,6 +33,7 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
+  int nReturnvalue = 0;
   int nThrust = 0;//10001;
   
   string strRadioURI = "radio://0/10/250K";
@@ -40,17 +41,32 @@ int main(int argc, char **argv) {
   cout << "Opening radio URI '" << strRadioURI << "'" << endl;
   CCrazyRadio *crRadio = new CCrazyRadio(strRadioURI);
   
-  if(crRadio->startRadio()) {
-    cout << "Radio started" << endl;
-    cout << " - Default Thrust: " << nThrust << endl;
+  bool bDongleConnected = false;
+  bool bGoon = true;
+  bool bDongleNotConnectedNotified = false;
+  
+  while(bGoon) {
+    // Is the dongle connected? If not, try to connect it.
+    if(!bDongleConnected) {
+      while(!crRadio->startRadio()) {
+	if(!bDongleNotConnectedNotified) {
+	  cout << "Waiting for dongle." << endl;
+	  bDongleNotConnectedNotified = true;
+	}
+	
+	sleep(0.5);
+      }
+      
+      cout << "Dongle connected, radio started." << endl;
+    }
     
-    CCRTPPacket *crtpReceived = NULL;
+    bDongleNotConnectedNotified = false;
+    bDongleConnected = true;
+    
     CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
-    bool bGoon = true;
-      
     cflieCopter->setThrust(nThrust);
-      
-    while(bGoon) {
+    
+    while(bGoon && bDongleConnected) {
       if(cflieCopter->cycle()) {
 	if(cflieCopter->copterInRange()) {
 	  cout << "In range" << endl;
@@ -59,17 +75,15 @@ int main(int argc, char **argv) {
 	}
       } else {
 	cerr << "Connection to radio dongle lost." << endl;
-	bGoon = false;
+	bDongleConnected = false;
       }
     }
     
     delete cflieCopter;
-  } else {
-    cerr << "Radio dongle could not be opened. Did you plug it in?" << endl;
   }
   
   cout << "Cleaning up" << endl;
   delete crRadio;
   
-  return 0;
+  return nReturnvalue;
 }

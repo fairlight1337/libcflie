@@ -42,6 +42,11 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nMaxThrust = 60000;
   m_nMinThrust = 15000;
   
+  m_fRoll = 0;
+  m_fPitch = 0;
+  m_fYaw = 0;
+  m_nThrust = 0;
+  
   this->disableController();
   
   //this->updateTOC();
@@ -56,7 +61,6 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   
   int nSize = 3 * sizeof(float) + sizeof(short);
   char cBuffer[nSize];
-  
   memcpy(&cBuffer[0 * sizeof(float)], &fRoll, sizeof(float));
   memcpy(&cBuffer[1 * sizeof(float)], &fPitch, sizeof(float));
   memcpy(&cBuffer[2 * sizeof(float)], &fYaw, sizeof(float));
