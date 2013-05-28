@@ -115,7 +115,6 @@ public:
   bool readData(void *vdData, int &nMaxLength);
   
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend);
-  CCRTPPacket *readPacket();
   CCRTPPacket *readACK();
   
   bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
