@@ -34,6 +34,14 @@
 #include "DataStructures.h"
 
 
+/*! \brief Basic controller superclass supplying variables and functions valid for all controllers
+  
+  All controllers need the flag whether they should ignore or take
+  into account the copter yaw while controlling it's state. Also, The
+  virtual function for generating a linear and angular twist for a
+  desired pose is defined here. Other than that, the class does not do
+  anything and only serves as a superclass for controllers such as the
+  P-controller (CPController). */
 class CController {
  private:
   bool m_bIgnoresYaw;

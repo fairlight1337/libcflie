@@ -28,17 +28,37 @@
 #include "cflie/CController.h"
 
 
+/*! \brief Constructor for the basic controller superclass
+
+  Basic superclass for controllers. It does not generate control
+  signals (besides the identity control signal) and only serves as a
+  template for subclasses. */
 CController::CController() {
   this->setIgnoresYaw(false);
 }
 
+/*! \brief Destructor for the basic controller superclass */
 CController::~CController() {
 }
 
+/*! \brief Sets whether the yaw is taken into account for control
+  
+  When set to 'true', the yaw is not part of the control
+  variables. This means that the controller gains one degree of
+  freedom (the yaw of the copter) and dies not actively control the
+  yaw. When set to 'false', no yaw value is generated. This also means
+  that the yaw might drift.
+  
+  \param bIgnoresYaw Boolean value denoting whether or not the yaw should be ignored while controlling the copter. */
 void CController::setIgnoresYaw(bool bIgnoresYaw) {
   m_bIgnoresYaw = bIgnoresYaw;
 }
 
+/*! \brief Returns the current handling status of the copter yaw control
+  
+  Returns whether the yaw of the copter is taken into account by control as set in setIgnoreYaw(bool bIgnoresYaw).
+  
+  \return Boolean value denoting whether or not the yaw should be ignored while controlling the copter. */
 bool CController::ignoresYaw() {
   return m_bIgnoresYaw;
 }
