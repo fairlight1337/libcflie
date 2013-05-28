@@ -94,33 +94,33 @@ private:
   // Functions
   list<libusb_device*> listDevices(int nVendorID, int nProductID);
   bool openUSBDongle();
+  bool claimInterface(int nInterface);
+  void closeDevice();
+
+  CCRTPPacket *readACK();
+  
+  CCRTPPacket *writeData(void *vdData, int nLength);
+  bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
+  bool readData(void *vdData, int &nMaxLength);
+
+  void setARC(int nARC);
+  void setChannel(int nChannel);
+  void setDataRate(string strDataRate);
+  void setARDBytes(int nARDBytes);
+  void setARDTime(int nARDTime);
+  void setAddress(char *cAddress);
+  void setContCarrier(bool bContCarrier);
 
 public:
   CCrazyRadio(string strRadioIdentifier);
   ~CCrazyRadio();
   
   bool startRadio();
-  void closeDevice();
   
-  void setARC(int nARC);
-  void setChannel(int nChannel);
-  void setDataRate(string strDataRate);
-  void setARDBytes(int nARDBytes);
-  void setARDTime(int nARDTime);
   enum Power power();
   void setPower(enum Power enumPower);
-  void setAddress(char *cAddress);
-  void setContCarrier(bool bContCarrier);
-  
-  CCRTPPacket *writeData(void *vdData, int nLength);
-  bool readData(void *vdData, int &nMaxLength);
   
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend);
-  CCRTPPacket *readACK();
-  
-  bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
-  
-  bool claimInterface(int nInterface);
   
   void setParameterCount(int nParameterCount);
   int parameterCount();
@@ -146,7 +146,19 @@ public:
   int nextLogVarID();
   int countLOGElements();
   
+  /*! \brief Whether or not the copter is answering sent packets.
+    
+    Returns whether the copter is actually answering sent packets with
+    a set ACK flag. If this is not the case, it is either switched off
+    or out of range.
+    
+    \return Returns true if the copter is returning the ACK flag properly, false otherwise. */
   bool ackReceived();
+  /*! \brief Whether or not the USB connection is still operational.
+    
+    Checks if the USB read/write calls yielded any errors.
+    
+    \return Returns true if the connection is working properly and false otherwise. */
   bool usbOK();
 };
 
