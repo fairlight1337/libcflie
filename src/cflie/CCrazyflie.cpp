@@ -33,7 +33,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nLastRequestedVariableIndex = -1;
   m_nThrust = 0;
   m_ctrlController = NULL;
-  m_dSecondsLast = 0;
+  m_dSecondsLast = this->currentTime();
   
   // Review these values
   m_fMaxAbsRoll = 0.5;
@@ -181,7 +181,16 @@ bool CCrazyflie::cycle() {
     this->populateNextLOGElement();
   }
   
-  this->applyControllerResult();
+  // Handle time calculation
+  double dTimeNow = this->currentTime();
+  double dSecondsElapsed = m_dSecondsLast - dTimeNow;
+  m_dSecondsLast = dTimeNow;
+  
+  // Calculate pose integral and apply the calculated control signals
+  this->calculatePoseIntegral(dSecondsElapsed);
+  this->applyControllerResult(dSecondsElapsed);
+  
+  // Send the current set point based on the previous calculations
   this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
   
   return m_crRadio->usbOK();
@@ -254,38 +263,39 @@ void CCrazyflie::setDesiredSetPoint(struct DSControlSetPoint cspDesired) {
   m_cspDesired = cspDesired;
 }
 
-void CCrazyflie::applyControllerResult() {
-  struct DSVelocityControlSignal dvcsResult;
-  
+double CCrazyflie::currentTime() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  double dTimeNow = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
   
-  if(m_dSecondsLast > 0) {
-    double dSecondsElapsed = m_dSecondsLast - dTimeNow;
-    
-    switch(m_enumCtrl) {
-    case CTRL_P: {
-      dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
-    } break;
+  return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+}
+
+void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
+  //
+}
+
+void CCrazyflie::applyControllerResult(double dElapsedTime) {
+  struct DSVelocityControlSignal dvcsResult;
+  
+  switch(m_enumCtrl) {
+  case CTRL_P: {
+    dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
+  } break;
       
-    case CTRL_NONE:  
-    default: {
-      // Unknown or no controller, don't do anything.
-    } break;
-    }
-    
-    // Apply the relative velocity signal to the set point according
-    // to the elapsed time
-    this->setRoll(this->roll() +
-		  dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
-    this->setPitch(this->pitch() +
-		   dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
-    this->setYaw(this->yaw() +
-		 dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
-    this->setThrust(this->thrust() +
-		    dSecondsElapsed * dvcsResult.nThrust);
+  case CTRL_NONE:  
+  default: {
+    // Unknown or no controller, don't do anything.
+  } break;
   }
-  
-  m_dSecondsLast = dTimeNow;
+    
+  // Apply the relative velocity signal to the set point according
+  // to the elapsed time
+  this->setRoll(this->roll() +
+		dElapsedTime * dvcsResult.dsoAngular.fRoll);
+  this->setPitch(this->pitch() +
+		 dElapsedTime * dvcsResult.dsoAngular.fPitch);
+  this->setYaw(this->yaw() +
+	       dElapsedTime * dvcsResult.dsoAngular.fYaw);
+  this->setThrust(this->thrust() +
+		  dElapsedTime * dvcsResult.nThrust);
 }

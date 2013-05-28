@@ -100,7 +100,10 @@ class CCrazyflie {
   void setPController(float fPGain);
   
   void setDesiredSetPoint(struct DSControlSetPoint cspDesired);
-  void applyControllerResult();
+  double currentTime();
+  
+  void applyControllerResult(double dElapsedTime);
+  void calculatePoseIntegral(double dElapsedTime);
 };
 
 
