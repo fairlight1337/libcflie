@@ -88,9 +88,27 @@ bool CCrazyRadio::openUSBDongle() {
     // For now, just take the first device. Give it a second to
     // initialize the system permissions.
     sleep(1.0);
+    
     libusb_device *devFirst = lstDevices.front();
-    m_devDevice = devFirst;
-    int nError = libusb_open(m_devDevice, &m_hndlDevice);
+    lstDevices.pop_front();
+    
+    int nError = libusb_open(devFirst, &m_hndlDevice);
+    
+    if(nError != 0) {
+      // Opening device failed
+      libusb_unref_device(devFirst);
+    } else {
+      // Opening device OK
+      m_devDevice = devFirst;
+    }
+    
+    for(list<libusb_device*>::iterator itDevice = lstDevices.begin();
+	itDevice != lstDevices.end();
+	itDevice++) {
+      libusb_device *devCurrent = *itDevice;
+      
+      libusb_unref_device(devCurrent);
+    }
     
     return !nError;
   }
