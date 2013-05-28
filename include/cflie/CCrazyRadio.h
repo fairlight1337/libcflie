@@ -100,6 +100,7 @@ public:
   ~CCrazyRadio();
   
   bool startRadio();
+  void closeDevice();
   
   void setARC(int nARC);
   void setChannel(int nChannel);

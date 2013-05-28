@@ -48,13 +48,20 @@ CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
 }
 
 CCrazyRadio::~CCrazyRadio() {
-  if(m_hndlDevice) {
-    libusb_close(m_hndlDevice);
-    libusb_unref_device(m_devDevice);
-  }
+  this->closeDevice();
   
   if(m_ctxContext) {
     libusb_exit(m_ctxContext);
+  }
+}
+
+void CCrazyRadio::closeDevice() {
+  if(m_hndlDevice) {
+    libusb_close(m_hndlDevice);
+    libusb_unref_device(m_devDevice);
+    
+    m_hndlDevice = NULL;
+    m_devDevice = NULL;
   }
 }
 
@@ -82,6 +89,7 @@ list<libusb_device*> CCrazyRadio::listDevices(int nVendorID, int nProductID) {
 }
 
 bool CCrazyRadio::openUSBDongle() {
+  this->closeDevice();
   list<libusb_device*> lstDevices = this->listDevices(0x1915, 0x7777);
   
   if(lstDevices.size() > 0) {
