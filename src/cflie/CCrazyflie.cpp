@@ -69,8 +69,9 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, 3);
   CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
   
-  if(crtpPacket != NULL) {
-    delete crtpPacket;
+  delete crtpPacket;
+  if(crtpReceived != NULL) {
+    delete crtpReceived;
     return true;
   } else {
     return false;
