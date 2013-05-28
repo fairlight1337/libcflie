@@ -48,6 +48,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nThrust = 0;
   
   m_bControllerIgnoresYaw = false;
+  m_fArrivalThreshold = 0.05;
   
   this->disableController();
   
@@ -397,4 +398,20 @@ void CCrazyflie::setControllerIgnoresYaw(bool bControllerIgnoresYaw) {
 
 bool CCrazyflie::controllerIgnoresYaw() {
   return m_bControllerIgnoresYaw;
+}
+
+bool CCrazyflie::isAtDesiredPosition() {
+  return this->isAtDesiredPosition(m_fArrivalThreshold);
+}
+
+bool CCrazyflie::isAtDesiredPosition(float fThreshold) {
+  return this->distanceToDesiredPosition() <= fThreshold;
+}
+
+void CCrazyflie::setArrivalThreshold(float fArrivalThreshold) {
+  m_fArrivalThreshold = fArrivalThreshold;
+}
+
+float CCrazyflie::arrivalThreshold() {
+  return m_fArrivalThreshold;
 }
