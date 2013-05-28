@@ -264,29 +264,27 @@ void CCrazyflie::applyControllerResult() {
   if(m_dSecondsLast > 0) {
     double dSecondsElapsed = m_dSecondsLast - dTimeNow;
     
-    if(m_enumCtrl != CTRL_NONE) {
-      switch(m_enumCtrl) {
-      case CTRL_P: {
-	dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
-      } break;
-	
-      case CTRL_NONE:  
-      default: {
-	// Unknown controller, don't do anything.
-      } break;
-      }
+    switch(m_enumCtrl) {
+    case CTRL_P: {
+      dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
+    } break;
       
-      // Apply the relative velocity signal to the set point according
-      // to the elapsed time
-      this->setRoll(this->roll() +
-		    dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
-      this->setPitch(this->pitch() +
-		     dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
-      this->setYaw(this->yaw() +
-		   dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
-      this->setThrust(this->thrust() +
-		      dSecondsElapsed * dvcsResult.nThrust);
+    case CTRL_NONE:  
+    default: {
+      // Unknown controller, don't do anything.
+    } break;
     }
+    
+    // Apply the relative velocity signal to the set point according
+    // to the elapsed time
+    this->setRoll(this->roll() +
+		  dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
+    this->setPitch(this->pitch() +
+		   dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
+    this->setYaw(this->yaw() +
+		 dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
+    this->setThrust(this->thrust() +
+		    dSecondsElapsed * dvcsResult.nThrust);
   }
   
   m_dSecondsLast = dTimeNow;
