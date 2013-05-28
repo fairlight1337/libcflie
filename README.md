@@ -1,14 +1,20 @@
 Crazyflie Nano C++ Client Library
 =================================
 
-First of all, the Crazyflie Nano is an awesome Quadcopter by the guys at [Bitcraze](http://www.bitcraze.se/). I just love it - and since I'm a C/C++ programmer deep in my heart, I really, really wanted to have a client library in that language (as there was none at that time).
+First of all, the Crazyflie Nano is an awesome Quadcopter by the guys
+at [Bitcraze](http://www.bitcraze.se/). I just love it - and since I'm
+a C/C++ programmer deep in my heart, I really, really wanted to have a
+client library in that language (there was none at that time).
 
 That's why I wrote one.
 
-My work is based on Bitcraze's Python Library (see their repos) which (alongside their wiki) greatly helped me understand the communication protocol.
-Feel free to use the library as you like, as long as you obey the rules of the BSD license.
+My work is based on Bitcraze's Python Library (see their repos) which
+(alongside their wiki) greatly helped me understand the communication
+protocol.  Feel free to use the library as you like, as long as you
+obey the rules of the BSD license.
 
-You can check out the current Doxygen source code documentation [here](http://fairlight1337.github.io/libcflie/doxygen/html/).
+You can check out the current Doxygen source code documentation
+[here](http://fairlight1337.github.io/libcflie/doxygen/html/).
 
 
 ### What this library is
@@ -24,25 +30,27 @@ You can check out the current Doxygen source code documentation [here](http://fa
 
 * A bootloader
 * Complete
+* Bug-free (although I'm trying really hard!)
 
 
 How to build the library
 ------------------------
 
 First, clone the repository:
-`
+```
 $ git clone https://github.com/fairlight1337/libcflie.git libcflie
-`
+```
 
 In the cloned folder, do:
 ```
 $ mkdir build
-
 $ cd build
-
 $ cmake ..
-
 $ make
 ```
 
-After that, you will find two directories in the base directory: `lib` and `bin`. `lib` includes the built `libcflie` library (with fitting extension, depending on where you build it). `bin` includes a `test` program which is defined by the content of `src/main.cpp` that shows the basic usage of the library.
+After that, you will find two directories in the base directory: `lib`
+and `bin`. `lib` includes the built `libcflie` library (with fitting
+extension, depending on where you build it). `bin` includes a `test`
+program which is defined by the content of `src/main.cpp` that shows
+the basic usage of the library.
