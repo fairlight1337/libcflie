@@ -26,13 +26,24 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
+#include <signal.h>
 
 #include "cflie/CCrazyflie.h"
 
 using namespace std;
 
 
+bool g_bGoon;
+
+
+void interruptionHandler(int dummy = 0) {
+  g_bGoon = false;
+}
+
+
 int main(int argc, char **argv) {
+  signal(SIGINT, interruptionHandler);
+  
   int nReturnvalue = 0;
   int nThrust = 0;//10001;
   
@@ -42,10 +53,10 @@ int main(int argc, char **argv) {
   CCrazyRadio *crRadio = new CCrazyRadio(strRadioURI);
   
   bool bDongleConnected = false;
-  bool bGoon = true;
+  g_bGoon = true;
   bool bDongleNotConnectedNotified = false;
   
-  while(bGoon) {
+  while(g_bGoon) {
     // Is the dongle connected? If not, try to connect it.
     if(!bDongleConnected) {
       while(!crRadio->startRadio()) {
@@ -66,7 +77,7 @@ int main(int argc, char **argv) {
     CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
     cflieCopter->setThrust(nThrust);
     
-    while(bGoon && bDongleConnected) {
+    while(g_bGoon && bDongleConnected) {
       if(cflieCopter->cycle()) {
 	if(cflieCopter->copterInRange()) {
 	  cout << "In range" << endl;
@@ -77,6 +88,12 @@ int main(int argc, char **argv) {
 	cerr << "Connection to radio dongle lost." << endl;
 	bDongleConnected = false;
       }
+    }
+    
+    if(!g_bGoon) {
+      // NOTE(winkler): Here would be the perfect place to initiate a
+      // landing sequence (i.e. ramping down the altitude of the
+      // copter). Right now, this is a dummy branch.
     }
     
     delete cflieCopter;
