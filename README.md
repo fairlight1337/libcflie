@@ -1,9 +1,17 @@
 Crazyflie Nano C++ Client Library
 =================================
 
+First of all, the Crazyflie Nano is an awesome Quadcopter by the guys at [Bitcraze](http://www.bitcraze.se/). I just love it - and since I'm a C/C++ programmer deep in my heart, I really, really wanted to have a client library in that language.
+
+That's why I wrote one.
+
+My work is based in Bitcraze's Python Library (see their repos) which (alongside their wiki) greatly helped me understand the communication protocol.
+Feel free to use the library as you like, as long as you obey the rules of the BSD license.
+
+
 ### What this library is
 
-* A USB connection point to the Crazyflie Nano quadcopter by [Bitcraze](http://www.bitcraze.se/)
+* A USB connection point to the Crazyflie Nano quadcopter by Bitcraze
 * An abstraction layer for the different messages you can send your copter
 * A controller framework for controlling the Crazyflie using cartesian coordinates
 * A C++ entrypoint for programmers that write programs in C++ (rather than Python)
