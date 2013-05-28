@@ -253,7 +253,7 @@ void CCrazyflie::setDesiredSetPoint(struct DSControlSetPoint cspDesired) {
 void CCrazyflie::applyControllerResult() {
   struct DSVelocityControlSignal dvcsResult;
   
-  struct timeval  tv;
+  struct timeval tv;
   gettimeofday(&tv, NULL);
   double dTimeNow = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
   
@@ -272,11 +272,16 @@ void CCrazyflie::applyControllerResult() {
       } break;
       }
       
-      // Apply the relative velocity signal to the set point according to the elapsed time
-      this->setRoll(this->roll() + dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
-      this->setPitch(this->pitch() + dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
-      this->setYaw(this->yaw() + dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
-      this->setThrust(this->thrust() + dSecondsElapsed * dvcsResult.nThrust);
+      // Apply the relative velocity signal to the set point according
+      // to the elapsed time
+      this->setRoll(this->roll() +
+		    dSecondsElapsed * dvcsResult.dsoAngular.fRoll);
+      this->setPitch(this->pitch() +
+		     dSecondsElapsed * dvcsResult.dsoAngular.fPitch);
+      this->setYaw(this->yaw() +
+		   dSecondsElapsed * dvcsResult.dsoAngular.fYaw);
+      this->setThrust(this->thrust() +
+		      dSecondsElapsed * dvcsResult.nThrust);
     }
   }
   
