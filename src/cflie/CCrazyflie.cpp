@@ -329,7 +329,7 @@ void CCrazyflie::applyControllerResult(double dElapsedTime) {
   
   switch(m_enumCtrl) {
   case CTRL_P: {
-    dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPose(m_dspCurrentPose, m_cspDesired);
+    dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPosition(m_dspCurrentPose, m_cspDesired);
   } break;
       
   case CTRL_NONE:  

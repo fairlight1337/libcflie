@@ -34,7 +34,8 @@
 #include "DataStructures.h"
 
 
-/*! \brief Basic controller superclass supplying variables and functions valid for all controllers
+/*! \brief Basic controller superclass supplying variables and
+    functions valid for all controllers
   
   All controllers need the flag whether they should ignore or take
   into account the copter yaw while controlling it's state. Also, The
@@ -47,13 +48,47 @@ class CController {
   bool m_bIgnoresYaw;
 
  public:
+  /*! \brief Constructor for the basic controller class.
+    
+    Initializes internal flags. */
   CController();
+  /*! \brief Destructor for the basic controller class. */
   ~CController();
   
+  /*! \brief Sets whether the yaw control is ignored or not
+    
+    When setting this flag, the controller (and it's subclasses)
+    ignores control of the copter's yaw.
+    
+    \param bIgnoresYaw Boolean value denoting whether or not the yaw
+    control is ignored when calculating the control signal */
   void setIgnoresYaw(bool bIgnoresYaw);
+  /*! \brief Returns whether yaw control is ignored
+    
+    Returns the internal state that denoted whether the copter's yaw
+    is being controlled or not.
+  
+    \return Boolean value that denotes the current ignorance setting
+    of copter yaw control */
   bool ignoresYaw();
   
-  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
+  /*! \brief Calculates the current controller output signal
+    
+    The control signal depends on the current pose of the copter, as
+    well, as the desired set point given as DSControlSetPoint. For
+    more elaborate controllers, it might also depend on an internal
+    controller state. The return value is a DSVelocityControlSignal in
+    which the angular twist as well as the thrust to be sent to the
+    copter's internal controller is stored.
+    
+    \param dspCurrent The current pose of the copter. This is supplied
+    by an instance of the governing class, i.e. CCrazyflie \param
+    cspDesired Denoted the desired set point, consisting of R^3
+    position and optional yaw (depending on the ignoresYaw() value)
+    
+    \return Returns the controller output signal, containing absolute
+    roll, pitch, yaw and thrust values to be sent to the copter. */
+  virtual struct DSVelocityControlSignal inputSignalForDesiredPosition(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
 };
 
 

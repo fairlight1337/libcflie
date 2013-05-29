@@ -35,7 +35,7 @@ CPController::CPController() {
 CPController::~CPController() {
 }
 
-struct DSVelocityControlSignal CPController::inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired) {
+struct DSVelocityControlSignal CPController::inputSignalForDesiredPosition(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired) {
   struct DSVelocityControlSignal dvcsResult;
   
   float fDistanceToGoXY = sqrt((cspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX) * (cspDesired.dsvPosition.fX - dspCurrent.dsvPosition.fX) +

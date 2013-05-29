@@ -32,17 +32,43 @@
 #include "CController.h"
 
 
+/*! \brief Simple P gain based controller class
+  
+  Simple controller that calculates the control signal (copter
+  angles/thrust) based on the linear difference between the current
+  pose and the set point. */
 class CPController : public CController {
  private:
+  /*! \brief Stores the proportional gain for the controller */
   float m_fPGain;
 
  public:
   CPController();
   ~CPController();
   
-  virtual struct DSVelocityControlSignal inputSignalForDesiredPose(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
-  
+  virtual struct DSVelocityControlSignal inputSignalForDesiredPosition(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
+
+  /*! \brief Sets the proportional gain constant for the controller
+    
+    This influences the 'aggressiveness' of the controller.
+    
+    Values > 1 will render the controller unstable due to
+    over-proportional overshoot, < 1 will invert it's purpose
+    (i.e. move away from the set point and also become
+    unstable). Setting it to zero switches off the control ability.
+    
+    Valid values are between 0 < p < 1. The exact value depends on the
+    purpose and should be tried out. Start at around p = 0.5.
+    
+    \param fPGain The proportional gain constant to be set for the
+    controller */
   void setPGain(float fPGain);
+  /*! \brief Returns the proportional gain constant for the controller
+    
+    Returns the internally stored proportional gain value for the
+    P-gain based control algorithm.
+    
+    \return pGain Returns the proportional gain constant */
   float pGain();
 };
 
