@@ -43,7 +43,11 @@ class CPController : public CController {
   float m_fPGain;
 
  public:
+  /*! \brief Constructor for the P gain based controller
+    
+    Sets the default proportional constant to p = 0.5. */
   CPController();
+  /*! \brief Destructor for the P gain based controller */
   ~CPController();
   
   virtual struct DSVelocityControlSignal inputSignalForDesiredPosition(struct DSPose dspCurrent, struct DSControlSetPoint cspDesired);
