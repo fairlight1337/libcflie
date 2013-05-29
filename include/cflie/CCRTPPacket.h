@@ -36,6 +36,8 @@
 using namespace std;
 
 
+/*! \brief Class to hold and process communication-related data for
+    the CRTProtocol */
 class CCRTPPacket {
  private:
   // Variables

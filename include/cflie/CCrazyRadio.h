@@ -42,12 +42,14 @@
 using namespace std;
 
 
+/*! \brief Storage element for TOC item identities */
 struct TOCElement {
   int nIndex;
   string strGroup;
   string strIdentifier;
 };
 
+/*! \brief Storage element for logged variable identities */
 struct LOGElement {
   int nID;
   int nType;
@@ -55,6 +57,7 @@ struct LOGElement {
   string strIdentifier;
 };
 
+/*! \brief Power levels to configure the radio dongle with */
 enum Power {
   P_M18DBM = 0,
   P_M12DBM = 1,
@@ -63,6 +66,13 @@ enum Power {
 };
 
 
+/*! \brief Communication class to connect to and communicate via the
+    CrazyRadio USB dongle.
+    
+    The class is capable of finding the CrazyRadio USB dongle on the
+    host computer, open and maintain a connection, and send/receive
+    data when communicating with the Crazyflie Nano copter using the
+    Crazy Radio Transfer Protocol as defined by Bitcraze. */
 class CCrazyRadio {
 private:
   // Variables
@@ -115,6 +125,15 @@ public:
   CCrazyRadio(string strRadioIdentifier);
   ~CCrazyRadio();
   
+  /*! \brief Function to start the radio communication
+    
+    The first available USB dongle will be opened and claimed for
+    communication. The connection will be maintained and used to
+    communicate with a Crazyflie Nano quadcopter in range.
+
+    \return Returns 'true' if the connection could successfully be
+    made and 'false' if no dongle could be found (or any other
+    USB-related error came up - this is not handled here). */
   bool startRadio();
   
   enum Power power();

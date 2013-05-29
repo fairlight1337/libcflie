@@ -320,7 +320,7 @@ class CCrazyflie {
     positioning method is bound to be imperfect. It can be used as an
     approximation if one does not need perfect localization though.
     
-    \param dsvRelative The absolute R^3 position to go to (given in
+    \param dsvAbsolute The absolute R^3 position to go to (given in
     meters) */
   void goToAbsolutePosition(struct DSVector dsvAbsolute);
   
