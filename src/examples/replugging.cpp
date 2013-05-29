@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   signal(SIGINT, interruptionHandler);
   
   int nReturnvalue = 0;
-  int nThrust = 0;//10001;
+  int nThrust = 10001;
   
   string strRadioURI = "radio://0/10/250K";
   

@@ -18,10 +18,12 @@ add_library(${PROJECT_NAME}
   src/cflie/CController.cpp
   src/cflie/CPController.cpp)
 
-add_executable(test src/main.cpp)
+add_executable(ex-replugging src/examples/replugging.cpp)
+add_executable(ex-simple src/examples/simple.cpp)
 
 target_link_libraries(${PROJECT_NAME} ${USB_LIB})
-target_link_libraries(test cflie)
+target_link_libraries(ex-replugging cflie)
+target_link_libraries(ex-simple cflie)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES include/cflie/*.h DESTINATION include)
