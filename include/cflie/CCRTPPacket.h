@@ -65,7 +65,7 @@ class CCRTPPacket {
   void clearData();
   
  public:
-  /*! /brief Constructor for the CCRTPPacket communication packet
+  /*! \brief Constructor for the CCRTPPacket communication packet
     class
     
     Initializes the communication packet and sets the given
