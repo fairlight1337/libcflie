@@ -44,24 +44,37 @@ using namespace std;
 
 /*! \brief Storage element for TOC item identities */
 struct TOCElement {
+  /*! \brief the Numerical index of the TOC item on the copter's
+      internal table */
   int nIndex;
+  /*! \brief The string group name of the TOC element */
   string strGroup;
+  /*! \brief The string identifier of the TOC element */
   string strIdentifier;
 };
 
 /*! \brief Storage element for logged variable identities */
 struct LOGElement {
+  /*! \brief The numerical ID of the log element on the copter's
+      internal table */
   int nID;
+  /*! \brief The (ref) type of the log element */
   int nType;
+  /*! \brief The string group name of the log element */
   string strGroup;
+  /*! \brief The string identifier of the log element */
   string strIdentifier;
 };
 
 /*! \brief Power levels to configure the radio dongle with */
 enum Power {
+  /*! \brief Power at -18dbm */
   P_M18DBM = 0,
+  /*! \brief Power at -12dbm */
   P_M12DBM = 1,
+  /*! \brief Power at -6dbm */
   P_M6DBM = 2,
+  /*! \brief Power at 0dbm */
   P_0DBM = 3
 };
 

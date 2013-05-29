@@ -32,14 +32,13 @@
 /*! \brief Struct describing a R^3 vector
   
   Struct that holds information about extends in three directions,
-  namely X, Y, and Z.
-  
-  \param fX Extent in X direction
-  \param fY Extent in Y direction
-  \param fZ Extent in Z direction */
+  namely X, Y, and Z. */
 struct DSVector {
+  /*! \brief Extend in X direction */
   float fX;
+  /*! \brief Extend in Y direction */
   float fY;
+  /*! \brief Extend in Z direction */
   float fZ;
 };
 
@@ -47,14 +46,13 @@ struct DSVector {
 /*! \brief Struct describing a R^3 orientation
   
   Struct that holds information about orientation in the R^3, namely
-  roll, pitch, and yaw.
-  
-  \param fRoll Rotation around the X axis
-  \param fPitch Rotation around the Y axis
-  \param fYaw Rotation around the Z axis */
+  roll, pitch, and yaw. */
 struct DSOrientation {
+  /*! Rotation around the X axis */
   float fRoll;
+  /*! Rotation around the Y axis */
   float fPitch;
+  /*! Rotation around the Z axis */
   float fYaw;
 };
 
@@ -67,7 +65,9 @@ struct DSOrientation {
   \param dsvPosition Position vector in R^3
   \param dsoOrientation Orientation vector in R^3 */
 struct DSPose {
+  /*! \brief Vector denoting the position in R^3 */
   struct DSVector dsvPosition;
+  /*! \brief Orientation vector denoting the orientation in R^3 */
   struct DSOrientation dsoOrientation;
 };
 
@@ -75,12 +75,11 @@ struct DSPose {
 /*! \brief Struct describing linear and angular twist
   
   Struct that holds information about twist in linear and angular
-  respect, describing how the `velocity' in both currently is.
-  
-  \param dsvLinear Linear velocity in R^3
-  \param dsoAngular Angular velocity R^3 */
+  respect, describing how the `velocity' in both currently is. */
 struct DSTwist {
+  /*! \brief Linear velocity in R^3 */
   struct DSVector dsvLinear;
+  /*! \brief Angular velocity in R^3 */
   struct DSOrientation dsoAngular;
 };
 
@@ -89,12 +88,11 @@ struct DSTwist {
   
   As the copter internal controller takes fixed angles and a thrust
   value as input, the controllers in the client library generate the
-  corresponding values and store it in this struct.
-  
-  \param nThrust The amount of thrust to give to the copter controller
-  \param dsoAngular The fixed angles to give to the copter controller */
+  corresponding values and store it in this struct. */
 struct DSVelocityControlSignal {
+  /*! \brief The amount of thrust to give to the copter controller */
   int nThrust;
+  /*! \brief The fixed angles to give to the copter controller */
   struct DSOrientation dsoAngular;
 };
 
@@ -105,12 +103,13 @@ struct DSVelocityControlSignal {
   controller(s), a set point must be supplied. It is defined using
   this struct. Also, the yaw can be defined here (CController and it's
   subclasses only take it into account when setIgnoresYaw(bool
-  bControllerIgnoresYaw) in the CCrazyflie class is set to 'false').
-  
-  \param dsvPosition The set point position to reach (control goal)
-  \param dsoAngular The yaw to achieve (control goal, if option is enabled) */
+  bControllerIgnoresYaw) in the CCrazyflie class is set to
+  'false'). */
 struct DSControlSetPoint {
+  /*! \brief The set point position to reach (control goal) */
   DSVector dsvPosition;
+  /*! \brief The yaw to achieve (control goal, if option is
+      enabled) */
   float fYaw;
 };
 

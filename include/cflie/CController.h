@@ -45,6 +45,7 @@
   P-controller (CPController). */
 class CController {
  private:
+  /*! \brief Internal flag denoting whether yaw control is ignored */
   bool m_bIgnoresYaw;
 
  public:
