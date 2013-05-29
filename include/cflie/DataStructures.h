@@ -31,14 +31,14 @@
 
 /*! \brief Struct describing a R^3 vector
   
-  Struct that holds information about extends in three directions,
-  namely X, Y, and Z. */
+  Struct that holds information about position extents in three
+  directions, namely X, Y, and Z. */
 struct DSVector {
-  /*! \brief Extend in X direction */
+  /*! \brief Position in X direction */
   float fX;
-  /*! \brief Extend in Y direction */
+  /*! \brief Position in Y direction */
   float fY;
-  /*! \brief Extend in Z direction */
+  /*! \brief Position in Z direction */
   float fZ;
 };
 
@@ -48,11 +48,11 @@ struct DSVector {
   Struct that holds information about orientation in the R^3, namely
   roll, pitch, and yaw. */
 struct DSOrientation {
-  /*! Rotation around the X axis */
+  /*! \brief Rotation around the X axis */
   float fRoll;
-  /*! Rotation around the Y axis */
+  /*! \brief Rotation around the Y axis */
   float fPitch;
-  /*! Rotation around the Z axis */
+  /*! \brief Rotation around the Z axis */
   float fYaw;
 };
 
