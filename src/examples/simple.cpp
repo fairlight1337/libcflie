@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     
     delete cflieCopter;
   } else {
-    cerr << "Couldn not connect to dongle. Did you plug it in?" << endl;
+    cerr << "Could not connect to dongle. Did you plug it in?" << endl;
   }
   
   delete crRadio;
