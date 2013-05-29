@@ -89,7 +89,10 @@ enum Power {
 class CCrazyRadio {
 private:
   // Variables
+  /*! \brief The radio URI as supplied when initializing the class
+      instance */
   string m_strRadioIdentifier;
+  /*! \brief The current USB context as supplied by libusb */
   libusb_context *m_ctxContext;
   libusb_device *m_devDevice;
   libusb_device_handle *m_hndlDevice;
@@ -135,7 +138,12 @@ private:
   void setContCarrier(bool bContCarrier);
 
 public:
+  /*! \brief Constructor for the radio communication class
+    
+    \param strRadioIdentifier URI for the radio to be opened,
+    e.g. "radio://<dongle-no>/<channel-no>/<datarate>". */
   CCrazyRadio(string strRadioIdentifier);
+  /*! \brief Destructor for the radio communication class */
   ~CCrazyRadio();
   
   /*! \brief Function to start the radio communication
@@ -149,15 +157,53 @@ public:
     USB-related error came up - this is not handled here). */
   bool startRadio();
   
+  /*! \brief Returns the current setting for power usage by the USB
+      dongle
+    
+    \return Value denoting the current power settings reserved for
+    communication */
   enum Power power();
+  /*! \brief Set the power level to be used for communication purposes
+    
+    \param enumPower The level of power that is being used for
+    communication. The integer value maps to one of the entries of the
+    Power enum. */
   void setPower(enum Power enumPower);
   
+  /*! \brief Sends the given packet's payload to the copter
+    
+    \param crtpSend The packet which supplied header and payload
+    information to send to the copter */
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend);
   
+  /*! \brief Sets the internal count of the TOC variables available on
+      the copter.
+    
+    \param nParameterCount The parameter count to set for TOC elements
+    available on the copter */
   void setParameterCount(int nParameterCount);
+  /*! \brief The internal count of the TOC variables available on the
+      copter.
+    
+    \return Returns the number of elements contained on the copter's
+    TOC table */
   int parameterCount();
   
+  /*! \brief Denotes whether the class is currently updating the TOC
+      parameter count
+    
+    Waiting for updating the TOC parameter count means that we sent a
+    request to the copter and are awaiting the answer (containing the
+    count).
+    
+    \return Returns 'true' if the request was sent successfully,
+    'false' otherwise. */
   bool updatesParameterCount();
+  /*! \brief Sets whether the class instance is currently waiting for
+      a TOC parameter count update
+    
+    \param bUpdatesParameterCount Boolean value denoting whether the
+    class instance is waiting for a TOC parameter count update */
   void setUpdatesParameterCount(bool bUpdatesParameterCount);
   
   bool populatesTOCCache();
