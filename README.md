@@ -38,7 +38,7 @@ How to build the library
 
 First, clone the repository:
 ```
-$ git clone https://github.com/fairlight1337/libcflie.git libcflie
+$ git clone https://github.com/fairlight1337/libcflie.git
 ```
 
 In the cloned folder, do:
