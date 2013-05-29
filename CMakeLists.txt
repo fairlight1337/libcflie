@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(cflie)
+project(libcflie)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
@@ -22,8 +22,8 @@ add_executable(ex-replugging src/examples/replugging.cpp)
 add_executable(ex-simple src/examples/simple.cpp)
 
 target_link_libraries(${PROJECT_NAME} ${USB_LIB})
-target_link_libraries(ex-replugging cflie)
-target_link_libraries(ex-simple cflie)
+target_link_libraries(ex-replugging ${PROJECT_NAME})
+target_link_libraries(ex-simple ${PROJECT_NAME})
 
 install(FILES include/cflie/*.h DESTINATION include)
 install(FILES lib/* DESTINATION lib)
