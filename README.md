@@ -50,7 +50,16 @@ $ make
 ```
 
 After that, you will find two directories in the base directory: `lib`
-and `bin`. `lib` includes the built `libcflie` library (with fitting
-extension, depending on where you build it). `bin` includes a `test`
-program which is defined by the content of `src/main.cpp` that shows
-the basic usage of the library.
+and `bin`.
+
+* `lib` includes the built `libcflie` library (with fitting extension,
+  depending on where you build it). You can link against this library,
+  using the header files contained in `include/cflie/` to actually use
+  it.
+
+* `bin` includes example programs. Currently, there are two:
+  * `ex-simple` shows the most simple usage example of the library
+  * `ex-replugging` shows how to use the lib for allowing re-plugging
+    the USB dongle and letting the copter go out of range and
+    return. Also, event hooks are marked for all these events to
+    execute custom code for all situations.
