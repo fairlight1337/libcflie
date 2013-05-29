@@ -25,6 +25,5 @@ target_link_libraries(${PROJECT_NAME} ${USB_LIB})
 target_link_libraries(ex-replugging cflie)
 target_link_libraries(ex-simple cflie)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES include/cflie/*.h DESTINATION include)
 install(FILES lib/* DESTINATION lib)
