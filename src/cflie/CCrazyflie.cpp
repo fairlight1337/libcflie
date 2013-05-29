@@ -415,3 +415,7 @@ void CCrazyflie::setArrivalThreshold(float fArrivalThreshold) {
 float CCrazyflie::arrivalThreshold() {
   return m_fArrivalThreshold;
 }
+
+void CCrazyflie::relocalize() {
+  this->resetState();
+}

@@ -376,6 +376,14 @@ class CCrazyflie {
     \return Boolean value denoting whether the yaw control is
     currently ignored during control. */
   bool controllerIgnoresYaw();
+  
+  /*! \brief Reset the current pose to the origin pose
+    
+    Calls the private resetState function to re-localize the copter
+    and use the current pose as the origin pose. Adding an extra
+    function call here mainly serves splitting up functionalities
+    between initialization and maintenance functions. */
+  void relocalize();
 };
 
 
