@@ -49,6 +49,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   
   m_bControllerIgnoresYaw = false;
   m_fArrivalThreshold = 0.05;
+  m_bSendsSetpoints = false;
   
   this->disableController();
   
@@ -184,8 +185,13 @@ bool CCrazyflie::cycle() {
     this->calculatePoseIntegral(dSecondsElapsed);
     this->applyControllerResult(dSecondsElapsed);
     
-    // Send the current set point based on the previous calculations
-    this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+    if(m_bSendsSetpoints) {
+      // Send the current set point based on the previous calculations
+      this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+    } else {
+      // Send a dummy packet for keepalive
+      m_crRadio->sendDummyPacket();
+    }
   } break;
     
   default: {
@@ -398,4 +404,16 @@ bool CCrazyflie::startLogging() {
   m_tocLogs->startLogging("stabilizer.yaw", "stabilizer");
   
   return true;
+}
+
+void CCrazyflie::setSendSetpoints(bool bSendSetpoints) {
+  m_bSendsSetpoints = bSendSetpoints;
+}
+
+bool CCrazyflie::sendsSetpoints() {
+  return m_bSendsSetpoints;
+}
+
+double CCrazyflie::sensorDoubleValue(string strName) {
+  return m_tocLogs->doubleValue(strName);
 }

@@ -457,3 +457,17 @@ list<CCRTPPacket*> CCrazyRadio::popLoggingPackets() {
   
   return lstPackets;
 }
+
+bool CCrazyRadio::sendDummyPacket() {
+  CCRTPPacket *crtpReceived = NULL;
+  CCRTPPacket *crtpDummy = new CCRTPPacket(0);
+  crtpDummy->setIsPingPacket(true);
+  
+  crtpReceived = this->sendPacket(crtpDummy, true);
+  if(crtpReceived) {
+    delete crtpReceived;
+    return true;
+  }
+  
+  return false;
+}

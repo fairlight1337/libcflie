@@ -112,6 +112,7 @@ class CCrazyflie {
   int m_nMaxThrust;
   /*! \brief Minimum thrust that will be sent to the copter. */
   int m_nMinThrust;
+  bool m_bSendsSetpoints;
   /*! \brief Whether or not controllers ignore yaw control
     
     Whether or not the controllers ignore controlling the yaw of the
@@ -402,6 +403,11 @@ class CCrazyflie {
   bool isInitialized();
   
   bool startLogging();
+  
+  void setSendSetpoints(bool bSendSetpoints);
+  bool sendsSetpoints();
+  
+  double sensorDoubleValue(string strName);
 };
 
 

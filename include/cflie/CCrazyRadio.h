@@ -163,6 +163,8 @@ public:
   bool usbOK();
   CCRTPPacket *waitForPacket();
   list<CCRTPPacket*> popLoggingPackets();
+  
+  bool sendDummyPacket();
 };
 
 
