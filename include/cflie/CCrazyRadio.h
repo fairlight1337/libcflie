@@ -35,36 +35,13 @@
 #include <sstream>
 #include <libusb-1.0/libusb.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "CCRTPPacket.h"
 
 using namespace std;
 
-
-/*! \brief Storage element for TOC item identities */
-struct TOCElement {
-  /*! \brief the Numerical index of the TOC item on the copter's
-      internal table */
-  int nIndex;
-  /*! \brief The string group name of the TOC element */
-  string strGroup;
-  /*! \brief The string identifier of the TOC element */
-  string strIdentifier;
-};
-
-/*! \brief Storage element for logged variable identities */
-struct LOGElement {
-  /*! \brief The numerical ID of the log element on the copter's
-      internal table */
-  int nID;
-  /*! \brief The (ref) type of the log element */
-  int nType;
-  /*! \brief The string group name of the log element */
-  string strGroup;
-  /*! \brief The string identifier of the log element */
-  string strIdentifier;
-};
 
 /*! \brief Power levels to configure the radio dongle with */
 enum Power {
@@ -105,17 +82,8 @@ private:
   char *m_cAddress;
   int m_bContCarrier;
   float m_fDeviceVersion;
-  int m_nParameterCount;
-  bool m_bUpdatesParameterCount;
-  list<struct TOCElement> m_lstTOCElements;
-  bool m_bPopulatesTOCCache;
-  int m_nLoggingVariableCount;
-  bool m_bUpdatesLogParameterCount;
-  int m_nNextLogVarID;
-  list<struct LOGElement> m_lstLOGElements;
-  bool m_bPopulatesLOGCache;
-  bool m_bLogelementPopulated;
   bool m_bAckReceived;
+  list<CCRTPPacket*> m_lstLoggingPackets;
   
   // Functions
   list<libusb_device*> listDevices(int nVendorID, int nProductID);
@@ -174,55 +142,9 @@ public:
     
     \param crtpSend The packet which supplied header and payload
     information to send to the copter */
-  CCRTPPacket *sendPacket(CCRTPPacket *crtpSend);
-  
-  /*! \brief Sets the internal count of the TOC variables available on
-      the copter.
-    
-    \param nParameterCount The parameter count to set for TOC elements
-    available on the copter */
-  void setParameterCount(int nParameterCount);
-  /*! \brief The internal count of the TOC variables available on the
-      copter.
-    
-    \return Returns the number of elements contained on the copter's
-    TOC table */
-  int parameterCount();
-  
-  /*! \brief Denotes whether the class is currently updating the TOC
-      parameter count
-    
-    Waiting for updating the TOC parameter count means that we sent a
-    request to the copter and are awaiting the answer (containing the
-    count).
-    
-    \return Returns 'true' if the request was sent successfully,
-    'false' otherwise. */
-  bool updatesParameterCount();
-  /*! \brief Sets whether the class instance is currently waiting for
-      a TOC parameter count update
-    
-    \param bUpdatesParameterCount Boolean value denoting whether the
-    class instance is waiting for a TOC parameter count update */
-  void setUpdatesParameterCount(bool bUpdatesParameterCount);
-  
-  bool populatesTOCCache();
-  void setPopulatesTOCCache(bool bPopulatesTOCCache);
-  
-  void setLoggingVariableCount(int nLoggingVariableCount);
-  int loggingVariableCount();
-  
-  void setUpdatesLogParameterCount(bool bUpdatesLogParameterCount);
-  bool updatesLogParameterCount();
-  int logParameterCount();
-  
-  void setPopulatesLOGCache(bool bPopulatesLOGCache);
-  bool populatesLOGCache();
-  bool logElementPopulated();
-  void setLogElementPopulated(bool bLogElementPopulated);
-  
-  int nextLogVarID();
-  int countLOGElements();
+  CCRTPPacket *sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend);
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards = true, int nRetries = 10, int nMicrosecondsWait = 100);
   
   /*! \brief Whether or not the copter is answering sent packets.
     
@@ -236,8 +158,11 @@ public:
     
     Checks if the USB read/write calls yielded any errors.
     
-    \return Returns true if the connection is working properly and false otherwise. */
+    \return Returns true if the connection is working properly and
+    false otherwise. */
   bool usbOK();
+  CCRTPPacket *waitForPacket();
+  list<CCRTPPacket*> popLoggingPackets();
 };
 
 

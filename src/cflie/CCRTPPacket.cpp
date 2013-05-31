@@ -40,6 +40,13 @@ CCRTPPacket::CCRTPPacket(char *cData, int nDataLength, int nPort) {
   this->setData(cData, nDataLength);
 }
 
+CCRTPPacket::CCRTPPacket(char cData, int nPort) {
+  this->basicSetup();
+  this->setPort(nPort);
+  
+  this->setData(&cData, 1);
+}
+
 CCRTPPacket::~CCRTPPacket() {
   this->clearData();
 }
@@ -49,6 +56,7 @@ void CCRTPPacket::basicSetup() {
   m_nDataLength = 0;
   m_nPort = 0;
   m_nChannel = 0;
+  m_bIsPingPacket = false;
 }
 
 void CCRTPPacket::setData(char *cData, int nDataLength) {
@@ -76,22 +84,30 @@ void CCRTPPacket::clearData() {
 }
 
 char *CCRTPPacket::sendableData() {
-  char *cSendable = new char[m_nDataLength + 2]();
+  char *cSendable = new char[this->sendableDataLength()]();
   
-  // Header byte
-  cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
-  
-  // Payload
-  memcpy(&cSendable[1], m_cData, m_nDataLength);
-  
-  // Finishing byte
-  cSendable[m_nDataLength + 1] = 0x27;
+  if(m_bIsPingPacket) {
+    cSendable[0] = 0xff;
+  } else {
+    // Header byte
+    cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
+    
+    // Payload
+    memcpy(&cSendable[1], m_cData, m_nDataLength);
+    
+    // Finishing byte
+    //cSendable[m_nDataLength + 1] = 0x27;
+  }
   
   return cSendable;
 }
 
 int CCRTPPacket::sendableDataLength() {
-  return m_nDataLength + 2;
+  if(m_bIsPingPacket) {
+    return 1;
+  } else {
+    return m_nDataLength + 1;//2;
+  }
 }
 
 void CCRTPPacket::setPort(int nPort) {
@@ -108,4 +124,12 @@ void CCRTPPacket::setChannel(int nChannel) {
 
 int CCRTPPacket::channel() {
   return m_nChannel;
+}
+
+void CCRTPPacket::setIsPingPacket(bool bIsPingPacket) {
+  m_bIsPingPacket = bIsPingPacket;
+}
+
+bool CCRTPPacket::isPingPacket() {
+  return m_bIsPingPacket;
 }

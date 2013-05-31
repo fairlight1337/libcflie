@@ -40,7 +40,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_fMaxAbsPitch = m_fMaxAbsRoll;
   m_fMaxYaw = 2 * M_PI;
   m_nMaxThrust = 60000;
-  m_nMinThrust = 15000;
+  m_nMinThrust = 0;//15000;
   
   m_fRoll = 0;
   m_fPitch = 0;
@@ -53,12 +53,36 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   this->disableController();
   
   //this->updateTOC();
-  this->updateLogTOC();
+  //this->updateLogTOC();
+  m_tocParameters = new CTOC(m_crRadio, 2);
+  m_tocLogs = new CTOC(m_crRadio, 5);
+  
+  m_enumState = STATE_ZERO;
   
   this->resetState();
 }
 
 CCrazyflie::~CCrazyflie() {
+}
+
+bool CCrazyflie::readTOCParameters() {
+  if(m_tocParameters->requestMetaData()) {
+    if(m_tocParameters->requestItems()) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+bool CCrazyflie::readTOCLogs() {
+  if(m_tocLogs->requestMetaData()) {
+    if(m_tocLogs->requestItems()) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 void CCrazyflie::resetState() {
@@ -101,87 +125,6 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   }
 }
 
-void CCrazyflie::updateTOC() {
-  char cOne = 1;
-  m_crRadio->setUpdatesParameterCount(true);
-  
-  CCRTPPacket *crtpPacket = new CCRTPPacket(&cOne, 1, 2);
-  CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
-  
-  delete crtpPacket;
-  if(crtpReceived) {
-    delete crtpReceived;
-  }
-}
-
-void CCrazyflie::populateTOCElement(int nIndex) {
-  char cRequest[2];
-  cRequest[0] = 0;
-  cRequest[1] = nIndex;
-  cout << (int)cRequest[1] << endl;
-  CCRTPPacket *crtpPacket = new CCRTPPacket(cRequest, 2, 2);
-  CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
-  
-  delete crtpPacket;
-  if(crtpReceived) {
-    delete crtpReceived;
-  }
-}
-
-void CCrazyflie::populateNextTOCElement() {
-  if(m_crRadio->parameterCount() > 0) {
-    m_nLastRequestedVariableIndex++;
-    
-    if(m_nLastRequestedVariableIndex < m_crRadio->parameterCount()) {
-      this->populateTOCElement(m_nLastRequestedVariableIndex);
-    }
-  }
-}
-
-void CCrazyflie::updateLogTOC() {
-  char cOne = 1;
-  m_crRadio->setUpdatesLogParameterCount(true);
-  m_crRadio->setLogElementPopulated(true);
-  
-  CCRTPPacket *crtpPacket = new CCRTPPacket(&cOne, 1, 5);
-  crtpPacket->setChannel(0);
-  
-  CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
-  
-  delete crtpPacket;
-  if(crtpReceived) {
-    delete crtpReceived;
-  }
-}
-
-void CCrazyflie::populateLOGElement(int nIndex) {
-  char cRequest[2];
-  cRequest[0] = 0;
-  cRequest[1] = nIndex;
-  cout << nIndex << ", " << (m_crRadio->countLOGElements() == 0 ? 1 : 2) << endl;
-  CCRTPPacket *crtpPacket = new CCRTPPacket(cRequest, (m_crRadio->countLOGElements() == 0 ? 1 : 2), 2);
-  crtpPacket->setChannel(2);
-  CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
-  
-  delete crtpPacket;
-  if(crtpReceived) {
-    delete crtpReceived;
-  }
-}
-
-void CCrazyflie::populateNextLOGElement() {
-  if(m_crRadio->populatesLOGCache() && m_crRadio->logElementPopulated()) {
-    int nNextLogVarID = m_crRadio->nextLogVarID();
-    cout << nNextLogVarID << endl;
-    if(nNextLogVarID != 0xff) {
-      m_crRadio->setLogElementPopulated(false);
-      this->populateLOGElement(nNextLogVarID);
-    } else {
-      m_crRadio->setPopulatesLOGCache(false);
-    }
-  }
-}
-
 void CCrazyflie::setThrust(int nThrust) {
   m_nThrust = nThrust;
   
@@ -197,31 +140,57 @@ int CCrazyflie::thrust() {
 }
 
 bool CCrazyflie::cycle() {
-  if(m_crRadio->populatesTOCCache()) {
-    //this->populateNextTOCElement();
+  switch(m_enumState) {
+  case STATE_ZERO: {
+    m_enumState = STATE_READ_PARAMETERS_TOC;
+  } break;
+    
+  case STATE_READ_PARAMETERS_TOC: {
+    if(this->readTOCParameters()) {
+      m_enumState = STATE_READ_LOGS_TOC;
+    }
+  } break;
+    
+  case STATE_READ_LOGS_TOC: {
+    if(this->readTOCLogs()) {
+      m_enumState = STATE_START_LOGGING;
+    }
+  } break;
+    
+  case STATE_START_LOGGING: {
+    if(this->startLogging()) {
+      m_enumState = STATE_NORMAL_OPERATION;
+    }
+  } break;
+    
+  case STATE_NORMAL_OPERATION: {
+    // Handle time calculation
+    double dTimeNow = this->currentTime();
+    double dSecondsElapsed = m_dSecondsLast - dTimeNow;
+    m_dSecondsLast = dTimeNow;
+    
+    // Shove over the sensor readings from the radio to the Logs TOC.
+    m_tocLogs->processPackets(m_crRadio->popLoggingPackets());
+    
+    //cout << m_tocLogs->doubleValue("stabilizer.yaw") << endl;
+    
+    // Calculate the linear twist (i.e. cartesian velocity) from the
+    // angular twist (RPY). This is mainly based on taking the current
+    // angles of the device into account (from the current pose) and
+    // then applying the values from the gyroscope.
+    this->calculateCartesianVelocity();
+    
+    // Calculate pose integral and apply the calculated control signals
+    this->calculatePoseIntegral(dSecondsElapsed);
+    this->applyControllerResult(dSecondsElapsed);
+    
+    // Send the current set point based on the previous calculations
+    this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+  } break;
+    
+  default: {
+  } break;
   }
-  
-  if(m_crRadio->populatesLOGCache()) {
-    this->populateNextLOGElement();
-  }
-  
-  // Handle time calculation
-  double dTimeNow = this->currentTime();
-  double dSecondsElapsed = m_dSecondsLast - dTimeNow;
-  m_dSecondsLast = dTimeNow;
-  
-  // Calculate the linear twist (i.e. cartesian velocity) from the
-  // angular twist (RPY). This is mainly based on taking the current
-  // angles of the device into account (from the current pose) and
-  // then applying the values from the gyroscope.
-  this->calculateCartesianVelocity();
-  
-  // Calculate pose integral and apply the calculated control signals
-  this->calculatePoseIntegral(dSecondsElapsed);
-  this->applyControllerResult(dSecondsElapsed);
-  
-  // Send the current set point based on the previous calculations
-  this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
   
   return m_crRadio->usbOK();
 }
@@ -418,4 +387,15 @@ float CCrazyflie::arrivalThreshold() {
 
 void CCrazyflie::relocalize() {
   this->resetState();
+}
+
+bool CCrazyflie::isInitialized() {
+  return m_enumState == STATE_NORMAL_OPERATION;
+}
+
+bool CCrazyflie::startLogging() {
+  m_tocLogs->registerLoggingBlock("stabilizer", 1000);
+  m_tocLogs->startLogging("stabilizer.yaw", "stabilizer");
+  
+  return true;
 }

@@ -36,9 +36,18 @@
 #include "CCrazyRadio.h"
 #include "CController.h"
 #include "CPController.h"
+#include "CTOC.h"
 
 using namespace std;
 
+
+enum State {
+  STATE_ZERO = 0,
+  STATE_READ_PARAMETERS_TOC = 1,
+  STATE_READ_LOGS_TOC = 2,
+  STATE_START_LOGGING = 3,
+  STATE_NORMAL_OPERATION = 4
+};
 
 /*! \brief Enumeration holding the possible (i.e. implemented)
     controller types */
@@ -117,6 +126,9 @@ class CCrazyflie {
     position might have from the set desired position for marking it
     as arrived. */
   float m_fArrivalThreshold;
+  CTOC *m_tocParameters;
+  CTOC *m_tocLogs;
+  enum State m_enumState;
 
   // Functions
   /*! \brief Reset the internal state
@@ -139,7 +151,9 @@ class CCrazyflie {
   void applyControllerResult(double dElapsedTime);
   void calculatePoseIntegral(double dElapsedTime);
   void calculateCartesianVelocity();
-
+  bool readTOCParameters();
+  bool readTOCLogs();
+  
   /*! \brief Send a set point to the copter controller
 
     Send the set point for the internal copter controllers. The
@@ -384,6 +398,10 @@ class CCrazyflie {
     function call here mainly serves splitting up functionalities
     between initialization and maintenance functions. */
   void relocalize();
+
+  bool isInitialized();
+  
+  bool startLogging();
 };
 
 

@@ -53,6 +53,7 @@ class CCRTPPacket {
   int m_nPort;
   /*! \brief The copter channel the packet will be delivered to */
   int m_nChannel;
+  bool m_bIsPingPacket;
   
   // Functions
   /*! \brief Sets all internal variables to their default values.
@@ -86,6 +87,7 @@ class CCRTPPacket {
     \param nChannel The channel the payload in this packet is
     designated for. */
   CCRTPPacket(char *cData, int nDataLength, int nChannel);
+  CCRTPPacket(char cData, int nPort);
   /*! \brief Destructor for the packet class
     
     De-initializes the packet and deletes all available payload data
@@ -151,6 +153,9 @@ class CCRTPPacket {
   void setChannel(int nChannel);
   /*! \brief Returns the currently set channel number */
   int channel();
+  
+  void setIsPingPacket(bool bIsPingPacket);
+  bool isPingPacket();
 };
 
 

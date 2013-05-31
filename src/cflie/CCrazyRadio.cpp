@@ -30,15 +30,10 @@
 
 CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
   m_strRadioIdentifier = strRadioIdentifier;
-  m_bUpdatesParameterCount = false;
-  m_nNextLogVarID = 0;
   m_enumPower = P_M18DBM;
   
   m_ctxContext = NULL;
   m_hndlDevice = NULL;
-  
-  m_bPopulatesTOCCache = false;
-  m_bPopulatesLOGCache = false;
   
   m_bAckReceived = false;
   
@@ -49,6 +44,8 @@ CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
 
 CCrazyRadio::~CCrazyRadio() {
   this->closeDevice();
+  
+  // TODO(winkler): Free all remaining packets in m_lstLoggingPackets.
   
   if(m_ctxContext) {
     libusb_exit(m_ctxContext);
@@ -311,144 +308,51 @@ bool CCrazyRadio::claimInterface(int nInterface) {
   return libusb_claim_interface(m_hndlDevice, nInterface) == 0;
 }
 
-CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend) {
+CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards) {
   CCRTPPacket *crtpPacket = NULL;
   
-  if(crtpSend->dataLength() > 0) {
-    char *cSendable = crtpSend->sendableData();
-    crtpPacket = this->writeData(cSendable, crtpSend->sendableDataLength());
+  char *cSendable = crtpSend->sendableData();
+  crtpPacket = this->writeData(cSendable, crtpSend->sendableDataLength());
     
-    delete[] cSendable;
+  delete[] cSendable;
     
-    if(crtpPacket) {
-      char *cData = crtpPacket->data();
-      int nLength = crtpPacket->dataLength();
+  if(crtpPacket) {
+    char *cData = crtpPacket->data();
+    int nLength = crtpPacket->dataLength();
+    
+    if(nLength > 0) {
+      short sPort = (cData[0] & 0xf0) >> 4;
+      crtpPacket->setPort(sPort);
+      short sChannel = cData[0] & 0b00000011;
+      crtpPacket->setChannel(sChannel);
       
-      if(nLength > 0) {
-	short sPort = (cData[0] & 0xf0) >> 4;
-	crtpPacket->setPort(sPort);
-	short sChannel = cData[0] & 0b00000011;
-	crtpPacket->setChannel(sChannel);
-	
-	switch(sPort) {
-	case 0: { // Console
-	  char cText[nLength];
-	  memcpy(cText, &cData[1], nLength - 1);
-	  cText[nLength - 1] = '\0';
+      switch(sPort) {
+      case 0: { // Console
+	char cText[nLength];
+	memcpy(cText, &cData[1], nLength - 1);
+	cText[nLength - 1] = '\0';
 	  
-	  //cout << "Console text: " << cText << endl;
-	} break;
+	cout << "Console text: " << cText << endl;
+      } break;
 	
-	case 2: {
-	  if(this->updatesParameterCount()) {
-	    this->setParameterCount(cData[0]);
-	    this->setUpdatesParameterCount(false);
-	    this->setPopulatesTOCCache(true);
-	    cout << "TOC elements: " << (int)cData[0] << endl;
-	  } else {
-	    if(this->populatesTOCCache()) {
-	      if(nLength > 2) {
-		int nIndex = cData[2];
-		
-		string strGroup;
-		int nI;
-		for(nI = 4; cData[nI] != '\0'; nI++) {
-		  strGroup += cData[nI];
-		}
-		
-		nI++;
-		string strIdentifier;
-		for(; cData[nI] != '\0'; nI++) {
-		  strIdentifier += cData[nI];
-		}
-		
-		struct TOCElement teNew;
-		teNew.nIndex = nIndex;
-		teNew.strGroup = strGroup;
-		teNew.strIdentifier = strIdentifier;
-		
-		m_lstTOCElements.push_back(teNew);
-	      } else {
-		this->setPopulatesTOCCache(false);
-	      }
-	    } else {
-	      //cout << "Got param value" << endl;
-	      // update parameter value here
-	    }
-	  }
-	} break;
-	
-	case 5: { // Logging
-	  cout << "?" << endl;
-	  switch(crtpPacket->channel()) {
-	  case 0: { // TOC CRC and item count
-	    if(this->updatesLogParameterCount()) {
-	      if(cData[1] == 0x01) { // Did we ask for this?
-		int nCount = cData[2];
-		this->setLoggingVariableCount(nCount);
-		this->setUpdatesLogParameterCount(false);
-		this->setPopulatesLOGCache(true);
-	      }
-	    } else {
-	      // Incoming log item
-	      if(cData[1] == 0x00) { // Did we ask for this?
-		cout << "!" << endl;
-		int nNextVarID = cData[2];
-		int nVarID = cData[3];
-		int nVarType = cData[4];
-		
-		string strGroup;
-		int nI;
-		for(nI = 4; cData[nI] != '\0'; nI++) {
-		  strGroup += cData[nI];
-		}
-		
-		nI++;
-		string strIdentifier;
-		for(; cData[nI] != '\0'; nI++) {
-		  strIdentifier += cData[nI];
-		}
-		
-		struct LOGElement leNew;
-		leNew.nID = nVarID;
-		leNew.nType = nVarType;
-		leNew.strGroup = strGroup;
-		leNew.strIdentifier = strIdentifier;
-		
-		m_lstLOGElements.push_back(leNew);
-		
-		if(nNextVarID == 0xff) {
-		  this->setPopulatesLOGCache(false);
-		} else {
-		  m_nNextLogVarID = nNextVarID;
-		}
-	      }
-	    }
-	  } break;
-	    
-	  default: {
-	  } break;
-	  }
-	} break;
+      case 5: { // Logging
+	if(crtpPacket->channel() == 2) {
+	  CCRTPPacket *crtpLog = new CCRTPPacket(cData, nLength, crtpPacket->channel());
+	  crtpLog->setChannel(crtpPacket->channel());
+	  crtpLog->setPort(crtpPacket->port());
 	  
-	default: {
-	  cout << "Unknown comm port in incoming packet: "
-	       << sPort << endl;
-	} break;
+	  m_lstLoggingPackets.push_back(crtpLog);
 	}
+      } break;
       }
     }
   }
   
+  if(bDeleteAfterwards) {
+    delete crtpSend;
+  }
+  
   return crtpPacket;
-}
-
-void CCrazyRadio::setParameterCount(int nParameterCount) {
-  m_nParameterCount = nParameterCount;
-}
-
-int CCrazyRadio::parameterCount() {
-  return m_nParameterCount;
 }
 
 CCRTPPacket *CCrazyRadio::readACK() {
@@ -479,66 +383,6 @@ CCRTPPacket *CCrazyRadio::readACK() {
   return crtpPacket;
 }
 
-bool CCrazyRadio::updatesParameterCount() {
-  return m_bUpdatesParameterCount;
-}
-
-void CCrazyRadio::setUpdatesParameterCount(bool bUpdatesParameterCount) {
-  m_bUpdatesParameterCount = bUpdatesParameterCount;
-}
-
-bool CCrazyRadio::populatesTOCCache() {
-  return m_bPopulatesTOCCache;
-}
-
-void CCrazyRadio::setPopulatesTOCCache(bool bPopulatesTOCCache) {
-  m_bPopulatesTOCCache = bPopulatesTOCCache;
-}
-
-void CCrazyRadio::setLoggingVariableCount(int nLoggingVariableCount) {
-  m_nLoggingVariableCount = nLoggingVariableCount;
-}
-
-int CCrazyRadio::loggingVariableCount() {
-  return m_nLoggingVariableCount;
-}
-
-void CCrazyRadio::setUpdatesLogParameterCount(bool bUpdatesLogParameterCount) {
-  m_bUpdatesLogParameterCount = bUpdatesLogParameterCount;
-}
-
-bool CCrazyRadio::updatesLogParameterCount() {
-  return m_bUpdatesLogParameterCount;
-}
-
-int CCrazyRadio::logParameterCount() {
-  return m_nLoggingVariableCount;
-}
-
-void CCrazyRadio::setPopulatesLOGCache(bool bPopulatesLOGCache) {
-  m_bPopulatesLOGCache = bPopulatesLOGCache;
-}
-
-bool CCrazyRadio::populatesLOGCache() {
-  return m_bPopulatesLOGCache;
-}
-
-int CCrazyRadio::nextLogVarID() {
-  return m_nNextLogVarID;
-}
-
-void CCrazyRadio::setLogElementPopulated(bool bLogElementPopulated) {
-  m_bLogelementPopulated = bLogElementPopulated;
-}
-
-bool CCrazyRadio::logElementPopulated() {
-  return m_bLogelementPopulated;
-}
-
-int CCrazyRadio::countLOGElements() {
-  return m_lstLOGElements.size();
-}
-
 bool CCrazyRadio::ackReceived() {
   return m_bAckReceived;
 }
@@ -547,4 +391,69 @@ bool CCrazyRadio::usbOK() {
   libusb_device_descriptor ddDescriptor;
   return (libusb_get_device_descriptor(m_devDevice,
 				       &ddDescriptor) == 0);
+}
+
+CCRTPPacket *CCrazyRadio::waitForPacket() {
+  bool bGoon = true;
+  CCRTPPacket *crtpReceived = NULL;
+  CCRTPPacket *crtpDummy = new CCRTPPacket(0);
+  crtpDummy->setIsPingPacket(true);
+  
+  while(bGoon) {
+    crtpReceived = this->sendPacket(crtpDummy);
+    bGoon = (crtpReceived == NULL);
+  }
+  
+  delete crtpDummy;
+  return crtpReceived;
+}
+
+CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend) {
+  return this->sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel());
+}
+
+CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards, int nRetries, int nMicrosecondsWait) {
+  bool bGoon = true;
+  int nResendCounter = 0;
+  CCRTPPacket *crtpReturnvalue = NULL;
+  CCRTPPacket *crtpReceived = NULL;
+  
+  while(bGoon) {
+    if(nResendCounter == 0) {
+      crtpReceived = this->sendPacket(crtpSend);
+      nResendCounter = nRetries;
+    } else {
+      nResendCounter--;
+    }
+    
+    if(crtpReceived) {
+      if(crtpReceived->port() == nPort &&
+	 crtpReceived->channel() == nChannel) {
+	crtpReturnvalue = crtpReceived;
+	bGoon = false;
+      }
+    }
+    
+    if(bGoon) {
+      if(crtpReceived) {
+	delete crtpReceived;
+      }
+      
+      usleep(nMicrosecondsWait);
+      crtpReceived = this->waitForPacket();
+    }
+  }
+  
+  if(bDeleteAfterwards) {
+    delete crtpSend;
+  }
+  
+  return crtpReturnvalue;
+}
+
+list<CCRTPPacket*> CCrazyRadio::popLoggingPackets() {
+  list<CCRTPPacket*> lstPackets = m_lstLoggingPackets;
+  m_lstLoggingPackets.clear();
+  
+  return lstPackets;
 }
