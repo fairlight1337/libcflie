@@ -403,6 +403,8 @@ class CCrazyflie {
   bool isInitialized();
   
   bool startLogging();
+  void addHighSpeedLogging(string strName);
+  void addLowSpeedLogging(string strName);
   
   void setSendSetpoints(bool bSendSetpoints);
   bool sendsSetpoints();

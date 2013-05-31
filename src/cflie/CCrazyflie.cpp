@@ -400,10 +400,18 @@ bool CCrazyflie::isInitialized() {
 }
 
 bool CCrazyflie::startLogging() {
-  m_tocLogs->registerLoggingBlock("stabilizer", 1000);
-  m_tocLogs->startLogging("stabilizer.yaw", "stabilizer");
+  m_tocLogs->registerLoggingBlock("high-speed", 1000);
+  m_tocLogs->registerLoggingBlock("low-speed", 10);
   
   return true;
+}
+
+void CCrazyflie::addHighSpeedLogging(string strName) {
+  m_tocLogs->startLogging(strName, "high-speed");
+}
+
+void CCrazyflie::addLowSpeedLogging(string strName) {
+  m_tocLogs->startLogging(strName, "low-speed");
 }
 
 void CCrazyflie::setSendSetpoints(bool bSendSetpoints) {
