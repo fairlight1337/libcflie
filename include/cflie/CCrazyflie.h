@@ -424,6 +424,12 @@ class CCrazyflie {
   void disableStabilizerLogging();
   void disableGyroscopeLogging();
   void disableAccelerometerLogging();
+  
+  void enableBatteryLogging();
+  void disableBatteryLogging();
+  
+  bool stopLogging();
+  double batteryLevel();
 };
 
 

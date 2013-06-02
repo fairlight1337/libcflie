@@ -70,6 +70,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
 }
 
 CCrazyflie::~CCrazyflie() {
+  this->stopLogging();
 }
 
 bool CCrazyflie::readTOCParameters() {
@@ -297,6 +298,16 @@ double CCrazyflie::currentTime() {
 void CCrazyflie::calculateCartesianVelocity() {
   // TODO(winkler): Calculate the cartesian velocity from the angular
   // and gyro values here.
+  double dRoll = this->sensorDoubleValue("stabilizer.roll");
+  double dPitch = this->sensorDoubleValue("stabilizer.pitch");
+  double dYaw = this->sensorDoubleValue("stabilizer.yaw");
+  
+  double dAccX = this->sensorDoubleValue("acc.x");
+  double dAccY = this->sensorDoubleValue("acc.y");
+  double dAccZ = this->sensorDoubleValue("acc.z");
+  
+  cout << "Ang: " << dRoll << " " << dPitch << " " << dYaw << endl;
+  cout << "Acc: " << dAccX << " " << dAccY << " " << dAccZ << endl;
 }
 
 void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
@@ -417,18 +428,22 @@ bool CCrazyflie::isInitialized() {
 }
 
 bool CCrazyflie::startLogging() {
-  m_tocLogs->registerLoggingBlock("high-speed", 1000);
-  m_tocLogs->registerLoggingBlock("low-speed", 10);
+  // Register the desired sensor readings
+  this->enableStabilizerLogging();
+  this->enableGyroscopeLogging();
+  this->enableAccelerometerLogging();
+  this->enableBatteryLogging();
   
   return true;
 }
 
-void CCrazyflie::addHighSpeedLogging(string strName) {
-  m_tocLogs->startLogging(strName, "high-speed");
-}
-
-void CCrazyflie::addLowSpeedLogging(string strName) {
-  m_tocLogs->startLogging(strName, "low-speed");
+bool CCrazyflie::stopLogging() {
+  this->disableStabilizerLogging();
+  this->disableGyroscopeLogging();
+  this->disableAccelerometerLogging();
+  this->disableBatteryLogging();
+  
+  return true;
 }
 
 void CCrazyflie::setSendSetpoints(bool bSendSetpoints) {
@@ -441,10 +456,6 @@ bool CCrazyflie::sendsSetpoints() {
 
 double CCrazyflie::sensorDoubleValue(string strName) {
   return m_tocLogs->doubleValue(strName);
-}
-
-void CCrazyflie::enableHighSpeedLogging() {
-  m_tocLogs->enableLogging("high-speed");
 }
 
 void CCrazyflie::disableLogging() {
@@ -486,4 +497,18 @@ void CCrazyflie::disableGyroscopeLogging() {
 
 void CCrazyflie::disableAccelerometerLogging() {
   m_tocLogs->unregisterLoggingBlock("accelerometer");
+}
+
+void CCrazyflie::enableBatteryLogging() {
+  m_tocLogs->registerLoggingBlock("battery", 1000);
+
+  m_tocLogs->startLogging("pm.vbat", "battery");
+}
+
+void CCrazyflie::disableBatteryLogging() {
+  m_tocLogs->unregisterLoggingBlock("battery");
+}
+
+double CCrazyflie::batteryLevel() {
+  return this->sensorDoubleValue("pm.vbat");
 }

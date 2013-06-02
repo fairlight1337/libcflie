@@ -27,7 +27,6 @@
 
 #include <iostream>
 #include <signal.h>
-#include <termios.h>
 #include <fcntl.h>
 
 #include <cflie/CCrazyflie.h>
@@ -45,18 +44,6 @@ void interruptionHandler(int dummy = 0) {
 
 int main(int argc, char **argv) {
   signal(SIGINT, interruptionHandler);
-  
-  int kfd = 0;
-  char c;
-  struct termios cooked, raw;
-  tcgetattr(kfd, &cooked);
-  memcpy(&raw, &cooked, sizeof(struct termios));
-  raw.c_lflag &=~ (ICANON | ECHO);
-  raw.c_cc[VEOL] = 1;
-  raw.c_cc[VEOF] = 2;
-  tcsetattr(kfd, TCSANOW, &raw);
-  
-  fcntl(kfd, F_SETFL, O_NONBLOCK);
   
   int nReturnvalue = 0;
   int nThrust = 0;
@@ -106,21 +93,6 @@ int main(int argc, char **argv) {
 		// Event triggered when the copter first comes in range.
 		cout << "In range" << endl;
 		
-		// Register the desired sensor readings
-		cflieCopter->enableStabilizerLogging();
-		cflieCopter->enableGyroscopeLogging();
-		cflieCopter->enableAccelerometerLogging();
-		/*cflieCopter->addHighSpeedLogging("stabilizer.roll");
-		cflieCopter->addHighSpeedLogging("stabilizer.pitch");
-		cflieCopter->addHighSpeedLogging("stabilizer.yaw");*/
-		/*cflieCopter->addHighSpeedLogging("gyro.x");
-		cflieCopter->addHighSpeedLogging("gyro.y");
-		cflieCopter->addHighSpeedLogging("gyro.z");*/
-		/*cflieCopter->addHighSpeedLogging("acc.x");
-		  cflieCopter->addHighSpeedLogging("acc.y");
-		  cflieCopter->addHighSpeedLogging("acc.x");*/
-		//cflieCopter->enableHighSpeedLogging();
-		
 		bCopterWasInRange = true;
 		bRangeStateChangedNotified = true;
 		
@@ -128,22 +100,12 @@ int main(int argc, char **argv) {
 	      }
 	      
 	      // Loop body for when the copter is in range continuously
-	      int nThrust = 0;//10001;
-	      
-	      int nReturnRead = read(kfd, &c, 1);
-	      if(nReturnRead >= 0) {
-		if(c == 32) {
-		  nThrust = 35000;
-		}
-	      }
-	      
-	      cflieCopter->setThrust(nThrust);
-	      cout << "Roll: " << cflieCopter->sensorDoubleValue("stabilizer.roll") << endl;
-	      cout << "Pitch: " << cflieCopter->sensorDoubleValue("stabilizer.pitch") << endl;
-	      cout << "Yaw: " << cflieCopter->sensorDoubleValue("stabilizer.yaw") << endl;
-	      cout << "Acc x: " << cflieCopter->sensorDoubleValue("acc.x") << endl;
-	      cout << "Gyro x: " << cflieCopter->sensorDoubleValue("gyro.x") << endl;
-
+	      // cout << "Roll: " << cflieCopter->sensorDoubleValue("stabilizer.roll") << endl;
+	      // cout << "Pitch: " << cflieCopter->sensorDoubleValue("stabilizer.pitch") << endl;
+	      // cout << "Yaw: " << cflieCopter->sensorDoubleValue("stabilizer.yaw") << endl;
+	      // cout << "Acc x: " << cflieCopter->sensorDoubleValue("acc.x") << endl;
+	      // cout << "Gyro x: " << cflieCopter->sensorDoubleValue("gyro.x") << endl;
+	      cout << "Battery: " << cflieCopter->batteryLevel() << endl;
 	    } else {
 	      if(bCopterWasInRange || !bRangeStateChangedNotified) {
 		// Event triggered when the copter leaves the range.
@@ -167,10 +129,6 @@ int main(int argc, char **argv) {
 	// NOTE(winkler): Here would be the perfect place to initiate a
 	// landing sequence (i.e. ramping down the altitude of the
 	// copter). Right now, this is a dummy branch.
-	cflieCopter->disableLogging();
-	cflieCopter->disableStabilizerLogging();
-	cflieCopter->disableGyroscopeLogging();
-	cflieCopter->disableAccelerometerLogging();
       }
       
       delete cflieCopter;
@@ -178,7 +136,6 @@ int main(int argc, char **argv) {
   }
   
   cout << "Cleaning up" << endl;
-  tcsetattr(kfd, TCSANOW, &cooked);
   delete crRadio;
   
   return nReturnvalue;
