@@ -64,6 +64,8 @@ enum Controller {
 class CCrazyflie {
  private:
   // Variables
+  int m_nAckMissTolerance;
+  int m_nAckMissCounter;
   /*! \brief Internal pointer to the initialized CCrazyRadio radio
       interface instance. */
   CCrazyRadio *m_crRadio;
@@ -112,6 +114,8 @@ class CCrazyflie {
   int m_nMaxThrust;
   /*! \brief Minimum thrust that will be sent to the copter. */
   int m_nMinThrust;
+  double m_dSendSetpointPeriod;
+  double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
   /*! \brief Whether or not controllers ignore yaw control
     
@@ -410,6 +414,16 @@ class CCrazyflie {
   bool sendsSetpoints();
   
   double sensorDoubleValue(string strName);
+  void enableHighSpeedLogging();
+  void disableLogging();
+  
+  void enableStabilizerLogging();
+  void enableGyroscopeLogging();
+  void enableAccelerometerLogging();
+
+  void disableStabilizerLogging();
+  void disableGyroscopeLogging();
+  void disableAccelerometerLogging();
 };
 
 

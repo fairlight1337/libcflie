@@ -86,6 +86,7 @@ class CTOC {
   int elementIDinBlock(int nBlockID, int nElementIndex);
   bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(int nBlockID, int nElementID);
+  bool unregisterLoggingBlockID(int nID);
 };
 
 

@@ -60,6 +60,12 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   
   m_enumState = STATE_ZERO;
   
+  m_nAckMissCounter = 0;
+  m_nAckMissTolerance = 10;
+  
+  m_dSendSetpointPeriod = 0.01; // Seconds
+  m_dSetpointLastSent = 0;
+  
   this->resetState();
 }
 
@@ -186,8 +192,13 @@ bool CCrazyflie::cycle() {
     this->applyControllerResult(dSecondsElapsed);
     
     if(m_bSendsSetpoints) {
-      // Send the current set point based on the previous calculations
-      this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+      // Check if it's time to send the setpoint
+      if(dTimeNow - m_dSetpointLastSent > m_dSendSetpointPeriod) {
+	// Send the current set point based on the previous calculations
+	//cout << "Send " << m_nThrust << endl;
+	this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
+	m_dSetpointLastSent = dTimeNow;
+      }
     } else {
       // Send a dummy packet for keepalive
       m_crRadio->sendDummyPacket();
@@ -198,11 +209,17 @@ bool CCrazyflie::cycle() {
   } break;
   }
   
+  if(m_crRadio->ackReceived()) {
+    m_nAckMissCounter = 0;
+  } else {
+    m_nAckMissCounter++;
+  }
+  
   return m_crRadio->usbOK();
 }
 
 bool CCrazyflie::copterInRange() {
-  return m_crRadio->ackReceived();
+  return m_nAckMissCounter < m_nAckMissTolerance;
 }
 
 void CCrazyflie::setRoll(float fRoll) {
@@ -424,4 +441,49 @@ bool CCrazyflie::sendsSetpoints() {
 
 double CCrazyflie::sensorDoubleValue(string strName) {
   return m_tocLogs->doubleValue(strName);
+}
+
+void CCrazyflie::enableHighSpeedLogging() {
+  m_tocLogs->enableLogging("high-speed");
+}
+
+void CCrazyflie::disableLogging() {
+  m_tocLogs->unregisterLoggingBlock("high-speed");
+  m_tocLogs->unregisterLoggingBlock("low-speed");
+}
+
+void CCrazyflie::enableStabilizerLogging() {
+  m_tocLogs->registerLoggingBlock("stabilizer", 1000);
+  
+  m_tocLogs->startLogging("stabilizer.roll", "stabilizer");
+  m_tocLogs->startLogging("stabilizer.pitch", "stabilizer");
+  m_tocLogs->startLogging("stabilizer.yaw", "stabilizer");
+}
+
+void CCrazyflie::enableGyroscopeLogging() {
+  m_tocLogs->registerLoggingBlock("gyroscope", 1000);
+
+  m_tocLogs->startLogging("gyro.x", "gyroscope");
+  m_tocLogs->startLogging("gyro.y", "gyroscope");
+  m_tocLogs->startLogging("gyro.z", "gyroscope");
+}
+
+void CCrazyflie::enableAccelerometerLogging() {
+  m_tocLogs->registerLoggingBlock("accelerometer", 1000);
+
+  m_tocLogs->startLogging("acc.x", "accelerometer");
+  m_tocLogs->startLogging("acc.y", "accelerometer");
+  m_tocLogs->startLogging("acc.z", "accelerometer");
+}
+
+void CCrazyflie::disableStabilizerLogging() {
+  m_tocLogs->unregisterLoggingBlock("stabilizer");
+}
+
+void CCrazyflie::disableGyroscopeLogging() {
+  m_tocLogs->unregisterLoggingBlock("gyroscope");
+}
+
+void CCrazyflie::disableAccelerometerLogging() {
+  m_tocLogs->unregisterLoggingBlock("accelerometer");
 }

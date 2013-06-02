@@ -170,10 +170,10 @@ bool CTOC::startLogging(string strName, string strBlockName) {
     struct TOCElement teCurrent = this->elementForName(strName, bFound);
     if(bFound) {
       char cPayload[5] = {0x01, lbCurrent.nID, teCurrent.nType, teCurrent.nID};
-      CCRTPPacket *crtpLogVariable = new CCRTPPacket(cPayload, 5, 1);
+      CCRTPPacket *crtpLogVariable = new CCRTPPacket(cPayload, 4, 1);
       crtpLogVariable->setPort(m_nPort);
       crtpLogVariable->setChannel(1);
-      CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpLogVariable);
+      CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpLogVariable, true);
       
       char *cData = crtpReceived->data();
       bool bCreateOK = false;
@@ -181,6 +181,8 @@ bool CTOC::startLogging(string strName, string strBlockName) {
 	 cData[2] == lbCurrent.nID &&
 	 cData[3] == 0x00) {
 	bCreateOK = true;
+      } else {
+	cout << cData[3] << endl;
       }
       
       if(crtpReceived) {
@@ -300,45 +302,51 @@ bool CTOC::registerLoggingBlock(string strName, double dFrequency) {
   
   if(dFrequency > 0) { // Only do it if a valid frequency > 0 is given
     this->loggingBlockForName(strName, bFound);
-    if(!bFound) {
-      do {
-	this->loggingBlockForID(nID, bFound);
+    if(bFound) {
+      this->unregisterLoggingBlock(strName);
+    }
+    
+    do {
+      this->loggingBlockForID(nID, bFound);
 	
-	if(bFound) {
-	  nID++;
-	}
-      } while(bFound);
-      
-      double d10thOfMS = (1 / dFrequency) * 1000 * 10;
-      char cPayload[4] = {0x00, (nID >> 16) & 0x00ff, nID & 0x00ff, d10thOfMS};
-      CCRTPPacket *crtpRegisterBlock = new CCRTPPacket(cPayload, 4, 1);
-      crtpRegisterBlock->setPort(m_nPort);
-      crtpRegisterBlock->setChannel(1);
-      
-      CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpRegisterBlock);
-      
-      char *cData = crtpReceived->data();
-      bool bCreateOK = false;
-      if(cData[1] == 0x00 &&
-	 cData[2] == nID &&
-	 (cData[3] == 0x00 || cData[3] == 0x02)) { // Exists or OK
-	bCreateOK = true;
+      if(bFound) {
+	nID++;
       }
+    } while(bFound);
+    
+    this->unregisterLoggingBlockID(nID);
+    
+    double d10thOfMS = (1 / dFrequency) * 1000 * 10;
+    //    char cPayload[4] = {0x00, (nID >> 16) & 0x00ff, nID & 0x00ff, d10thOfMS};
+    char cPayload[4] = {0x00, nID, d10thOfMS};
+    CCRTPPacket *crtpRegisterBlock = new CCRTPPacket(cPayload, 3, 1);
+    crtpRegisterBlock->setPort(m_nPort);
+    crtpRegisterBlock->setChannel(1);
+    
+    CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpRegisterBlock, true);
+    
+    char *cData = crtpReceived->data();
+    bool bCreateOK = false;
+    if(cData[1] == 0x00 &&
+       cData[2] == nID &&
+       cData[3] == 0x00) {
+      bCreateOK = true;
+      cout << "Registered logging block `" << strName << "'" << endl;
+    }
+    
+    if(crtpReceived) {
+      delete crtpReceived;
+    }
       
-      if(crtpReceived) {
-	delete crtpReceived;
-      }
-      
-      if(bCreateOK) {
-	struct LoggingBlock lbNew;
-	lbNew.strName = strName;
-	lbNew.nID = nID;
-	lbNew.dFrequency = dFrequency;
+    if(bCreateOK) {
+      struct LoggingBlock lbNew;
+      lbNew.strName = strName;
+      lbNew.nID = nID;
+      lbNew.dFrequency = dFrequency;
 	
-	m_lstLoggingBlocks.push_back(lbNew);
+      m_lstLoggingBlocks.push_back(lbNew);
 	
-	return this->enableLogging(strName);
-      }
+      return this->enableLogging(strName);
     }
   }
   
@@ -371,14 +379,22 @@ bool CTOC::unregisterLoggingBlock(string strName) {
   
   struct LoggingBlock lbCurrent = this->loggingBlockForName(strName, bFound);
   if(bFound) {
-    char cPayload[2] = {2, lbCurrent.nID};
-    CCRTPPacket *crtpUnregisterBlock = new CCRTPPacket(cPayload, 2, 1);
-    crtpUnregisterBlock->setPort(m_nPort);
-    CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpUnregisterBlock, true);
-    
-    if(crtpReceived) {
-      delete crtpReceived;
-    }
+    return this->unregisterLoggingBlockID(lbCurrent.nID);
+  }
+  
+  return false;
+}
+
+bool CTOC::unregisterLoggingBlockID(int nID) {
+  char cPayload[2] = {0x02, nID};
+  CCRTPPacket *crtpUnregisterBlock = new CCRTPPacket(cPayload, 2, 1);
+  crtpUnregisterBlock->setPort(m_nPort);
+  crtpUnregisterBlock->setChannel(1);
+  CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpUnregisterBlock, true);
+  
+  if(crtpReceived) {
+    delete crtpReceived;
+    return true;
   }
   
   return false;
@@ -401,19 +417,22 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
       int nIndex = 0;
       int nAvailableLogBytes = crtpPacket->dataLength() - 5;
       
-      while(nOffset < nAvailableLogBytes) {
-	// Only float values supported at the moment
-	float fValue;
-	memcpy(&fValue, &cLogdata[nOffset], sizeof(float));
-	
-	int nBlockID = cData[1];
-	int nElementID = this->elementIDinBlock(nBlockID, nIndex);
-	//cout << nBlockID << "," << nElementID << "," << nIndex << "," << nAvailableLogBytes << endl;
-	this->setFloatValueForElementID(nElementID, fValue);
-	
-	nOffset += sizeof(float);
-	nIndex++;
-	break; // HACK: Only do one right now
+      int nBlockID = cData[1];
+      bool bFound;
+      struct LoggingBlock lbCurrent = this->loggingBlockForID(nBlockID, bFound);
+      
+      if(bFound) {
+	while(nIndex < lbCurrent.lstElementIDs.size()) {
+	  // Only float values supported at the moment
+	  float fValue;
+	  memcpy(&fValue, &cLogdata[nOffset], sizeof(float));
+	  
+	  int nElementID = this->elementIDinBlock(nBlockID, nIndex);
+	  this->setFloatValueForElementID(nElementID, fValue);
+	  
+	  nOffset += sizeof(float);
+	  nIndex++;
+	}
       }
       
       delete crtpPacket;
@@ -437,15 +456,16 @@ int CTOC::elementIDinBlock(int nBlockID, int nElementIndex) {
 }
 
 bool CTOC::setFloatValueForElementID(int nElementID, float fValue) {
+  int nIndex = 0;
   for(list<struct TOCElement>::iterator itElement = m_lstTOCElements.begin();
       itElement != m_lstTOCElements.end();
-      itElement++) {
+      itElement++, nIndex++) {
     struct TOCElement teCurrent = *itElement;
     
     if(teCurrent.nID == nElementID) {
       teCurrent.dValue = fValue; // We store floats as doubles
-      *itElement = teCurrent;
-      
+      (*itElement) = teCurrent;
+      // cout << fValue << endl;
       return true;
     }
   }

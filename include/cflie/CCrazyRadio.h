@@ -143,7 +143,7 @@ public:
     \param crtpSend The packet which supplied header and payload
     information to send to the copter */
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
-  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend);
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards = true, int nRetries = 10, int nMicrosecondsWait = 100);
   
   /*! \brief Whether or not the copter is answering sent packets.

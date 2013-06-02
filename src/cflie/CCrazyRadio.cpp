@@ -365,7 +365,7 @@ CCRTPPacket *CCrazyRadio::readACK() {
   if(this->readData(cBuffer, nBytesRead)) {
     if(nBytesRead > 0) {
       // Analyse status byte
-      m_bAckReceived = cBuffer[0] & 0x1;
+      m_bAckReceived = true;//cBuffer[0] & 0x1;
       //bool bPowerDetector = cBuffer[0] & 0x2;
       //int nRetransmissions = cBuffer[0] & 0xf0;
       
@@ -377,6 +377,8 @@ CCRTPPacket *CCrazyRadio::readACK() {
       if(nBytesRead > 1) {
       	crtpPacket->setData(&cBuffer[1], nBytesRead);
       }
+    } else {
+      m_bAckReceived = false;
     }
   }
   
@@ -408,8 +410,8 @@ CCRTPPacket *CCrazyRadio::waitForPacket() {
   return crtpReceived;
 }
 
-CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend) {
-  return this->sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel());
+CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards) {
+  return this->sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel(), bDeleteAfterwards);
 }
 
 CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards, int nRetries, int nMicrosecondsWait) {
