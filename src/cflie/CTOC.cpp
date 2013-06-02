@@ -138,6 +138,24 @@ struct TOCElement CTOC::elementForName(string strName, bool &bFound) {
   return teEmpty;
 }
 
+struct TOCElement CTOC::elementForID(int nID, bool &bFound) {
+  for(list<struct TOCElement>::iterator itElement = m_lstTOCElements.begin();
+      itElement != m_lstTOCElements.end();
+      itElement++) {
+    struct TOCElement teCurrent = *itElement;
+    
+    if(nID == teCurrent.nID) {
+      bFound = true;
+      return teCurrent;
+    }
+  }
+  
+  bFound = false;
+  struct TOCElement teEmpty;
+  
+  return teEmpty;
+}
+
 int CTOC::idForName(string strName) {
   bool bFound;
   
@@ -423,15 +441,38 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
       
       if(bFound) {
 	while(nIndex < lbCurrent.lstElementIDs.size()) {
-	  // Only float values supported at the moment
-	  float fValue;
-	  memcpy(&fValue, &cLogdata[nOffset], sizeof(float));
-	  
 	  int nElementID = this->elementIDinBlock(nBlockID, nIndex);
-	  this->setFloatValueForElementID(nElementID, fValue);
+	  bool bFound;
+	  struct TOCElement teCurrent = this->elementForID(nElementID, bFound);
 	  
-	  nOffset += sizeof(float);
-	  nIndex++;
+	  if(bFound) {
+	    int nByteLength = 0;
+	    float fValue = 0;
+	    short sValue = 0;
+	    
+	    switch(teCurrent.nType) {
+	    case 5: { // INT16
+	      nByteLength = 2;
+	      memcpy(&sValue, &cLogdata[nOffset], sizeof(nByteLength));
+	      fValue = sValue;
+	    } break;
+	      
+	    case 7: { // FLOAT
+	      nByteLength = 4;
+	      memcpy(&fValue, &cLogdata[nOffset], sizeof(nByteLength));
+	    } break;
+	    }
+	    
+	    this->setFloatValueForElementID(nElementID, fValue);
+	    nOffset += nByteLength;
+	    nIndex++;
+	  } else {
+	    cerr << "Didn't find element ID " << nElementID
+		 << " in block ID " << nBlockID
+		 << " while parsing incoming logging data." << endl;
+	    cerr << "This REALLY shouldn't be happening!" << endl;
+	    exit(-1);
+	  }
 	}
       }
       

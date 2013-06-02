@@ -62,6 +62,7 @@ class CTOC {
   bool requestItems();
   
   struct TOCElement elementForName(string strName, bool &bFound);
+  struct TOCElement elementForID(int nID, bool &bFound);
   int idForName(string strName);
   int typeForName(string strName);
   

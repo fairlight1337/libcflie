@@ -155,7 +155,7 @@ class CCrazyflie {
   struct DSVelocityControlSignal identityControlSignal();
   void applyControllerResult(double dElapsedTime);
   void calculatePoseIntegral(double dElapsedTime);
-  void calculateCartesianVelocity();
+  void calculateCartesianVelocity(double dElapsedTime);
   bool readTOCParameters();
   bool readTOCLogs();
   
@@ -430,6 +430,9 @@ class CCrazyflie {
   
   bool stopLogging();
   double batteryLevel();
+  
+  void enableMagnetometerLogging();
+  void disableMagnetometerLogging();
 };
 
 

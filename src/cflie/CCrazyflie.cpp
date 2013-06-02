@@ -36,7 +36,7 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_dSecondsLast = this->currentTime();
   
   // Review these values
-  m_fMaxAbsRoll = 0.5;
+  m_fMaxAbsRoll = 45.0f;
   m_fMaxAbsPitch = m_fMaxAbsRoll;
   m_fMaxYaw = 2 * M_PI;
   m_nMaxThrust = 60000;
@@ -186,7 +186,7 @@ bool CCrazyflie::cycle() {
     // angular twist (RPY). This is mainly based on taking the current
     // angles of the device into account (from the current pose) and
     // then applying the values from the gyroscope.
-    this->calculateCartesianVelocity();
+    this->calculateCartesianVelocity(dSecondsElapsed);
     
     // Calculate pose integral and apply the calculated control signals
     this->calculatePoseIntegral(dSecondsElapsed);
@@ -227,7 +227,7 @@ void CCrazyflie::setRoll(float fRoll) {
   m_fRoll = fRoll;
   
   if(fabs(m_fRoll) > m_fMaxAbsRoll) {
-    m_fRoll = copysign(m_fRoll, m_fMaxAbsRoll);
+    m_fRoll = copysign(m_fMaxAbsRoll, m_fRoll);
   }
 }
 
@@ -239,7 +239,7 @@ void CCrazyflie::setPitch(float fPitch) {
   m_fPitch = fPitch;
   
   if(fabs(m_fPitch) > m_fMaxAbsPitch) {
-    m_fPitch = copysign(m_fPitch, m_fMaxAbsPitch);
+    m_fPitch = copysign(m_fMaxAbsPitch, m_fPitch);
   }
 }
 
@@ -295,7 +295,7 @@ double CCrazyflie::currentTime() {
   return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 }
 
-void CCrazyflie::calculateCartesianVelocity() {
+void CCrazyflie::calculateCartesianVelocity(double dElapsedTime) {
   // TODO(winkler): Calculate the cartesian velocity from the angular
   // and gyro values here.
   double dRoll = this->sensorDoubleValue("stabilizer.roll");
@@ -306,8 +306,13 @@ void CCrazyflie::calculateCartesianVelocity() {
   double dAccY = this->sensorDoubleValue("acc.y");
   double dAccZ = this->sensorDoubleValue("acc.z");
   
-  cout << "Ang: " << dRoll << " " << dPitch << " " << dYaw << endl;
-  cout << "Acc: " << dAccX << " " << dAccY << " " << dAccZ << endl;
+  double dMagX = this->sensorDoubleValue("mag.x");
+  double dMagY = this->sensorDoubleValue("mag.y");
+  double dMagZ = this->sensorDoubleValue("mag.z");
+  
+  //cout << "Ang: " << dRoll << " " << dPitch << " " << dYaw << endl;
+  //cout << "Acc: " << dAccX << " " << dAccY << " " << dAccZ << endl;
+  //cout << "Mag: " << dMagX << " " << dMagY << " " << dMagZ << endl;
 }
 
 void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
@@ -433,6 +438,7 @@ bool CCrazyflie::startLogging() {
   this->enableGyroscopeLogging();
   this->enableAccelerometerLogging();
   this->enableBatteryLogging();
+  this->enableMagnetometerLogging();
   
   return true;
 }
@@ -442,6 +448,7 @@ bool CCrazyflie::stopLogging() {
   this->disableGyroscopeLogging();
   this->disableAccelerometerLogging();
   this->disableBatteryLogging();
+  this->disableMagnetometerLogging();
   
   return true;
 }
@@ -507,6 +514,18 @@ void CCrazyflie::enableBatteryLogging() {
 
 void CCrazyflie::disableBatteryLogging() {
   m_tocLogs->unregisterLoggingBlock("battery");
+}
+
+void CCrazyflie::enableMagnetometerLogging() {
+  m_tocLogs->registerLoggingBlock("magnetometer", 1000);
+
+  m_tocLogs->startLogging("mag.x", "magnetometer");
+  m_tocLogs->startLogging("mag.y", "magnetometer");
+  m_tocLogs->startLogging("mag.z", "magnetometer");
+}
+
+void CCrazyflie::disableMagnetometerLogging() {
+  m_tocLogs->unregisterLoggingBlock("magnetometer");
 }
 
 double CCrazyflie::batteryLevel() {
