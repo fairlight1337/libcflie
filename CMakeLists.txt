@@ -22,12 +22,14 @@ add_library(${PROJECT_NAME}
 add_executable(ex-replugging src/examples/replugging.cpp)
 add_executable(ex-flying src/examples/flying.cpp)
 add_executable(ex-simple src/examples/simple.cpp)
+add_executable(ex-gui src/examples/gui.cpp)
 add_executable(dev src/dev.cpp)
 
 target_link_libraries(${PROJECT_NAME} ${USB_LIB})
 target_link_libraries(ex-replugging ${PROJECT_NAME})
 target_link_libraries(ex-flying ${PROJECT_NAME})
 target_link_libraries(ex-simple ${PROJECT_NAME})
+target_link_libraries(ex-gui ${PROJECT_NAME} glfw GL GLU)
 target_link_libraries(dev ${PROJECT_NAME})
 
 install(FILES include/cflie/*.h DESTINATION include)
