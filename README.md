@@ -63,3 +63,10 @@ and `bin`.
     the USB dongle and letting the copter go out of range and
     return. Also, event hooks are marked for all these events to
     execute custom code for all situations.
+  * `ex-gui` displays an OpenGL window that shows a plane based on the
+    current copter orientation. Using the arrow keys, you can control
+    the copter, and when pressing the space bar, you can increase the
+    thrust to the copter. CAREFUL: When starting the program, the
+    copter will start with a thrust greater than 10000, which will
+    start the engines! So be sure to place it far away from objects
+    (or your hands).
