@@ -73,7 +73,6 @@ class CCrazyflie {
   float m_fYaw;
   /*! \brief The current desired control set point (position/yaw to
       reach) */
-  struct DSControlSetPoint m_cspDesired;
   
   // Control related parameters
   /*! \brief Maximum absolute value for the roll that will be sent to
@@ -183,6 +182,8 @@ class CCrazyflie {
     controller */
   float yaw();
   
+  double currentTime();
+
   /*! \brief Manages internal calculation operations
     
     Should be called during every 'cycle' of the main program using

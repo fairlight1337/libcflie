@@ -224,6 +224,13 @@ float CCrazyflie::yaw() {
   return this->sensorDoubleValue("stabilizer.yaw");
 }
 
+double CCrazyflie::currentTime() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  
+  return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+}
+
 bool CCrazyflie::isInitialized() {
   return m_enumState == STATE_NORMAL_OPERATION;
 }
