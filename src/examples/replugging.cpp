@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
       bDongleConnected = true;
       
       CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
+      cflieCopter->setSendSetpoints(true);
       cflieCopter->setThrust(nThrust);
       
       while(g_bGoon && bDongleConnected) {
