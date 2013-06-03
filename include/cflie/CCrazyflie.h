@@ -50,13 +50,6 @@ enum State {
   STATE_NORMAL_OPERATION = 5
 };
 
-/*! \brief Enumeration holding the possible (i.e. implemented)
-    controller types */
-enum Controller {
-  CTRL_NONE = 0,
-  CTRL_P = 1
-};
-
 /*! \brief Crazyflie Nano convenience controller class
 
   The class containing the mechanisms for starting sensor readings,
