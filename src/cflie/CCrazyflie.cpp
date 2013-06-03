@@ -30,10 +30,6 @@
 
 CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_crRadio = crRadio;
-  m_nLastRequestedVariableIndex = -1;
-  m_nThrust = 0;
-  m_ctrlController = NULL;
-  m_dSecondsLast = this->currentTime();
   
   // Review these values
   m_fMaxAbsRoll = 45.0f;
@@ -42,33 +38,20 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_nMaxThrust = 60000;
   m_nMinThrust = 0;//15000;
 
-  m_dAccZZero = 0;
-  
   m_fRoll = 0;
   m_fPitch = 0;
   m_fYaw = 0;
   m_nThrust = 0;
   
-  m_bControllerIgnoresYaw = false;
-  m_fArrivalThreshold = 0.05;
   m_bSendsSetpoints = false;
   
-  this->disableController();
-  
-  //this->updateTOC();
-  //this->updateLogTOC();
   m_tocParameters = new CTOC(m_crRadio, 2);
   m_tocLogs = new CTOC(m_crRadio, 5);
   
   m_enumState = STATE_ZERO;
   
-  m_nAckMissCounter = 0;
-  m_nAckMissTolerance = 10;
-  
   m_dSendSetpointPeriod = 0.01; // Seconds
   m_dSetpointLastSent = 0;
-  
-  this->resetState();
 }
 
 CCrazyflie::~CCrazyflie() {
@@ -93,24 +76,6 @@ bool CCrazyflie::readTOCLogs() {
   }
   
   return false;
-}
-
-void CCrazyflie::resetState() {
-  m_dspCurrentPose.dsvPosition.fX = 0;
-  m_dspCurrentPose.dsvPosition.fY = 0;
-  m_dspCurrentPose.dsvPosition.fZ = 0;
-  
-  m_dspCurrentPose.dsoOrientation.fRoll = 0;
-  m_dspCurrentPose.dsoOrientation.fPitch = 0;
-  m_dspCurrentPose.dsoOrientation.fYaw = 0;
-  
-  m_dstCurrentTwist.dsvLinear.fX = 0;
-  m_dstCurrentTwist.dsvLinear.fY = 0;
-  m_dstCurrentTwist.dsvLinear.fZ = 0;
-  
-  m_dstCurrentTwist.dsoAngular.fRoll = 0;
-  m_dstCurrentTwist.dsoAngular.fPitch = 0;
-  m_dstCurrentTwist.dsoAngular.fYaw = 0;
 }
 
 bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust) {
@@ -150,6 +115,8 @@ int CCrazyflie::thrust() {
 }
 
 bool CCrazyflie::cycle() {
+  double dTimeNow = this->currentTime();
+  
   switch(m_enumState) {
   case STATE_ZERO: {
     m_enumState = STATE_READ_PARAMETERS_TOC;
@@ -176,38 +143,21 @@ bool CCrazyflie::cycle() {
   case STATE_ZERO_MEASUREMENTS: {
     m_tocLogs->processPackets(m_crRadio->popLoggingPackets());
     
-    m_dAccZZero = this->sensorDoubleValue("acc.z");
-    //cout << "!!!" << m_dAccZZero << endl;
+    // NOTE(winkler): Here, we can do measurement zero'ing. This is
+    // not done at the moment, though. Reason: No readings to zero at
+    // the moment. This might change when altitude becomes available.
     
     m_enumState = STATE_NORMAL_OPERATION;
   } break;
     
   case STATE_NORMAL_OPERATION: {
-    // Handle time calculation
-    double dTimeNow = this->currentTime();
-    double dSecondsElapsed = m_dSecondsLast - dTimeNow;
-    m_dSecondsLast = dTimeNow;
-    
     // Shove over the sensor readings from the radio to the Logs TOC.
     m_tocLogs->processPackets(m_crRadio->popLoggingPackets());
-    
-    //cout << m_tocLogs->doubleValue("stabilizer.yaw") << endl;
-    
-    // Calculate the linear twist (i.e. cartesian velocity) from the
-    // angular twist (RPY). This is mainly based on taking the current
-    // angles of the device into account (from the current pose) and
-    // then applying the values from the gyroscope.
-    this->calculateCartesianVelocity(dSecondsElapsed);
-    
-    // Calculate pose integral and apply the calculated control signals
-    this->calculatePoseIntegral(dSecondsElapsed);
-    this->applyControllerResult(dSecondsElapsed);
     
     if(m_bSendsSetpoints) {
       // Check if it's time to send the setpoint
       if(dTimeNow - m_dSetpointLastSent > m_dSendSetpointPeriod) {
 	// Send the current set point based on the previous calculations
-	//cout << "Send " << m_nThrust << endl;
 	this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
 	m_dSetpointLastSent = dTimeNow;
       }
@@ -243,7 +193,7 @@ void CCrazyflie::setRoll(float fRoll) {
 }
 
 float CCrazyflie::roll() {
-  return m_fRoll;
+  return this->sensorDoubleValue("stabilizer.roll");
 }
 
 void CCrazyflie::setPitch(float fPitch) {
@@ -255,7 +205,7 @@ void CCrazyflie::setPitch(float fPitch) {
 }
 
 float CCrazyflie::pitch() {
-  return m_fPitch;
+  return this->sensorDoubleValue("stabilizer.pitch");
 }
 
 void CCrazyflie::setYaw(float fYaw) {
@@ -271,176 +221,7 @@ void CCrazyflie::setYaw(float fYaw) {
 }
 
 float CCrazyflie::yaw() {
-  return m_fYaw;
-}
-
-void CCrazyflie::disableController() {
-  m_enumCtrl = CTRL_NONE;
-  
-  if(m_ctrlController != NULL) {
-    delete m_ctrlController;
-    m_ctrlController = NULL;
-  }
-}
-
-void CCrazyflie::setPController(float fPGain) {
-  if(m_enumCtrl != CTRL_P) {
-    this->disableController();
-    
-    m_enumCtrl = CTRL_P;
-    m_ctrlController = new CPController();
-    m_ctrlController->setIgnoresYaw(this->controllerIgnoresYaw());
-    
-    ((CPController*)m_ctrlController)->setPGain(fPGain);
-  }
-}
-
-void CCrazyflie::setDesiredSetPoint(struct DSControlSetPoint cspDesired) {
-  m_cspDesired = cspDesired;
-}
-
-double CCrazyflie::currentTime() {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  
-  return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
-}
-
-void CCrazyflie::calculateCartesianVelocity(double dElapsedTime) {
-  // TODO(winkler): Calculate the cartesian velocity from the angular
-  // and gyro values here.
-  double dRoll = this->sensorDoubleValue("stabilizer.roll");
-  double dPitch = this->sensorDoubleValue("stabilizer.pitch");
-  double dYaw = this->sensorDoubleValue("stabilizer.yaw");
-  
-  double dAccX = this->sensorDoubleValue("acc.x");
-  double dAccY = this->sensorDoubleValue("acc.y");
-  double dAccZ = this->sensorDoubleValue("acc.z");
-  
-  double dMagX = this->sensorDoubleValue("mag.x");
-  double dMagY = this->sensorDoubleValue("mag.y");
-  double dMagZ = this->sensorDoubleValue("mag.z");
-  
-  //cout << "Ang: " << dRoll << " " << dPitch << " " << dYaw << endl;
-  //cout << "Acc: " << dAccX << " " << dAccY << " " << dAccZ << endl;
-  //cout << "Mag: " << dMagX << " " << dMagY << " " << dMagZ << endl;
-  
-  //m_dstCurrentTwist.dsvLinear.fZ += (dAccZ - m_dAccZZero) * dElapsedTime;
-}
-
-void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
-  m_dspCurrentPose.dsvPosition.fX += dElapsedTime * m_dstCurrentTwist.dsvLinear.fX;
-  m_dspCurrentPose.dsvPosition.fY += dElapsedTime * m_dstCurrentTwist.dsvLinear.fY;
-  m_dspCurrentPose.dsvPosition.fZ += dElapsedTime * m_dstCurrentTwist.dsvLinear.fZ;
-  
-  //cout << "Z: " << m_dspCurrentPose.dsvPosition.fZ << endl;
-}
-
-struct DSVelocityControlSignal CCrazyflie::identityControlSignal() {
-  struct DSVelocityControlSignal dvcsIdentity;
-  
-  dvcsIdentity.nThrust = 0;
-  dvcsIdentity.dsoAngular.fRoll = 0;
-  dvcsIdentity.dsoAngular.fPitch = 0;
-  dvcsIdentity.dsoAngular.fYaw = 0;
-  
-  return dvcsIdentity;
-}
-
-void CCrazyflie::applyControllerResult(double dElapsedTime) {
-  struct DSVelocityControlSignal dvcsResult = this->identityControlSignal();
-  
-  switch(m_enumCtrl) {
-  case CTRL_P: {
-    dvcsResult = ((CPController*)m_ctrlController)->inputSignalForDesiredPosition(m_dspCurrentPose, m_cspDesired);
-  } break;
-      
-  case CTRL_NONE:  
-  default: {
-    // Unknown or no controller, don't do anything.
-  } break;
-  }
-    
-  // Apply the relative velocity signal to the set point according
-  // to the elapsed time
-  this->setRoll(this->roll() +
-		dElapsedTime * dvcsResult.dsoAngular.fRoll);
-  this->setPitch(this->pitch() +
-		 dElapsedTime * dvcsResult.dsoAngular.fPitch);
-  this->setYaw(this->yaw() +
-	       dElapsedTime * dvcsResult.dsoAngular.fYaw);
-  this->setThrust(this->thrust() +
-		  dElapsedTime * dvcsResult.nThrust);
-}
-
-double CCrazyflie::distanceBetweenPositions(struct DSVector dsvPosition1, struct DSVector dsvPosition2) {
-  return sqrt(((dsvPosition1.fX - dsvPosition2.fX) *
-	       (dsvPosition1.fX - dsvPosition2.fX)) +
-	      ((dsvPosition1.fY - dsvPosition2.fY) *
-	       (dsvPosition1.fY - dsvPosition2.fY)) +
-	      ((dsvPosition1.fZ - dsvPosition2.fZ) *
-	       (dsvPosition1.fZ - dsvPosition2.fZ)));
-}
-
-double CCrazyflie::distanceToPosition(struct DSVector dsvPosition) {
-  return this->distanceBetweenPositions(dsvPosition,
-					m_cspDesired.dsvPosition);
-}
-
-double CCrazyflie::distanceToDesiredPosition() {
-  return this->distanceToPosition(m_dspCurrentPose.dsvPosition);
-}
-
-void CCrazyflie::goToRelativePosition(struct DSVector dsvRelative) {
-  struct DSVector dsvAbsolute;
-  
-  dsvAbsolute = m_dspCurrentPose.dsvPosition;
-  dsvAbsolute.fX += dsvRelative.fX;
-  dsvAbsolute.fY += dsvRelative.fY;
-  dsvAbsolute.fZ += dsvRelative.fZ;
-  
-  this->goToAbsolutePosition(dsvAbsolute);
-}
-
-void CCrazyflie::goToAbsolutePosition(struct DSVector dsvAbsolute) {
-  struct DSControlSetPoint cspDesired;
-  
-  cspDesired.fYaw = m_dspCurrentPose.dsoOrientation.fYaw;
-  cspDesired.dsvPosition = dsvAbsolute;
-  
-  this->setDesiredSetPoint(cspDesired);
-}
-
-void CCrazyflie::setControllerIgnoresYaw(bool bControllerIgnoresYaw) {
-  if(m_ctrlController) {
-    m_ctrlController->setIgnoresYaw(bControllerIgnoresYaw);
-  }
-  
-  m_bControllerIgnoresYaw = bControllerIgnoresYaw;
-}
-
-bool CCrazyflie::controllerIgnoresYaw() {
-  return m_bControllerIgnoresYaw;
-}
-
-bool CCrazyflie::isAtDesiredPosition() {
-  return this->isAtDesiredPosition(m_fArrivalThreshold);
-}
-
-bool CCrazyflie::isAtDesiredPosition(float fThreshold) {
-  return this->distanceToDesiredPosition() <= fThreshold;
-}
-
-void CCrazyflie::setArrivalThreshold(float fArrivalThreshold) {
-  m_fArrivalThreshold = fArrivalThreshold;
-}
-
-float CCrazyflie::arrivalThreshold() {
-  return m_fArrivalThreshold;
-}
-
-void CCrazyflie::relocalize() {
-  this->resetState();
+  return this->sensorDoubleValue("stabilizer.yaw");
 }
 
 bool CCrazyflie::isInitialized() {

@@ -15,8 +15,6 @@ add_library(${PROJECT_NAME}
   src/cflie/CCrazyRadio.cpp
   src/cflie/CCrazyflie.cpp
   src/cflie/CCRTPPacket.cpp
-  src/cflie/CController.cpp
-  src/cflie/CPController.cpp
   src/cflie/CTOC.cpp)
 
 add_executable(ex-replugging src/examples/replugging.cpp)

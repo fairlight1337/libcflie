@@ -34,8 +34,6 @@
 #include <math.h>
 
 #include "CCrazyRadio.h"
-#include "CController.h"
-#include "CPController.h"
 #include "CTOC.h"
 
 using namespace std;
@@ -63,8 +61,6 @@ class CCrazyflie {
   /*! \brief Internal pointer to the initialized CCrazyRadio radio
       interface instance. */
   CCrazyRadio *m_crRadio;
-  /*! \brief Internal index for requesting copter TOC variables */
-  int m_nLastRequestedVariableIndex;
   /*! \brief The current thrust to send as a set point to the
       copter. */
   int m_nThrust;
@@ -75,24 +71,9 @@ class CCrazyflie {
   float m_fPitch;
   /*! \brief The current yaw to send as a set point to the copter. */
   float m_fYaw;
-  /*! \brief The currently selected controller. */
-  CController *m_ctrlController;
-  /*! \brief Holding the current copter pose as read from the sensors
-      and calculated (integrated) over time */
-  struct DSPose m_dspCurrentPose;
-  /*! \brief Holding the current copter twist as reported by the
-      sensor readings */
-  struct DSTwist m_dstCurrentTwist;
   /*! \brief The current desired control set point (position/yaw to
       reach) */
   struct DSControlSetPoint m_cspDesired;
-  enum Controller m_enumCtrl;
-  /*! \brief Time of last cycle start
-    
-    The point in time (in seconds) at which the last set point was
-    sent to the copter. Serves the purpose of calculating controller
-    related variables and integrals. */
-  double m_dSecondsLast;
   
   // Control related parameters
   /*! \brief Maximum absolute value for the roll that will be sent to
@@ -111,47 +92,11 @@ class CCrazyflie {
   double m_dSendSetpointPeriod;
   double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
-  int m_nMeasurementZeroCounter;
-  /*! \brief Whether or not controllers ignore yaw control
-    
-    Whether or not the controllers ignore controlling the yaw of the
-    copter. Since for navigation, it is not important in which
-    direction the copter points, it might be switched off to give the
-    controllers a larger degree of freedom. This setting is forwarded
-    to the currently active (or thereafter activated) controller. */
-  bool m_bControllerIgnoresYaw;
-  /*! \brief Threshold value for determining arrival status
-    
-    Threshold value which denotes the maximum distance the copter
-    position might have from the set desired position for marking it
-    as arrived. */
-  float m_fArrivalThreshold;
   CTOC *m_tocParameters;
   CTOC *m_tocLogs;
   enum State m_enumState;
-  double m_dAccZZero;
   
   // Functions
-  /*! \brief Reset the internal state
-    
-    Resetting the internal state (pose and twist) of the copter
-    controller(s). This is usually not called outside of the class and
-    has mainly initialization purpose. */
-  void resetState();
-  /*! \brief Reports the current time in fractions of seconds
-    
-    Calculates and returns the current system time in (fractions of)
-    seconds. This time is mainly used for integrating over time and
-    control signal application purposes.
-    
-    \return Value denoting the current time since epoch (1970/01/01
-    00:00:00) in fractions of seconds */
-  double currentTime();
-  
-  struct DSVelocityControlSignal identityControlSignal();
-  void applyControllerResult(double dElapsedTime);
-  void calculatePoseIntegral(double dElapsedTime);
-  void calculateCartesianVelocity(double dElapsedTime);
   bool readTOCParameters();
   bool readTOCLogs();
   
@@ -170,15 +115,6 @@ class CCrazyflie {
     \return Boolean value denoting whether or not the command could be sent successfully. */
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
 
-  void updateTOC();
-  void populateTOCElement(int nIndex);
-  void populateNextTOCElement();
-
-  void populateLOGElement(int nIndex);
-  void populateNextLOGElement();
-  
-  void updateLogTOC();
-    
  public:
   /*! \brief Constructor for the copter convenience class
 
@@ -271,146 +207,14 @@ class CCrazyflie {
     range or is switched off. */
   bool copterInRange();
   
-  /*! \brief Switches off the current controller
-    
-    Resets copter control to 'CTRL_NONE' as specified in the
-    Controller enum and effectively switches off control. */
-  void disableController();
-  /*! \brief Selects the P gain based controller as active controller
-    
-    \param fPGain Denotes the proportional P gain constant to use for
-    the controller */
-  void setPController(float fPGain);
-  
-  /*! \brief Set the desired set point, i.e. position and yaw
-    
-    Sets the desired controller set point for the currently selected
-    controller. The set point will be set even if no controller is
-    selected and tried to be achieved as soon as a controller is
-    active.
-    
-    \param cspDesired The desired set point. Consists of an R^3
-    position and a yaw value. */
-  void setDesiredSetPoint(struct DSControlSetPoint cspDesired);
-  
-  /*! \brief Returns the distance between two physical positions
-    
-    Calculates the euclidean distance between the two R^3 positions
-    given as dsvPosition1 and dsvPosition2.
-    
-    \return Returns a value denoting the distance between the two
-    given positions, in meters. */
-  double distanceBetweenPositions(struct DSVector dsvPosition1, struct DSVector dsvPosition2);
-  /*! \brief Returns the distance between the current and the given
-    physical position.
-    
-    \return Returns a value denoting the distance between the current
-    and given position dsvPosition, in meters. */
-  double distanceToPosition(struct DSVector dsvPosition);
-  /*! \brief Returns the distance between the current and the desired
-    physical position.
-    
-    \return Returns a value denoting the distance between the current
-    and desired position, in meters. */
-  double distanceToDesiredPosition();
-  
-  /*! \brief Sets the desired relative copter position
-    
-    Sets the correct controller set point to go to the relative R^3
-    position given in dsvRelative, starting from an arbitrary current
-    position.
-    
-    \param dsvRelative The relative R^3 position to go to (given in
-    meters) */
-  void goToRelativePosition(struct DSVector dsvRelative);
-  /*! \brief Sets the desired absolute copter position
-    
-    Sets the correct controller set point to go to the absolute R^3
-    position given in dsvAbsolute. The localization is purely based on
-    the starting pose the copter was in when it was initialized. That
-    place is denoted as origin (0, 0, 0) in R^3.
-    
-    Because of the nature of drifting integration errors when summing
-    up velocity sensor readings and the connected uncertainty, this
-    positioning method is bound to be imperfect. It can be used as an
-    approximation if one does not need perfect localization though.
-    
-    \param dsvAbsolute The absolute R^3 position to go to (given in
-    meters) */
-  void goToAbsolutePosition(struct DSVector dsvAbsolute);
-  
-  /*! \brief Whether or not the copter has reached it's desired position.
-    
-    Taking an threshold value into account (which by default is set to
-    0.05m), this function returns a boolean value showing whether the
-    copter is in vicinity of the desired position set earlier. This
-    value serves an informational purpose for client programs to see
-    whether their control goal was reached yet.
-
-    \return Boolean value denoting whether the control goal position was reached. */
-  bool isAtDesiredPosition();
-  /*! \brief Whether or not the copter has reached it's desired
-      position, given a custom threshold value.
-    
-    Basically the same as isAtDesiredPosition() but gives the
-    possibility of overriding the internal default threshold with a
-    custom value.
-
-    \param fThreshold Custom threshold value used for vicinity
-    checking of the copter's control goal position.
-
-    \return Boolean value denoting whether the control goal position
-    was reached. */
-  bool isAtDesiredPosition(float fThreshold);
-  
-  /*! \brief Sets the internal threshold value for arrival checking
-    
-    Sets the internal value of the threshold distance the copter must
-    be within when checking whether it reached it's destination. This
-    does not affect the control algorithm as they will continuously
-    try to go as near as possible. Therefore, this value is purely
-    used for user-side checking of destination vicinity.
-  
-    \param fArrivalThreshold The threshold value to set (in
-    meters). */
-  void setArrivalThreshold(float fArrivalThreshold);
-  /*! \brief The current arrival threshold value
-    
-    \return Returns the current internal value for arrival vicinity
-    checking. */
-  float arrivalThreshold();
-  
-  /*! \brief Globally sets whether controllers ignore yaw control
-    
-    \param bControllerIgnoresYaw Boolean value that defines whether
-    controllers ignore yaw control */
-  void setControllerIgnoresYaw(bool bControllerIgnoresYaw);
-  /*! \brief Signals whether or not the yaw control is ignored in
-      controllers.
-    
-    \return Boolean value denoting whether the yaw control is
-    currently ignored during control. */
-  bool controllerIgnoresYaw();
-  
-  /*! \brief Reset the current pose to the origin pose
-    
-    Calls the private resetState function to re-localize the copter
-    and use the current pose as the origin pose. Adding an extra
-    function call here mainly serves splitting up functionalities
-    between initialization and maintenance functions. */
-  void relocalize();
-
   bool isInitialized();
   
   bool startLogging();
-  void addHighSpeedLogging(string strName);
-  void addLowSpeedLogging(string strName);
   
   void setSendSetpoints(bool bSendSetpoints);
   bool sendsSetpoints();
   
   double sensorDoubleValue(string strName);
-  void enableHighSpeedLogging();
   void disableLogging();
   
   void enableStabilizerLogging();
