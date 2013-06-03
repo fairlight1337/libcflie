@@ -102,10 +102,12 @@ int main(int argc, char **argv) {
 	      // Loop body for when the copter is in range continuously
 	      // cout << "Roll: " << cflieCopter->sensorDoubleValue("stabilizer.roll") << endl;
 	      // cout << "Pitch: " << cflieCopter->sensorDoubleValue("stabilizer.pitch") << endl;
-	      cout << "Yaw: " << (cflieCopter->sensorDoubleValue("stabilizer.yaw") / 180.0f * M_PI) << endl;
+	      //cout << "Yaw: " << (cflieCopter->sensorDoubleValue("stabilizer.yaw") / 180.0f * M_PI) << endl;
 	      // cout << "Acc x: " << cflieCopter->sensorDoubleValue("acc.x") << endl;
 	      // cout << "Gyro x: " << cflieCopter->sensorDoubleValue("gyro.x") << endl;
 	      // cout << "Battery: " << cflieCopter->batteryLevel() << endl;
+	      cout << "Pressure: " << cflieCopter->sensorDoubleValue("alti.pressure") << endl;
+	      cout << "Temperature: " << cflieCopter->sensorDoubleValue("alti.temperature") << endl;
 	    } else {
 	      if(bCopterWasInRange || !bRangeStateChangedNotified) {
 		// Event triggered when the copter leaves the range.

@@ -46,7 +46,8 @@ enum State {
   STATE_READ_PARAMETERS_TOC = 1,
   STATE_READ_LOGS_TOC = 2,
   STATE_START_LOGGING = 3,
-  STATE_NORMAL_OPERATION = 4
+  STATE_ZERO_MEASUREMENTS = 4,
+  STATE_NORMAL_OPERATION = 5
 };
 
 /*! \brief Enumeration holding the possible (i.e. implemented)
@@ -117,6 +118,7 @@ class CCrazyflie {
   double m_dSendSetpointPeriod;
   double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
+  int m_nMeasurementZeroCounter;
   /*! \brief Whether or not controllers ignore yaw control
     
     Whether or not the controllers ignore controlling the yaw of the
@@ -134,7 +136,8 @@ class CCrazyflie {
   CTOC *m_tocParameters;
   CTOC *m_tocLogs;
   enum State m_enumState;
-
+  double m_dAccZZero;
+  
   // Functions
   /*! \brief Reset the internal state
     
@@ -433,6 +436,9 @@ class CCrazyflie {
   
   void enableMagnetometerLogging();
   void disableMagnetometerLogging();
+
+  void enableAltimeterLogging();
+  void disableAltimeterLogging();
 };
 
 

@@ -100,33 +100,34 @@ int main(int argc, char **argv) {
 	    //cout << cflieCopter->sensorDoubleValue("stabilizer.roll") << endl;
 	    
 	    if(glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS) {
+	      cflieCopter->setThrust(0);
 	      g_bGoon = false;
 	    } else {
 	      if(glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS) {
-		cflieCopter->setThrust(20000);//42000);
+		cflieCopter->setThrust(45000);
 	      } else {
-		cflieCopter->setThrust(0);
+		cflieCopter->setThrust(30000);
 	      }
-
+	      
+	      double dRoll = 0;
+	      double dPitch = 0;
+	      double dYaw = cflieCopter->sensorDoubleValue("stabilizer.yaw");
+	      
 	      if(glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS) {
-		cflieCopter->setRoll(-20);
-	      } else {
-		if(glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		  cflieCopter->setRoll(20);
-		} else {
-		  cflieCopter->setRoll(0.0);
-		}
+		dRoll = 20.0f;//dYaw += 20.0f;
+	      } else if(glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		dRoll = -20.0f;//dYaw -= 20.0f;
 	      }
 	      
 	      if(glfwGetKey(GLFW_KEY_UP) == GLFW_PRESS) {
-		cflieCopter->setPitch(20);
-	      } else {
-		if(glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS) {
-		  cflieCopter->setPitch(-20);
-		} else {
-		  cflieCopter->setPitch(0.0);
-		}
+		dPitch = 20.0f;
+	      } else if(glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS) {
+		dPitch = -20.0f;
 	      }
+	      
+	      cflieCopter->setRoll(dRoll);
+	      cflieCopter->setPitch(dPitch);
+	      cflieCopter->setYaw(dYaw);
 	    }
 	  } else {
 	    g_bGoon = false;

@@ -41,6 +41,8 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_fMaxYaw = 2 * M_PI;
   m_nMaxThrust = 60000;
   m_nMinThrust = 0;//15000;
+
+  m_dAccZZero = 0;
   
   m_fRoll = 0;
   m_fPitch = 0;
@@ -167,8 +169,17 @@ bool CCrazyflie::cycle() {
     
   case STATE_START_LOGGING: {
     if(this->startLogging()) {
-      m_enumState = STATE_NORMAL_OPERATION;
+      m_enumState = STATE_ZERO_MEASUREMENTS;
     }
+  } break;
+    
+  case STATE_ZERO_MEASUREMENTS: {
+    m_tocLogs->processPackets(m_crRadio->popLoggingPackets());
+    
+    m_dAccZZero = this->sensorDoubleValue("acc.z");
+    //cout << "!!!" << m_dAccZZero << endl;
+    
+    m_enumState = STATE_NORMAL_OPERATION;
   } break;
     
   case STATE_NORMAL_OPERATION: {
@@ -313,12 +324,16 @@ void CCrazyflie::calculateCartesianVelocity(double dElapsedTime) {
   //cout << "Ang: " << dRoll << " " << dPitch << " " << dYaw << endl;
   //cout << "Acc: " << dAccX << " " << dAccY << " " << dAccZ << endl;
   //cout << "Mag: " << dMagX << " " << dMagY << " " << dMagZ << endl;
+  
+  //m_dstCurrentTwist.dsvLinear.fZ += (dAccZ - m_dAccZZero) * dElapsedTime;
 }
 
 void CCrazyflie::calculatePoseIntegral(double dElapsedTime) {
   m_dspCurrentPose.dsvPosition.fX += dElapsedTime * m_dstCurrentTwist.dsvLinear.fX;
   m_dspCurrentPose.dsvPosition.fY += dElapsedTime * m_dstCurrentTwist.dsvLinear.fY;
   m_dspCurrentPose.dsvPosition.fZ += dElapsedTime * m_dstCurrentTwist.dsvLinear.fZ;
+  
+  //cout << "Z: " << m_dspCurrentPose.dsvPosition.fZ << endl;
 }
 
 struct DSVelocityControlSignal CCrazyflie::identityControlSignal() {
@@ -439,6 +454,7 @@ bool CCrazyflie::startLogging() {
   this->enableAccelerometerLogging();
   this->enableBatteryLogging();
   this->enableMagnetometerLogging();
+  this->enableAltimeterLogging();
   
   return true;
 }
@@ -449,6 +465,7 @@ bool CCrazyflie::stopLogging() {
   this->disableAccelerometerLogging();
   this->disableBatteryLogging();
   this->disableMagnetometerLogging();
+  this->disableAltimeterLogging();
   
   return true;
 }
@@ -530,4 +547,15 @@ void CCrazyflie::disableMagnetometerLogging() {
 
 double CCrazyflie::batteryLevel() {
   return this->sensorDoubleValue("pm.vbat");
+}
+
+void CCrazyflie::enableAltimeterLogging() {
+  m_tocLogs->registerLoggingBlock("altimeter", 1000);
+
+  m_tocLogs->startLogging("alti.pressure", "altimeter");
+  m_tocLogs->startLogging("alti.temperature", "altimeter");
+}
+
+void CCrazyflie::disableAltimeterLogging() {
+  m_tocLogs->unregisterLoggingBlock("altimeter");
 }
