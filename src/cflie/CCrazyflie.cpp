@@ -111,7 +111,7 @@ void CCrazyflie::setThrust(int nThrust) {
 }
 
 int CCrazyflie::thrust() {
-  return m_nThrust;
+  return this->sensorDoubleValue("stabilizer.thrust");
 }
 
 bool CCrazyflie::cycle() {

@@ -143,8 +143,60 @@ public:
     \param crtpSend The packet which supplied header and payload
     information to send to the copter */
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
+  
+  /*! \brief Sends the given packet and waits for a reply.
+    
+    Internally, this function calls the more elaborate
+    sendAndReceive() function supplying parameters for retrying and
+    waiting. Convenience function signature.
+    
+    \param crtpSend Packet to send
+    \param bDeleteAfterwards Whether or not the packet to send is
+    deleted internally after sending it
+    
+    \return Packet containing the reply or NULL if no reply was
+    received (after retrying). */
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
+  
+  /*! \brief Sends the given packet and waits for a reply.
+    
+    Sends out the CCRTPPacket instance denoted by crtpSend on the
+    given port and channel. Retries a number of times and waits
+    between each retry whether or not an answer was received (in this
+    case, dummy packets are sent in order to receive replies).
+    
+    \param crtpSend Packet to send
+    
+    \param nPort Port number on which to send this packet (and where
+    to wait for the reply)
+    \param nChannel Channel number on which to send this packet (and
+    where to wait for the reply)
+    \param bDeletAfterwards Whether or not the packet to send is
+    deleted internally after sending it
+    \param nRetries Number of retries (re-sending) before giving up on
+    an answer
+    \param nMicrosecondsWait Microseconds to wait between two re-sends
+    
+    \return Packet containing the reply or NULL if no reply was
+    received (after retrying). */
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards = true, int nRetries = 10, int nMicrosecondsWait = 100);
+  
+  /*! \brief Sends out an empty dummy packet
+    
+    Only contains the payload `0xff`, as used for empty packet
+    requests. Mostly used for waiting or keepalive.
+    
+    \return Boolean value denoting whether sending the dummy packet
+    worked or not. */
+  bool sendDummyPacket();
+  
+  /*! \brief Waits for the next non-empty packet.
+    
+    Sends out dummy packets until a reply is non-empty and then
+    returns this reply.
+    
+    \return Packet contaning a non-empty reply. */
+  CCRTPPacket *waitForPacket();
   
   /*! \brief Whether or not the copter is answering sent packets.
     
@@ -161,10 +213,16 @@ public:
     \return Returns true if the connection is working properly and
     false otherwise. */
   bool usbOK();
-  CCRTPPacket *waitForPacket();
-  list<CCRTPPacket*> popLoggingPackets();
   
-  bool sendDummyPacket();
+  /*! \brief Extracting all logging related packets
+    
+    Returns a list of all collected logging related (i.e. originating
+    from port 5) packets. This is called by the CCrazyflie class
+    automatically when performing cycle().
+    
+    \return List of CCRTPPacket instances collected from port 5
+    (logging). */
+  list<CCRTPPacket*> popLoggingPackets();
 };
 
 

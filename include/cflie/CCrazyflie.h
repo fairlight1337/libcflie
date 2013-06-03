@@ -114,6 +114,30 @@ class CCrazyflie {
     \return Boolean value denoting whether or not the command could be sent successfully. */
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
 
+  void disableLogging();
+  
+  void enableStabilizerLogging();
+  void enableGyroscopeLogging();
+  void enableAccelerometerLogging();
+
+  void disableStabilizerLogging();
+  void disableGyroscopeLogging();
+  void disableAccelerometerLogging();
+  
+  void enableBatteryLogging();
+  void disableBatteryLogging();
+  
+  bool startLogging();
+  bool stopLogging();
+
+  void enableMagnetometerLogging();
+  void disableMagnetometerLogging();
+
+  void enableAltimeterLogging();
+  void disableAltimeterLogging();
+
+  double currentTime();
+
  public:
   /*! \brief Constructor for the copter convenience class
 
@@ -137,10 +161,9 @@ class CCrazyflie {
     
     \param nThrust The thrust value to send (> 10000) */
   void setThrust(int nThrust);
-  /*! \brief Returns the current thrust control set point
+  /*! \brief Returns the current thrust
     
-    \return The current thrust control set point as given to the
-    current controller */
+    \return The current thrust value as reported by the copter */
   int thrust();
   
   /*! \brief Set the roll control set point
@@ -150,10 +173,11 @@ class CCrazyflie {
     
     \param fRoll The roll value to send */
   void setRoll(float fRoll);
-  /*! \brief Returns the current roll control set point
+  /*! \brief Returns the current roll
     
-    \return The current roll control set point as given to the current
-    controller */
+    Roll values are in degree, ranging from -180.0deg to 180.0deg.
+    
+    \return The current roll value as reported by the copter */
   float roll();
   
   /*! \brief Set the pitch control set point
@@ -163,10 +187,11 @@ class CCrazyflie {
     
     \param fPitch The pitch value to send */
   void setPitch(float fPitch);
-  /*! \brief Returns the current pitch control set point
+  /*! \brief Returns the current pitch
     
-    \return The current pitch control set point as given to the
-    current controller */
+    Pitch values are in degree, ranging from -180.0deg to 180.0deg.
+
+    \return The current pitch value as reported by the copter */
   float pitch();
 
   /*! \brief Set the yaw control set point
@@ -176,14 +201,13 @@ class CCrazyflie {
     
     \param fYaw The yaw value to send */
   void setYaw(float fYaw);
-  /*! \brief Returns the current yaw control set point
+  /*! \brief Returns the current yaw
+
+    Yaw values are in degree, ranging from -180.0deg to 180.0deg.
     
-    \return The current yaw control set point as given to the current
-    controller */
+    \return The current yaw value as reported by the copter */
   float yaw();
   
-  double currentTime();
-
   /*! \brief Manages internal calculation operations
     
     Should be called during every 'cycle' of the main program using
@@ -208,35 +232,52 @@ class CCrazyflie {
     range or is switched off. */
   bool copterInRange();
   
+  /*! \brief Whether or not the copter was initialized successfully.
+    
+    \returns Boolean value denoting the initialization status of the
+    copter communication. */
   bool isInitialized();
   
-  bool startLogging();
-  
+  /*! \brief Set whether setpoints are currently sent while cycle()
+    
+    While performing the cycle() function, the currently set setpoint
+    is sent to the copter regularly. If this is not the case, dummy
+    packets are sent. Using this mechanism, you can effectively switch
+    off sending new commands to the copter.
+    
+    Default value: `false`
+    
+    \param bSendSetpoints When set to `true`, the current setpoint is
+    sent while cycle(). Otherwise, not. */
   void setSendSetpoints(bool bSendSetpoints);
+  
+  /*! \brief Whether or not setpoints are currently sent to the copter
+    
+    \return Boolean value denoting whether or not the current setpoint
+    is sent to the copter while performing cycle(). */
   bool sendsSetpoints();
   
+  /*! \brief Read back a sensor value you subscribed to
+    
+    Possible sensor values might be:
+    * stabilizer.yaw
+    * stabilizer.roll
+    * stabilizer.pitch
+    * pm.vbat
+    
+    The possible key names strongly depend on your firmware. If you
+    don't know what to do with this, just use the convience functions
+    like roll(), pitch(), yaw(), and batteryLevel().
+    
+    \return Double value denoting the current value of the requested
+    log variable. */
   double sensorDoubleValue(string strName);
-  void disableLogging();
   
-  void enableStabilizerLogging();
-  void enableGyroscopeLogging();
-  void enableAccelerometerLogging();
-
-  void disableStabilizerLogging();
-  void disableGyroscopeLogging();
-  void disableAccelerometerLogging();
-  
-  void enableBatteryLogging();
-  void disableBatteryLogging();
-  
-  bool stopLogging();
+  /*! \brief Report the current battery level
+    
+    \return Double value denoting the battery level as reported by the
+    copter. */
   double batteryLevel();
-  
-  void enableMagnetometerLogging();
-  void disableMagnetometerLogging();
-
-  void enableAltimeterLogging();
-  void disableAltimeterLogging();
 };
 
 
