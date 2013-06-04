@@ -24,9 +24,7 @@ struct TOCElement {
   /*! \brief The string identifier of the log element */
   string strIdentifier;
   bool bIsLogging;
-  string strValue;
   double dValue;
-  int nValue;
 };
 
 
@@ -76,9 +74,7 @@ class CTOC {
   bool stopLogging(string strName);
   bool isLogging(string strName);
   
-  string stringValue(string strName);
   double doubleValue(string strName);
-  int integerValue(string strName);
   
   bool enableLogging(string strBlockName);
   

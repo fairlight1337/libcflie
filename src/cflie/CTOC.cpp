@@ -103,8 +103,6 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
 	teNew.nID = nID;
 	teNew.nType = nType;
 	teNew.bIsLogging = false;
-	teNew.strValue = "";
-	teNew.nValue = 0;
 	teNew.dValue = 0;
 	
 	m_lstTOCElements.push_back(teNew);
@@ -242,18 +240,6 @@ bool CTOC::isLogging(string strName) {
   
 }
 
-string CTOC::stringValue(string strName) {
-  bool bFound;
-  
-  struct TOCElement teResult = this->elementForName(strName, bFound);
-  
-  if(bFound) {
-    return teResult.strValue;
-  }
-  
-  return "";
-}
-
 double CTOC::doubleValue(string strName) {
   bool bFound;
   
@@ -261,18 +247,6 @@ double CTOC::doubleValue(string strName) {
   
   if(bFound) {
     return teResult.dValue;
-  }
-  
-  return 0;
-}
-
-int CTOC::integerValue(string strName) {
-  bool bFound;
-  
-  struct TOCElement teResult = this->elementForName(strName, bFound);
-  
-  if(bFound) {
-    return teResult.nValue;
   }
   
   return 0;
