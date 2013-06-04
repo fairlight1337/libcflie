@@ -55,8 +55,7 @@ void drawGL(float fX, float fY, float fZ) {
   float fQuadWidth = 2;
   float fQuadHeight = fQuadWidth;
   
-  glBegin(GL_QUADS);
-  {
+  glBegin(GL_QUADS); {
     glColor3f(1, 1, 1);
     
     glVertex2f(fQuadWidth / 2, fQuadHeight / 2);
@@ -94,10 +93,9 @@ int main(int argc, char **argv) {
 	
 	while(g_bGoon) {
 	  if(cflieCopter->cycle()) {
-	    drawGL(cflieCopter->sensorDoubleValue("stabilizer.roll"),
-		   cflieCopter->sensorDoubleValue("stabilizer.pitch"),
-		   cflieCopter->sensorDoubleValue("stabilizer.yaw"));
-	    //cout << cflieCopter->sensorDoubleValue("stabilizer.roll") << endl;
+	    drawGL(cflieCopter->roll(),
+		   cflieCopter->pitch(),
+		   cflieCopter->yaw());
 	    
 	    if(glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS) {
 	      cflieCopter->setThrust(0);
@@ -111,7 +109,7 @@ int main(int argc, char **argv) {
 	      
 	      double dRoll = 0;
 	      double dPitch = 0;
-	      double dYaw = cflieCopter->sensorDoubleValue("stabilizer.yaw");
+	      double dYaw = cflieCopter->yaw();
 	      
 	      if(glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS) {
 		dRoll = 20.0f;//dYaw += 20.0f;
