@@ -421,19 +421,78 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
 	  
 	  if(bFound) {
 	    int nByteLength = 0;
+	    
+	    // NOTE(winkler): We just copy over the incoming bytes in
+	    // their according data structures and afterwards assign
+	    // the value to fValue. This way, we let the compiler to
+	    // the magic of conversion.
 	    float fValue = 0;
-	    short sValue = 0;
 	    
 	    switch(teCurrent.nType) {
+	    case 1: { // UINT8
+	      nByteLength = 1;
+	      uint8_t uint8Value;
+	      memcpy(&uint8Value, &cLogdata[nOffset], nByteLength);
+	      fValue = uint8Value;
+	    } break;
+	      
+	    case 2: { // UINT16
+	      nByteLength = 2;
+	      uint16_t uint16Value;
+	      memcpy(&uint16Value, &cLogdata[nOffset], nByteLength);
+	      fValue = uint16Value;
+	    } break;
+	      
+	    case 3: { // UINT32
+	      nByteLength = 4;
+	      uint32_t uint32Value;
+	      memcpy(&uint32Value, &cLogdata[nOffset], nByteLength);
+	      fValue = uint32Value;
+	    } break;
+	      
+	    case 4: { // INT8
+	      nByteLength = 1;
+	      int8_t int8Value;
+	      memcpy(&int8Value, &cLogdata[nOffset], nByteLength);
+	      fValue = int8Value;
+	    } break;
+	      
 	    case 5: { // INT16
 	      nByteLength = 2;
-	      memcpy(&sValue, &cLogdata[nOffset], sizeof(nByteLength));
-	      fValue = sValue;
+	      int16_t int16Value;
+	      memcpy(&int16Value, &cLogdata[nOffset], nByteLength);
+	      fValue = int16Value;
+	    } break;
+	      
+	    case 6: { // INT32
+	      nByteLength = 4;
+	      int32_t int32Value;
+	      memcpy(&int32Value, &cLogdata[nOffset], nByteLength);
+	      fValue = int32Value;
 	    } break;
 	      
 	    case 7: { // FLOAT
 	      nByteLength = 4;
-	      memcpy(&fValue, &cLogdata[nOffset], sizeof(nByteLength));
+	      memcpy(&fValue, &cLogdata[nOffset], nByteLength);
+	    } break;
+	      
+	    case 8: { // FP16
+	      // NOTE(winkler): This is untested code (as no FP16
+	      // variable gets advertised yet). This has to be tested
+	      // and is to be used carefully. I will do that as soon
+	      // as I find time for it.
+	      nByteLength = 2;
+	      char cBuffer1[nByteLength];
+	      char cBuffer2[4];
+	      memcpy(cBuffer1, &cLogdata[nOffset], nByteLength);
+	      cBuffer2[0] = cBuffer1[0] & 0b10000000; // Get the sign bit
+	      cBuffer2[1] = 0;
+	      cBuffer2[2] = cBuffer1[0] & 0b01111111; // Get the magnitude
+	      cBuffer2[3] = cBuffer1[1];
+	      memcpy(&fValue, cBuffer2, 4); // Put it into the float variable
+	    } break;
+	      
+	    default: { // Unknown. This hopefully never happens.
 	    } break;
 	    }
 	    
