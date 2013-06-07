@@ -91,6 +91,7 @@ int main(int argc, char **argv) {
 	glFrustum(.5, -.5, -.5 * fAspectRatio, .5 * fAspectRatio, 1, 50);
 	glMatrixMode(GL_MODELVIEW);
 	
+	cout << "Running, exit with 'ESC'." << endl;
 	while(g_bGoon) {
 	  if(cflieCopter->cycle()) {
 	    drawGL(cflieCopter->roll(),
@@ -139,6 +140,8 @@ int main(int argc, char **argv) {
     }
     
     delete cflieCopter;
+  } else {
+    cerr << "Radio could not be started." << endl;
   }
   
   delete crRadio;
