@@ -100,11 +100,8 @@ Exit the example by pressing `ESC`.
 ```
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664", GROUP=="plugdev"
 ```
-
 Now replug your dongle and you're set. Start it with:
-
 ```
 ./../bin/ex-gui
 ```
-
 Again, exit the example by pressing `ESC`.
