@@ -33,6 +33,15 @@ You can check out the current Doxygen source code documentation
 * Bug-free (although I'm trying really hard!)
 
 
+Dependencies
+------------
+
+The lib depends on GLFW, which you can install under Ubuntu by `apt-get install`'ing this:
+```
+sudo apt-get install libglfw-dev libglfw2
+```
+
+
 How to build the library
 ------------------------
 
@@ -70,3 +79,23 @@ and `bin`.
     copter will start with a thrust greater than 10000, which will
     start the engines! So be sure to place it far away from objects
     (or your hands).
+
+
+How to run the examples (or you own programs)
+---------------------------------------------
+
+When running programs linked against and using libcflie, you have to
+have access permissions for your USB devices set up correctly.
+
+You basically have two options:
+1. Run your programs as root. For the `ex-gui` example, this would mean (starting from the libcflie/build directory after typing `make`):
+```
+sudo ./../bin/ex-gui
+```
+Exit the example by pressing `ESC`.
+
+2. Set up your USB permissions for the CrazyRadio dongle (this is the recommended way). For this to work, create a new file at `/etc/udev/rules.d/99-crazyradio.rules` and put this line into it:
+```
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664", GROUP=="plugdev"
+```
+Not replug your dongle and you're set.
