@@ -100,4 +100,4 @@ Exit the example by pressing `ESC`.
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664", GROUP=="plugdev"
 ```
 
-Not replug your dongle and you're set.
+Now replug your dongle and you're set.
