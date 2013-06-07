@@ -88,6 +88,7 @@ When running programs linked against and using libcflie, you have to
 have access permissions for your USB devices set up correctly.
 
 You basically have two options:
+
 1. Run your programs as root. For the `ex-gui` example, this would mean (starting from the libcflie/build directory after typing `make`):
 ```
 sudo ./../bin/ex-gui
