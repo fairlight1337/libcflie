@@ -95,7 +95,9 @@ sudo ./../bin/ex-gui
 Exit the example by pressing `ESC`.
 
 2. Set up your USB permissions for the CrazyRadio dongle (this is the recommended way). For this to work, create a new file at `/etc/udev/rules.d/99-crazyradio.rules` and put this line into it:
+
 ```
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664", GROUP=="plugdev"
 ```
+
 Not replug your dongle and you're set.
