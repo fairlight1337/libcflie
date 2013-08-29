@@ -38,7 +38,7 @@ Dependencies
 
 The lib depends on GLFW, which you can install under Ubuntu by `apt-get install`'ing this:
 ```
-sudo apt-get install libglfw-dev libglfw2
+sudo apt-get install libglfw-dev libglfw2 cmake
 ```
 
 
