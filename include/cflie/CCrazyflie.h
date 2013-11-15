@@ -280,7 +280,7 @@ class CCrazyflie {
   double batteryLevel();
 
   float accX();
-  float accy();
+  float accY();
   float accZ();
   float accZW();
   float asl();
@@ -291,7 +291,7 @@ class CCrazyflie {
   float gyroY();
   float gyroZ();
   float batteryState();
-  
+
 };
 
 
