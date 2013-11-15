@@ -100,6 +100,10 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   }
 }
 
+
+
+
+
 void CCrazyflie::setThrust(int nThrust) {
   m_nThrust = nThrust;
   
@@ -291,12 +295,41 @@ void CCrazyflie::enableGyroscopeLogging() {
   m_tocLogs->startLogging("gyro.z", "gyroscope");
 }
 
+float CCrazyflie::gyroX() {
+  return this->sensorDoubleValue("gyro.x");
+}
+
+float CCrazyflie::gyroY() {
+  return this->sensorDoubleValue("gyro.x");
+}
+
+float CCrazyflie::gyroZ() {
+  return this->sensorDoubleValue("gyro.x");
+}
+
 void CCrazyflie::enableAccelerometerLogging() {
   m_tocLogs->registerLoggingBlock("accelerometer", 1000);
 
   m_tocLogs->startLogging("acc.x", "accelerometer");
   m_tocLogs->startLogging("acc.y", "accelerometer");
   m_tocLogs->startLogging("acc.z", "accelerometer");
+  m_tocLogs->startLogging("acc.zw", "accelerometer");
+}
+
+float CCrazyflie::accX() {
+  return this->sensorDoubleValue("acc.x");
+}
+
+float CCrazyflie::accY() {
+  return this->sensorDoubleValue("acc.y");
+}
+
+float CCrazyflie::accZ() {
+  return this->sensorDoubleValue("acc.z");
+}
+
+float CCrazyflie::accZW() {
+  return this->sensorDoubleValue("acc.zw");
 }
 
 void CCrazyflie::disableStabilizerLogging() {
@@ -315,6 +348,15 @@ void CCrazyflie::enableBatteryLogging() {
   m_tocLogs->registerLoggingBlock("battery", 1000);
 
   m_tocLogs->startLogging("pm.vbat", "battery");
+  m_tocLogs->startLogging("pm.state", "battery");
+}
+
+double CCrazyflie::batteryLevel() {
+  return this->sensorDoubleValue("pm.vbat");
+}
+
+float CCrazyflie::batteryState() {
+  return this->sensorDoubleValue("pm.state");
 }
 
 void CCrazyflie::disableBatteryLogging() {
@@ -333,16 +375,29 @@ void CCrazyflie::disableMagnetometerLogging() {
   m_tocLogs->unregisterLoggingBlock("magnetometer");
 }
 
-double CCrazyflie::batteryLevel() {
-  return this->sensorDoubleValue("pm.vbat");
-}
+
 
 void CCrazyflie::enableAltimeterLogging() {
   m_tocLogs->registerLoggingBlock("altimeter", 1000);
-
+  m_tocLogs->startLogging("alti.asl", "altimeter");
+  m_tocLogs->startLogging("alti.aslLong", "altimeter");
   m_tocLogs->startLogging("alti.pressure", "altimeter");
   m_tocLogs->startLogging("alti.temperature", "altimeter");
 }
+
+double CCrazyflie::asl() {
+  return this->sensorDoubleValue("alti.asl");
+}
+double CCrazyflie::aslLong() {
+  return this->sensorDoubleValue("alti.aslLong");
+}
+double CCrazyflie::pressure() {
+  return this->sensorDoubleValue("alti.pressure");
+}
+double CCrazyflie::temperature() {
+  return this->sensorDoubleValue("alti.temperature");
+}
+
 
 void CCrazyflie::disableAltimeterLogging() {
   m_tocLogs->unregisterLoggingBlock("altimeter");
