@@ -385,16 +385,16 @@ void CCrazyflie::enableAltimeterLogging() {
   m_tocLogs->startLogging("alti.temperature", "altimeter");
 }
 
-double CCrazyflie::asl() {
+float CCrazyflie::asl() {
   return this->sensorDoubleValue("alti.asl");
 }
-double CCrazyflie::aslLong() {
+float CCrazyflie::aslLong() {
   return this->sensorDoubleValue("alti.aslLong");
 }
-double CCrazyflie::pressure() {
+float CCrazyflie::pressure() {
   return this->sensorDoubleValue("alti.pressure");
 }
-double CCrazyflie::temperature() {
+float CCrazyflie::temperature() {
   return this->sensorDoubleValue("alti.temperature");
 }
 
