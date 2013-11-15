@@ -278,6 +278,20 @@ class CCrazyflie {
     \return Double value denoting the battery level as reported by the
     copter. */
   double batteryLevel();
+
+  float accX();
+  float accy();
+  float accZ();
+  float accZW();
+  float asl();
+  float aslLong();
+  float temperature();
+  float pressure();
+  float gyroX();
+  float gyroY();
+  float gyroZ();
+  float batteryState();
+  
 };
 
 
