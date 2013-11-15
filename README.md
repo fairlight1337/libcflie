@@ -23,7 +23,8 @@ You can check out the current Doxygen source code documentation
 * An abstraction layer for the different messages you can send your copter
 * A controller framework for controlling the Crazyflie using cartesian coordinates
 * A C++ entrypoint for programmers that write programs in C++ (rather than Python)
-* Developed, written and maintained completely by me (Jan Winkler)
+* The first version was developed, written and maintained completely by me (Jan Winkler)
+* Development and maintenance is distributed over the many contributors by now. This is a good time to say: Thank you!
 
 
 ### What this library is not
