@@ -228,7 +228,7 @@ double CCrazyflie::currentTime() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   
-  return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+  return (tv.tv_sec + tv.tv_usec) / 1000000.0;
 }
 
 bool CCrazyflie::isInitialized() {
