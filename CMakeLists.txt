@@ -28,3 +28,5 @@ target_link_libraries(ex-gui ${PROJECT_NAME} glfw GL GLU)
 
 install(FILES include/cflie/*.h DESTINATION include)
 install(FILES lib/* DESTINATION lib)
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
