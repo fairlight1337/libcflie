@@ -225,10 +225,10 @@ float CCrazyflie::yaw() {
 }
 
 double CCrazyflie::currentTime() {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
   
-  return (tv.tv_sec + tv.tv_usec) / 1000000.0;
+  return ts.tv_sec + double(ts.tv_nsec) / NSEC_PER_SEC;
 }
 
 bool CCrazyflie::isInitialized() {

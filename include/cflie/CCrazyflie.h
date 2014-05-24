@@ -39,6 +39,9 @@
 using namespace std;
 
 
+#define NSEC_PER_SEC 1000000000L
+
+
 enum State {
   STATE_ZERO = 0,
   STATE_READ_PARAMETERS_TOC = 1,
