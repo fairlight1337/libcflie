@@ -76,9 +76,9 @@ class CCRTPPacket {
     Initializes the communication packet and sets the given
     channel. The packet starts out without payload data.
     
-    \param nChannel The channel the payload in this packet is
+    \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(int nChannel);
+  CCRTPPacket(int nPort);
   /*! \brief Convenience constructor for the CCRTPPacket communication
     packet class
     
@@ -88,9 +88,9 @@ class CCRTPPacket {
     \param cData The data pointer to read the new payload data from
     \param nDataLength The length (in bytes) of data to read from
     cData
-    \param nChannel The channel the payload in this packet is
+    \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(char *cData, int nDataLength, int nChannel);
+  CCRTPPacket(char *cData, int nDataLength, int nPort);
   CCRTPPacket(char cData, int nPort);
   /*! \brief Destructor for the packet class
     

@@ -337,10 +337,8 @@ CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwar
 	
       case 5: { // Logging
 	if(crtpPacket->channel() == 2) {
-	  CCRTPPacket *crtpLog = new CCRTPPacket(cData, nLength, crtpPacket->channel());
+	  CCRTPPacket *crtpLog = new CCRTPPacket(cData, nLength, crtpPacket->port());
 	  crtpLog->setChannel(crtpPacket->channel());
-	  crtpLog->setPort(crtpPacket->port());
-	  
 	  m_lstLoggingPackets.push_back(crtpLog);
 	}
       } break;
