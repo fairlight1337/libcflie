@@ -104,7 +104,7 @@ private:
 
   void setARC(int nARC);
   void setChannel(int nChannel);
-  void setDataRate(string strDataRate);
+  void setDataRate(const std::string& strDataRate);
   void setARDBytes(int nARDBytes);
   void setARDTime(int nARDTime);
   void setAddress(char *cAddress);
@@ -115,7 +115,7 @@ public:
     
     \param strRadioIdentifier URI for the radio to be opened,
     e.g. "radio://<dongle-no>/<channel-no>/<datarate>". */
-  CCrazyRadio(string strRadioIdentifier);
+  CCrazyRadio(const std::string& strRadioIdentifier);
   /*! \brief Destructor for the radio communication class */
   ~CCrazyRadio();
   

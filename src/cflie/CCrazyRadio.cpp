@@ -28,7 +28,7 @@
 #include "cflie/CCrazyRadio.h"
 
 
-CCrazyRadio::CCrazyRadio(string strRadioIdentifier) {
+CCrazyRadio::CCrazyRadio(const std::string& strRadioIdentifier) {
   m_strRadioIdentifier = strRadioIdentifier;
   m_enumPower = P_M18DBM;
   
@@ -248,7 +248,7 @@ void CCrazyRadio::setChannel(int nChannel) {
   this->writeControl(NULL, 0, 0x01, nChannel, 0);
 }
 
-void CCrazyRadio::setDataRate(string strDataRate) {
+void CCrazyRadio::setDataRate(const std::string& strDataRate) {
   m_strDataRate = strDataRate;
   int nDataRate = -1;
   
