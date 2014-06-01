@@ -39,14 +39,6 @@ bool CTOC::requestMetaData() {
   return bReturnvalue;
 }
 
-bool CTOC::requestInitialItem() {
-  return this->requestItem(0, true);
-}
-
-bool CTOC::requestItem(int nID) {
-  return this->requestItem(nID, false);
-}
-
 bool CTOC::requestItem(int nID, bool bInitial) {
   bool bReturnvalue = false;
   
@@ -117,8 +109,8 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
   return false;
 }
 
-struct TOCElement CTOC::elementForName(string strName, bool &bFound) {
-  for(list<struct TOCElement>::iterator itElement = m_lstTOCElements.begin();
+struct TOCElement CTOC::elementForName(string strName, bool &bFound) const {
+  for(list<struct TOCElement>::const_iterator itElement = m_lstTOCElements.begin();
       itElement != m_lstTOCElements.end();
       itElement++) {
     struct TOCElement teCurrent = *itElement;
@@ -136,8 +128,8 @@ struct TOCElement CTOC::elementForName(string strName, bool &bFound) {
   return teEmpty;
 }
 
-struct TOCElement CTOC::elementForID(int nID, bool &bFound) {
-  for(list<struct TOCElement>::iterator itElement = m_lstTOCElements.begin();
+struct TOCElement CTOC::elementForID(uint8_t nID, bool &bFound) const {
+  for(list<struct TOCElement>::const_iterator itElement = m_lstTOCElements.begin();
       itElement != m_lstTOCElements.end();
       itElement++) {
     struct TOCElement teCurrent = *itElement;
@@ -154,10 +146,10 @@ struct TOCElement CTOC::elementForID(int nID, bool &bFound) {
   return teEmpty;
 }
 
-int CTOC::idForName(string strName) {
+int CTOC::idForName(string strName) const {
   bool bFound;
   
-  struct TOCElement teResult = this->elementForName(strName, bFound);
+  struct TOCElement teResult = elementForName(strName, bFound);
   
   if(bFound) {
     return teResult.nID;
@@ -166,10 +158,10 @@ int CTOC::idForName(string strName) {
   return -1;
 }
 
-int CTOC::typeForName(string strName) {
+int CTOC::typeForName(string strName) const {
   bool bFound;
   
-  struct TOCElement teResult = this->elementForName(strName, bFound);
+  struct TOCElement teResult = elementForName(strName, bFound);
   
   if(bFound) {
     return teResult.nType;
@@ -231,18 +223,10 @@ bool CTOC::addElementToBlock(int nBlockID, int nElementID) {
   return false;
 }
 
-bool CTOC::stopLogging(string strName) {
-  
-}
-
-bool CTOC::isLogging(string strName) {
-  
-}
-
-double CTOC::doubleValue(string strName) {
+double CTOC::doubleValue(string strName) const {
   bool bFound;
   
-  struct TOCElement teResult = this->elementForName(strName, bFound);
+  struct TOCElement teResult = elementForName(strName, bFound);
   
   if(bFound) {
     return teResult.dValue;
@@ -251,8 +235,8 @@ double CTOC::doubleValue(string strName) {
   return 0;
 }
 
-struct LoggingBlock CTOC::loggingBlockForName(string strName, bool &bFound) {
-  for(list<struct LoggingBlock>::iterator itBlock = m_lstLoggingBlocks.begin();
+struct LoggingBlock CTOC::loggingBlockForName(string strName, bool &bFound) const {
+  for(list<struct LoggingBlock>::const_iterator itBlock = m_lstLoggingBlocks.begin();
       itBlock != m_lstLoggingBlocks.end();
       itBlock++) {
     struct LoggingBlock lbCurrent = *itBlock;
@@ -269,8 +253,8 @@ struct LoggingBlock CTOC::loggingBlockForName(string strName, bool &bFound) {
   return lbEmpty;
 }
 
-struct LoggingBlock CTOC::loggingBlockForID(int nID, bool &bFound) {
-  for(list<struct LoggingBlock>::iterator itBlock = m_lstLoggingBlocks.begin();
+struct LoggingBlock CTOC::loggingBlockForID(uint8_t nID, bool &bFound) const {
+  for(list<struct LoggingBlock>::const_iterator itBlock = m_lstLoggingBlocks.begin();
       itBlock != m_lstLoggingBlocks.end();
       itBlock++) {
     struct LoggingBlock lbCurrent = *itBlock;
@@ -510,13 +494,13 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
   }
 }
 
-int CTOC::elementIDinBlock(int nBlockID, int nElementIndex) {
+int CTOC::elementIDinBlock(int nBlockID, int nElementIndex) const {
   bool bFound;
   
-  struct LoggingBlock lbCurrent = this->loggingBlockForID(nBlockID, bFound);
+  struct LoggingBlock lbCurrent = loggingBlockForID(nBlockID, bFound);
   if(bFound) {
     if(nElementIndex < lbCurrent.lstElementIDs.size()) {
-      list<int>::iterator itID = lbCurrent.lstElementIDs.begin();
+      list<int>::const_iterator itID = lbCurrent.lstElementIDs.begin();
       advance(itID, nElementIndex);
       return *itID;
     }

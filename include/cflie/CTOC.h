@@ -75,9 +75,13 @@ class CTOC {
   list<struct TOCElement> m_lstTOCElements;
   list<struct LoggingBlock> m_lstLoggingBlocks;
   
-  bool requestInitialItem();
+  bool requestInitialItem() {
+    return this->requestItem(0, true);
+  }
   bool requestItem(int nID, bool bInitial);
-  bool requestItem(int nID);
+  bool requestItem(int nID) {
+    return this->requestItem(nID, false);
+  }
   bool processItem(CCRTPPacket *crtpItem);
   
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nChannel);
@@ -90,28 +94,30 @@ class CTOC {
   bool requestMetaData();
   bool requestItems();
   
-  struct TOCElement elementForName(string strName, bool &bFound);
-  struct TOCElement elementForID(int nID, bool &bFound);
-  int idForName(string strName);
-  int typeForName(string strName);
-  
+  struct TOCElement elementForName(string strName, bool &bFound) const;
+  struct TOCElement elementForID(uint8_t nID, bool &bFound) const;
+  int idForName(string strName) const;
+  int typeForName(string strName) const;
+
   // For loggable variables only
   bool registerLoggingBlock(string strName, double dFrequency);
   bool unregisterLoggingBlock(string strName);
-  struct LoggingBlock loggingBlockForName(string strName, bool &bFound);
-  struct LoggingBlock loggingBlockForID(int nID, bool &bFound);
+  struct LoggingBlock loggingBlockForName(string strName, bool &bFound) const;
+  struct LoggingBlock loggingBlockForID(uint8_t nID, bool &bFound) const;
   
   bool startLogging(string strName, string strBlockName);
-  bool stopLogging(string strName);
-  bool isLogging(string strName);
-  
-  double doubleValue(string strName);
+  bool stopLogging(string strName) {
+  }
+  bool isLogging(string strName) {
+  }
+
+  double doubleValue(string strName) const;
   
   bool enableLogging(string strBlockName);
   
   void processPackets(list<CCRTPPacket*> lstPackets);
   
-  int elementIDinBlock(int nBlockID, int nElementIndex);
+  int elementIDinBlock(int nBlockID, int nElementIndex) const;
   bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(int nBlockID, int nElementID);
   bool unregisterLoggingBlockID(int nID);
