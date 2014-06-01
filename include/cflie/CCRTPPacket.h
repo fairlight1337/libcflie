@@ -43,14 +43,8 @@
 class CCRTPPacket {
  private:
   // Variables
-  /*! \brief Internal storage pointer for payload data inside the
-    packet
-    
-    This data is freed when either new data is set or the class
-    instance is destroyed.*/
-  char *m_cData;
-  /*! \brief The length of the data pointed to by m_cData */
-  int m_nDataLength;
+  /*! \brief payload */
+  std::string m_cData;
   /*! \brief The copter port the packet will be delivered to */
   int m_nPort;
   /*! \brief The copter channel the packet will be delivered to */
@@ -58,15 +52,9 @@ class CCRTPPacket {
   bool m_bIsPingPacket;
   
   // Functions
-  /*! \brief Sets all internal variables to their default values.
-    
-    The function clearData() should be called before this if it is
-    used outside of the constructor. */
+  /*! \brief Sets all internal variables to their default values. */
   void basicSetup();
-  /*! \brief Deletes the internally stored data and resets the data
-    length and the pointer to zero */
-  void clearData();
-  
+
  public:
   /*! \brief Constructor for the CCRTPPacket communication packet
     class
@@ -90,20 +78,16 @@ class CCRTPPacket {
     designated for. */
   CCRTPPacket(const char *cData, int nDataLength, int nPort);
   CCRTPPacket(char cData, int nPort);
-  /*! \brief Destructor for the packet class
-    
-    De-initializes the packet and deletes all available payload data
-    stored. */
-  ~CCRTPPacket();
-  
+
   /*! \brief Copies the given data of the specified length to the
     internal storage.
     
     \param cData Pointer pointing to the data that should be used as
     payload
-    \param nDataLength Length (in bytes) of the data that should be
-    read from cData for storage */
-  void setData(const char *cData, int nDataLength);
+    \param cData std::string which holds the payload */
+  void setData(const std::string& cData) {
+    m_cData = cData;
+  }
   /*! \brief Gives out the pointer to the internally stored data
     
     Don't manipulate the data pointed to by this pointer. Usually, you
@@ -112,7 +96,7 @@ class CCRTPPacket {
     
     \return Returns a direct pointer to the internally stored data */
   const char *data(void) const {
-    return m_cData;
+    return m_cData.data();
   }
 
   /*! \brief Returns the length of the currently stored data (in
@@ -120,7 +104,7 @@ class CCRTPPacket {
     
     \return Returns the number of bytes stored as payload data */
   int dataLength(void) const {
-    return m_nDataLength;
+    return m_cData.size();
   }
 
   /*! \brief Prepares a sendable block of data based on the

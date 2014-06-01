@@ -25,6 +25,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cstring> // memcpy
+
 #include "cflie/CCRTPPacket.h"
 
 
@@ -33,46 +35,24 @@ CCRTPPacket::CCRTPPacket(int nPort) {
   this->setPort(nPort);
 }
 
-CCRTPPacket::CCRTPPacket(const char *cData, int nDataLength, int nPort) {
+CCRTPPacket::CCRTPPacket(const char *cData, int nDataLength, int nPort)
+  : m_cData(cData, nDataLength)
+{
   this->basicSetup();
   this->setPort(nPort);
-  
-  this->setData(cData, nDataLength);
 }
 
-CCRTPPacket::CCRTPPacket(char cData, int nPort) {
+CCRTPPacket::CCRTPPacket(char cData, int nPort)
+  : m_cData(&cData, 1)
+{
   this->basicSetup();
   this->setPort(nPort);
-  
-  this->setData(&cData, 1);
-}
-
-CCRTPPacket::~CCRTPPacket() {
-  this->clearData();
 }
 
 void CCRTPPacket::basicSetup() {
-  m_cData = NULL;
-  m_nDataLength = 0;
   m_nPort = 0;
   m_nChannel = 0;
   m_bIsPingPacket = false;
-}
-
-void CCRTPPacket::setData(const char *cData, int nDataLength) {
-  this->clearData();
-  
-  m_cData = new char[nDataLength]();
-  memcpy(m_cData, cData, nDataLength);
-  m_nDataLength = nDataLength;
-}
-
-void CCRTPPacket::clearData() {
-  if(m_cData != NULL) {
-    delete[] m_cData;
-    m_cData = NULL;
-    m_nDataLength = 0;
-  }
 }
 
 char *CCRTPPacket::sendableData() {
@@ -85,7 +65,7 @@ char *CCRTPPacket::sendableData() {
     cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
     
     // Payload
-    memcpy(&cSendable[1], m_cData, m_nDataLength);
+    std::memcpy(&cSendable[1], m_cData.data(), m_cData.size());
     
     // Finishing byte
     //cSendable[m_nDataLength + 1] = 0x27;
@@ -98,6 +78,6 @@ int CCRTPPacket::sendableDataLength() {
   if(m_bIsPingPacket) {
     return 1;
   } else {
-    return m_nDataLength + 1;//2;
+    return m_cData.size() + 1;//2;
   }
 }
