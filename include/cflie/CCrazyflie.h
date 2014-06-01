@@ -93,8 +93,8 @@ class CCrazyflie {
   double m_dSendSetpointPeriod;
   double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
-  CTOC *m_tocParameters;
-  CTOC *m_tocLogs;
+  CTOC m_tocParameters;
+  CTOC m_tocLogs;
   enum State m_enumState;
   
   // Functions
@@ -282,7 +282,7 @@ class CCrazyflie {
     \return Double value denoting the current value of the requested
     log variable. */
   double sensorDoubleValue(const std::string& strName) const {
-    return m_tocLogs->doubleValue(strName);
+    return m_tocLogs.doubleValue(strName);
   }
 
   /*! \brief Report the current battery level
