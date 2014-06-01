@@ -168,8 +168,9 @@ class CCrazyflie {
   /*! \brief Returns the current thrust
     
     \return The current thrust value as reported by the copter */
-  int thrust();
-  
+  int thrust(void) const {
+    return this->sensorDoubleValue("stabilizer.thrust");
+  }
   /*! \brief Set the roll control set point
     
     The roll value that will be sent to the internal copter
@@ -182,8 +183,9 @@ class CCrazyflie {
     Roll values are in degree, ranging from -180.0deg to 180.0deg.
     
     \return The current roll value as reported by the copter */
-  float roll();
-  
+  float roll(void) const {
+    return sensorDoubleValue("stabilizer.roll");
+  }
   /*! \brief Set the pitch control set point
     
     The pitch value that will be sent to the internal copter
@@ -196,8 +198,9 @@ class CCrazyflie {
     Pitch values are in degree, ranging from -180.0deg to 180.0deg.
 
     \return The current pitch value as reported by the copter */
-  float pitch();
-
+  float pitch(void) const {
+    return sensorDoubleValue("stabilizer.pitch");
+  }
   /*! \brief Set the yaw control set point
     
     The yaw value that will be sent to the internal copter
@@ -210,8 +213,9 @@ class CCrazyflie {
     Yaw values are in degree, ranging from -180.0deg to 180.0deg.
     
     \return The current yaw value as reported by the copter */
-  float yaw();
-  
+  float yaw(void) const {
+    return sensorDoubleValue("stabilizer.yaw");
+  }
   /*! \brief Manages internal calculation operations
     
     Should be called during every 'cycle' of the main program using
@@ -240,8 +244,9 @@ class CCrazyflie {
     
     \returns Boolean value denoting the initialization status of the
     copter communication. */
-  bool isInitialized();
-  
+  bool isInitialized(void) const {
+    return m_enumState == STATE_NORMAL_OPERATION;
+  }
   /*! \brief Set whether setpoints are currently sent while cycle()
     
     While performing the cycle() function, the currently set setpoint
@@ -253,14 +258,17 @@ class CCrazyflie {
     
     \param bSendSetpoints When set to `true`, the current setpoint is
     sent while cycle(). Otherwise, not. */
-  void setSendSetpoints(bool bSendSetpoints);
-  
+  void setSendSetpoints(bool bSendSetpoints) {
+    m_bSendsSetpoints = bSendSetpoints;
+  }
   /*! \brief Whether or not setpoints are currently sent to the copter
     
     \return Boolean value denoting whether or not the current setpoint
     is sent to the copter while performing cycle(). */
-  bool sendsSetpoints();
-  
+  bool sendsSetpoints(void) const {
+    return m_bSendsSetpoints;
+  }
+
   /*! \brief Read back a sensor value you subscribed to
     
     Possible sensor values might be:
@@ -275,30 +283,62 @@ class CCrazyflie {
     
     \return Double value denoting the current value of the requested
     log variable. */
-  double sensorDoubleValue(string strName);
-  
+  double sensorDoubleValue(string strName) const {
+    return m_tocLogs->doubleValue(strName);
+  }
+
   /*! \brief Report the current battery level
     
     \return Double value denoting the battery level as reported by the
     copter. */
-  double batteryLevel();
-
-  float accX();
-  float accY();
-  float accZ();
-  float accZW();
-  float asl();
-  float aslLong();
-  float temperature();
-  float pressure();
-  float gyroX();
-  float gyroY();
-  float gyroZ();
-  float batteryState();
-  float magX();
-  float magY();
-  float magZ();
-
+  double batteryLevel(void) const {
+    return sensorDoubleValue("pm.vbat");
+  }
+  float accX(void) const {
+    return sensorDoubleValue("acc.x");
+  }
+  float accY(void) const {
+    return sensorDoubleValue("acc.y");
+  }
+  float accZ(void) const {
+    return sensorDoubleValue("acc.z");
+  }
+  float accZW(void) const {
+    return sensorDoubleValue("acc.zw");
+  }
+  float asl(void) const {;
+    return sensorDoubleValue("alti.asl");
+  }
+  float aslLong(void) const {
+    return sensorDoubleValue("alti.aslLong");
+  }
+  float temperature(void) const {
+    return sensorDoubleValue("alti.temperature");
+  }
+  float pressure(void) const {
+    return sensorDoubleValue("alti.pressure");
+  }
+  float gyroX(void) const {
+    return sensorDoubleValue("gyro.x");
+  }
+  float gyroY(void) const {
+    return sensorDoubleValue("gyro.x");
+  }
+  float gyroZ(void) const {
+    return sensorDoubleValue("gyro.x");
+  }
+  float batteryState(void) const {
+    return sensorDoubleValue("pm.state");
+  }
+  float magX(void) const {
+    return sensorDoubleValue("mag.x");
+  }
+  float magY(void) const {
+    return sensorDoubleValue("mag.y");
+  }
+  float magZ(void) const {
+    return sensorDoubleValue("mag.z");
+  }
 };
 
 
