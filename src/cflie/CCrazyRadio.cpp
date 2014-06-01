@@ -282,10 +282,6 @@ void CCrazyRadio::setARDBytes(int nARDBytes) {
   this->writeControl(NULL, 0, 0x05, 0x80 | nARDBytes, 0);
 }
 
-enum Power CCrazyRadio::power() {
-  return m_enumPower;
-}
-
 void CCrazyRadio::setPower(enum Power enumPower) {
   m_enumPower = enumPower;
 
@@ -381,10 +377,6 @@ CCRTPPacket *CCrazyRadio::readACK() {
   }
   
   return crtpPacket;
-}
-
-bool CCrazyRadio::ackReceived() {
-  return m_bAckReceived;
 }
 
 bool CCrazyRadio::usbOK() {

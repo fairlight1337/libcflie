@@ -135,7 +135,9 @@ public:
     
     \return Value denoting the current power settings reserved for
     communication */
-  enum Power power();
+  enum Power power(void) const {
+    return m_enumPower;
+  }
   /*! \brief Set the power level to be used for communication purposes
     
     \param enumPower The level of power that is being used for
@@ -210,7 +212,9 @@ public:
     or out of range.
     
     \return Returns true if the copter is returning the ACK flag properly, false otherwise. */
-  bool ackReceived();
+  bool ackReceived(void) const {
+    return m_bAckReceived;
+  }
   /*! \brief Whether or not the USB connection is still operational.
     
     Checks if the USB read/write calls yielded any errors.
