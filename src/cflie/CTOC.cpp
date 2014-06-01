@@ -78,7 +78,7 @@ bool CTOC::requestItems() {
 bool CTOC::processItem(CCRTPPacket *crtpItem) {
   if(crtpItem->port() == m_nPort) {
     if(crtpItem->channel() == 0) {
-      char *cData = crtpItem->data();
+      const char *cData = crtpItem->data();
       int nLength = crtpItem->dataLength();
       
       if(cData[1] == 0x0) { // Command identification ok?
@@ -190,7 +190,7 @@ bool CTOC::startLogging(string strName, string strBlockName) {
       crtpLogVariable->setChannel(1);
       CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpLogVariable, true);
       
-      char *cData = crtpReceived->data();
+      const char *cData = crtpReceived->data();
       bool bCreateOK = false;
       if(cData[1] == 0x01 &&
 	 cData[2] == lbCurrent.nID &&
@@ -315,7 +315,7 @@ bool CTOC::registerLoggingBlock(string strName, double dFrequency) {
     
     CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpRegisterBlock, true);
     
-    char *cData = crtpReceived->data();
+    const char *cData = crtpReceived->data();
     bool bCreateOK = false;
     if(cData[1] == 0x00 &&
        cData[2] == nID &&
@@ -395,12 +395,12 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
 	itPacket++) {
       CCRTPPacket *crtpPacket = *itPacket;
       
-      char *cData = crtpPacket->data();
+      const char *cData = crtpPacket->data();
       float fValue;
       memcpy(&fValue, &cData[5], 4);
       //cout << fValue << endl;
       
-      char *cLogdata = &cData[5];
+      const char *cLogdata = &cData[5];
       int nOffset = 0;
       int nIndex = 0;
       int nAvailableLogBytes = crtpPacket->dataLength() - 5;

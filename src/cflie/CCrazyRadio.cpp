@@ -317,7 +317,7 @@ CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwar
   delete[] cSendable;
     
   if(crtpPacket) {
-    char *cData = crtpPacket->data();
+    const char *cData = crtpPacket->data();
     int nLength = crtpPacket->dataLength();
     
     if(nLength > 0) {

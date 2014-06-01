@@ -33,7 +33,7 @@ CCRTPPacket::CCRTPPacket(int nPort) {
   this->setPort(nPort);
 }
 
-CCRTPPacket::CCRTPPacket(char *cData, int nDataLength, int nPort) {
+CCRTPPacket::CCRTPPacket(const char *cData, int nDataLength, int nPort) {
   this->basicSetup();
   this->setPort(nPort);
   
@@ -59,20 +59,12 @@ void CCRTPPacket::basicSetup() {
   m_bIsPingPacket = false;
 }
 
-void CCRTPPacket::setData(char *cData, int nDataLength) {
+void CCRTPPacket::setData(const char *cData, int nDataLength) {
   this->clearData();
   
   m_cData = new char[nDataLength]();
   memcpy(m_cData, cData, nDataLength);
   m_nDataLength = nDataLength;
-}
-
-char *CCRTPPacket::data() {
-  return m_cData;
-}
-
-int CCRTPPacket::dataLength() {
-  return m_nDataLength;
 }
 
 void CCRTPPacket::clearData() {
@@ -108,28 +100,4 @@ int CCRTPPacket::sendableDataLength() {
   } else {
     return m_nDataLength + 1;//2;
   }
-}
-
-void CCRTPPacket::setPort(int nPort) {
-  m_nPort = nPort;
-}
-
-int CCRTPPacket::port() {
-  return m_nPort;
-}
-
-void CCRTPPacket::setChannel(int nChannel) {
-  m_nChannel = nChannel;
-}
-
-int CCRTPPacket::channel() {
-  return m_nChannel;
-}
-
-void CCRTPPacket::setIsPingPacket(bool bIsPingPacket) {
-  m_bIsPingPacket = bIsPingPacket;
-}
-
-bool CCRTPPacket::isPingPacket() {
-  return m_bIsPingPacket;
 }

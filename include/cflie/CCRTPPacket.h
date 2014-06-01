@@ -90,7 +90,7 @@ class CCRTPPacket {
     cData
     \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(char *cData, int nDataLength, int nPort);
+  CCRTPPacket(const char *cData, int nDataLength, int nPort);
   CCRTPPacket(char cData, int nPort);
   /*! \brief Destructor for the packet class
     
@@ -105,7 +105,7 @@ class CCRTPPacket {
     payload
     \param nDataLength Length (in bytes) of the data that should be
     read from cData for storage */
-  void setData(char *cData, int nDataLength);
+  void setData(const char *cData, int nDataLength);
   /*! \brief Gives out the pointer to the internally stored data
     
     Don't manipulate the data pointed to by this pointer. Usually, you
@@ -113,13 +113,18 @@ class CCRTPPacket {
     interface-designated functions.
     
     \return Returns a direct pointer to the internally stored data */
-  char *data();
+  const char *data(void) const {
+    return m_cData;
+  }
+
   /*! \brief Returns the length of the currently stored data (in
       bytes)
     
     \return Returns the number of bytes stored as payload data */
-  int dataLength();
-  
+  int dataLength(void) const {
+    return m_nDataLength;
+  }
+
   /*! \brief Prepares a sendable block of data based on the
       CCRTPPacket details
     
@@ -143,10 +148,13 @@ class CCRTPPacket {
     function sets the port that is later used in sendableData().
     
     \param nPort Port number to set */
-  void setPort(int nPort);
+  void setPort(int nPort) {
+    m_nPort = nPort;
+  }
   /*! \brief Returns the currently set port number */
-  int port();
-
+  int port(void) const {
+    return m_nPort;
+  }
   /*! \brief Set the copter channel to send the payload data to
     
     The channel identifies the purpose of the packet on the
@@ -154,12 +162,20 @@ class CCRTPPacket {
     sendableData().
     
     \param nChannel Channel number to set */
-  void setChannel(int nChannel);
+  void setChannel(int nChannel) {
+    m_nChannel = nChannel;
+  }
   /*! \brief Returns the currently set channel number */
-  int channel();
-  
-  void setIsPingPacket(bool bIsPingPacket);
-  bool isPingPacket();
+  int channel(void) const {
+    return m_nChannel;
+  }
+
+  void setIsPingPacket(bool bIsPingPacket) {
+    m_bIsPingPacket = bIsPingPacket;
+  }
+  bool isPingPacket() const {
+    return m_bIsPingPacket;
+  }
 };
 
 
