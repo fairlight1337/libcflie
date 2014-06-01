@@ -109,7 +109,7 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
   return false;
 }
 
-struct TOCElement CTOC::elementForName(string strName, bool &bFound) const {
+struct TOCElement CTOC::elementForName(const std::string& strName, bool &bFound) const {
   for(list<struct TOCElement>::const_iterator itElement = m_lstTOCElements.begin();
       itElement != m_lstTOCElements.end();
       itElement++) {
@@ -146,7 +146,7 @@ struct TOCElement CTOC::elementForID(uint8_t nID, bool &bFound) const {
   return teEmpty;
 }
 
-int CTOC::idForName(string strName) const {
+int CTOC::idForName(const std::string& strName) const {
   bool bFound;
   
   struct TOCElement teResult = elementForName(strName, bFound);
@@ -158,7 +158,7 @@ int CTOC::idForName(string strName) const {
   return -1;
 }
 
-int CTOC::typeForName(string strName) const {
+int CTOC::typeForName(const std::string& strName) const {
   bool bFound;
   
   struct TOCElement teResult = elementForName(strName, bFound);
@@ -170,7 +170,7 @@ int CTOC::typeForName(string strName) const {
   return -1;
 }
 
-bool CTOC::startLogging(string strName, string strBlockName) {
+bool CTOC::startLogging(const std::string& strName, const std::string& strBlockName) {
   bool bFound;
   struct LoggingBlock lbCurrent = this->loggingBlockForName(strBlockName, bFound);
   
@@ -223,7 +223,7 @@ bool CTOC::addElementToBlock(int nBlockID, int nElementID) {
   return false;
 }
 
-double CTOC::doubleValue(string strName) const {
+double CTOC::doubleValue(const std::string& strName) const {
   bool bFound;
   
   struct TOCElement teResult = elementForName(strName, bFound);
@@ -235,7 +235,7 @@ double CTOC::doubleValue(string strName) const {
   return 0;
 }
 
-struct LoggingBlock CTOC::loggingBlockForName(string strName, bool &bFound) const {
+struct LoggingBlock CTOC::loggingBlockForName(const std::string& strName, bool &bFound) const {
   for(list<struct LoggingBlock>::const_iterator itBlock = m_lstLoggingBlocks.begin();
       itBlock != m_lstLoggingBlocks.end();
       itBlock++) {
@@ -271,8 +271,8 @@ struct LoggingBlock CTOC::loggingBlockForID(uint8_t nID, bool &bFound) const {
   return lbEmpty;
 }
 
-bool CTOC::registerLoggingBlock(string strName, double dFrequency) {
-  int nID = 0;
+bool CTOC::registerLoggingBlock(const std::string& strName, double dFrequency) {
+  uint8_t nID = 0;
   bool bFound;
   
   if(dFrequency > 0) { // Only do it if a valid frequency > 0 is given
@@ -327,7 +327,7 @@ bool CTOC::registerLoggingBlock(string strName, double dFrequency) {
   return false;
 }
 
-bool CTOC::enableLogging(string strBlockName) {
+bool CTOC::enableLogging(const std::string& strBlockName) {
   bool bFound;
   
   struct LoggingBlock lbCurrent = this->loggingBlockForName(strBlockName, bFound);
@@ -347,7 +347,7 @@ bool CTOC::enableLogging(string strBlockName) {
   return false;
 }
 
-bool CTOC::unregisterLoggingBlock(string strName) {
+bool CTOC::unregisterLoggingBlock(const std::string& strName) {
   bool bFound;
   
   struct LoggingBlock lbCurrent = this->loggingBlockForName(strName, bFound);

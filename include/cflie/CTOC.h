@@ -94,26 +94,28 @@ class CTOC {
   bool requestMetaData();
   bool requestItems();
   
-  struct TOCElement elementForName(string strName, bool &bFound) const;
+  struct TOCElement elementForName(const std::string& strName, bool &bFound) const;
   struct TOCElement elementForID(uint8_t nID, bool &bFound) const;
-  int idForName(string strName) const;
-  int typeForName(string strName) const;
+  int idForName(const std::string& strName) const;
+  int typeForName(const std::string& strName) const;
 
   // For loggable variables only
-  bool registerLoggingBlock(string strName, double dFrequency);
-  bool unregisterLoggingBlock(string strName);
-  struct LoggingBlock loggingBlockForName(string strName, bool &bFound) const;
+  bool registerLoggingBlock(const std::string& strName, double dFrequency);
+  bool unregisterLoggingBlock(const std::string& strName);
+  struct LoggingBlock loggingBlockForName(const std::string& strName, bool &bFound) const;
   struct LoggingBlock loggingBlockForID(uint8_t nID, bool &bFound) const;
   
-  bool startLogging(string strName, string strBlockName);
-  bool stopLogging(string strName) {
+  bool startLogging(const std::string& strName, const std::string& strBlockName);
+  bool stopLogging(const std::string& /*strName*/) {
+    return true; // TODO
   }
-  bool isLogging(string strName) {
+  bool isLogging(const std::string& /*strName*/) {
+    return true; // TODO
   }
 
-  double doubleValue(string strName) const;
+  double doubleValue(const std::string& strName) const;
   
-  bool enableLogging(string strBlockName);
+  bool enableLogging(const std::string& strBlockName);
   
   void processPackets(list<CCRTPPacket*> lstPackets);
   
