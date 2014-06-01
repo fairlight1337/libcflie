@@ -283,7 +283,7 @@ class CCrazyflie {
     
     \return Double value denoting the current value of the requested
     log variable. */
-  double sensorDoubleValue(string strName) const {
+  double sensorDoubleValue(const std::string& strName) const {
     return m_tocLogs->doubleValue(strName);
   }
 
