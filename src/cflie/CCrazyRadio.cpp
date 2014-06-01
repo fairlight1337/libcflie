@@ -370,7 +370,7 @@ CCRTPPacket *CCrazyRadio::readACK() {
       crtpPacket = new CCRTPPacket(0);
       
       if(nBytesRead > 1) {
-      	crtpPacket->setData(&cBuffer[1], nBytesRead);
+        crtpPacket->setData(&cBuffer[1], nBytesRead - 1);
       }
     } else {
       m_bAckReceived = false;
