@@ -37,8 +37,6 @@
 #include <string>
 #include <string.h>
 
-using namespace std;
-
 
 /*! \brief Class to hold and process communication-related data for
   the CRTProtocol */

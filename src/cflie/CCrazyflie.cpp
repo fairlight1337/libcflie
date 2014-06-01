@@ -27,6 +27,7 @@
 
 #include "cflie/CCrazyflie.h"
 
+using namespace std;
 
 CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_crRadio = crRadio;

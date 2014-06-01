@@ -27,6 +27,7 @@
 
 #include "cflie/CCrazyRadio.h"
 
+using namespace std;
 
 CCrazyRadio::CCrazyRadio(const std::string& strRadioIdentifier) {
   m_strRadioIdentifier = strRadioIdentifier;

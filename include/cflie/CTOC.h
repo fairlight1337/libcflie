@@ -40,8 +40,6 @@
 #include "CCrazyRadio.h"
 #include "CCRTPPacket.h"
 
-using namespace std;
-
 
 /*! \brief Storage element for logged variable identities */
 struct TOCElement {
@@ -51,19 +49,19 @@ struct TOCElement {
   /*! \brief The (ref) type of the log element */
   int nType;
   /*! \brief The string group name of the log element */
-  string strGroup;
+  std::string strGroup;
   /*! \brief The string identifier of the log element */
-  string strIdentifier;
+  std::string strIdentifier;
   bool bIsLogging;
   double dValue;
 };
 
 
 struct LoggingBlock {
-  string strName;
+  std::string strName;
   int nID;
   double dFrequency;
-  list<int> lstElementIDs;
+  std::list<int> lstElementIDs;
 };
 
 
@@ -72,8 +70,8 @@ class CTOC {
   int m_nPort;
   CCrazyRadio *m_crRadio;
   int m_nItemCount;
-  list<struct TOCElement> m_lstTOCElements;
-  list<struct LoggingBlock> m_lstLoggingBlocks;
+  std::list<struct TOCElement> m_lstTOCElements;
+  std::list<struct LoggingBlock> m_lstLoggingBlocks;
   
   bool requestInitialItem() {
     return this->requestItem(0, true);
@@ -117,7 +115,7 @@ class CTOC {
   
   bool enableLogging(const std::string& strBlockName);
   
-  void processPackets(list<CCRTPPacket*> lstPackets);
+  void processPackets(std::list<CCRTPPacket*> lstPackets);
   
   int elementIDinBlock(int nBlockID, int nElementIndex) const;
   bool setFloatValueForElementID(int nElementID, float fValue);

@@ -45,8 +45,6 @@
 
 #include "CCRTPPacket.h"
 
-using namespace std;
-
 
 /*! \brief Power levels to configure the radio dongle with */
 enum Power {
@@ -73,14 +71,14 @@ private:
   // Variables
   /*! \brief The radio URI as supplied when initializing the class
       instance */
-  string m_strRadioIdentifier;
+  std::string m_strRadioIdentifier;
   /*! \brief The current USB context as supplied by libusb */
   libusb_context *m_ctxContext;
   libusb_device *m_devDevice;
   libusb_device_handle *m_hndlDevice;
   int m_nARC;
   int m_nChannel;
-  string m_strDataRate;
+  std::string m_strDataRate;
   int m_nARDTime;
   int m_nARDBytes;
   enum Power m_enumPower;
@@ -88,10 +86,10 @@ private:
   int m_bContCarrier;
   float m_fDeviceVersion;
   bool m_bAckReceived;
-  list<CCRTPPacket*> m_lstLoggingPackets;
-  
+  std::list<CCRTPPacket*> m_lstLoggingPackets;
+
   // Functions
-  list<libusb_device*> listDevices(int nVendorID, int nProductID);
+  std::list<libusb_device*> listDevices(int nVendorID, int nProductID);
   bool openUSBDongle();
   bool claimInterface(int nInterface);
   void closeDevice();
@@ -231,7 +229,7 @@ public:
     
     \return List of CCRTPPacket instances collected from port 5
     (logging). */
-  list<CCRTPPacket*> popLoggingPackets();
+  std::list<CCRTPPacket*> popLoggingPackets();
 };
 
 

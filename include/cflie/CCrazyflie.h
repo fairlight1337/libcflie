@@ -40,8 +40,6 @@
 #include "CCrazyRadio.h"
 #include "CTOC.h"
 
-using namespace std;
-
 
 enum State {
   STATE_ZERO = 0,

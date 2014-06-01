@@ -1,5 +1,6 @@
 #include "cflie/CTOC.h"
 
+using namespace std;
 
 CTOC::CTOC(CCrazyRadio *crRadio, int nPort) {
   m_crRadio = crRadio;
