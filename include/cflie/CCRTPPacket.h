@@ -37,6 +37,22 @@
 #include <cstring> // memcpy
 
 
+enum Channel {
+  ChannelTOC,
+  ChannelRead,
+  ChannelWrite,
+};
+
+enum Port {
+    PortConsole = 0x00,
+    PortParam = 0x02,
+    PortCommander = 0x03,
+    PortLogging = 0x05,
+    PortDebugDriver = 0x0E,
+    PortLinkeCtrl = 0x0F,
+    PortAll = 0xFF,
+};
+
 /*! \brief Class to hold and process communication-related data for
   the CRTProtocol */
 class CCRTPPacket {
