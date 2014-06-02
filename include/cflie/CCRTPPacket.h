@@ -33,9 +33,8 @@
 #define __C_CRTP_PACKET_H__
 
 
-#include <iostream>
 #include <string>
-#include <string.h>
+#include <cstring> // memcpy
 
 
 /*! \brief Class to hold and process communication-related data for
@@ -50,38 +49,49 @@ class CCRTPPacket {
   /*! \brief The copter channel the packet will be delivered to */
   int m_nChannel;
   bool m_bIsPingPacket;
-  
-  // Functions
-  /*! \brief Sets all internal variables to their default values. */
-  void basicSetup();
 
  public:
   /*! \brief Constructor for the CCRTPPacket communication packet
     class
-    
+
     Initializes the communication packet and sets the given
     channel. The packet starts out without payload data.
-    
+
     \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(int nPort);
+  CCRTPPacket(int nPort)
+    : m_nPort(nPort)
+    , m_nChannel(0)
+    , m_bIsPingPacket(false)
+  {}
+
   /*! \brief Convenience constructor for the CCRTPPacket communication
     packet class
-    
+
     Initializes the communication packet and sets the given
     channel. The given data is set as the internal payload data.
-    
+
     \param cData The data pointer to read the new payload data from
     \param nDataLength The length (in bytes) of data to read from
     cData
     \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(const char *cData, int nDataLength, int nPort);
-  CCRTPPacket(char cData, int nPort);
+  CCRTPPacket(const char *cData, int nDataLength, int nPort)
+    : m_cData(cData, nDataLength)
+    , m_nPort(nPort)
+    , m_nChannel(0)
+    , m_bIsPingPacket(false)
+  {}
+  CCRTPPacket(char cData, int nPort)
+    : m_cData(&cData, 1)
+    , m_nPort(nPort)
+    , m_nChannel(0)
+    , m_bIsPingPacket(false)
+  {}
 
   /*! \brief Copies the given data of the specified length to the
     internal storage.
-    
+
     \param cData Pointer pointing to the data that should be used as
     payload
     \param cData std::string which holds the payload */
@@ -89,11 +99,11 @@ class CCRTPPacket {
     m_cData = cData;
   }
   /*! \brief Gives out the pointer to the internally stored data
-    
+
     Don't manipulate the data pointed to by this pointer. Usually, you
     won't have to call this function at all as it is used by the more
     interface-designated functions.
-    
+
     \return Returns a direct pointer to the internally stored data */
   const char *data(void) const {
     return m_cData.data();
@@ -101,7 +111,7 @@ class CCRTPPacket {
 
   /*! \brief Returns the length of the currently stored data (in
       bytes)
-    
+
     \return Returns the number of bytes stored as payload data */
   int dataLength(void) const {
     return m_cData.size();
@@ -109,26 +119,43 @@ class CCRTPPacket {
 
   /*! \brief Prepares a sendable block of data based on the
       CCRTPPacket details
-    
+
     A block of data is prepared that contains the packet header
     (channel, port), the payload data and a finishing byte
     (0x27). This block is newly allocated and must be delete[]'d after
     usage.
-    
+
     \return Pointer to a new char[] containing a sendable block of
     payload data */
-  char *sendableData();
+  char *sendableData(void) {
+    char *cSendable = new char[sendableDataLength()];
+    if(m_bIsPingPacket) {
+      cSendable[0] = 0xff;
+    } else {
+      // Header byte
+      cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
+      // Payload
+      std::memcpy(&cSendable[1], m_cData.data(), m_cData.size());
+    }
+    return cSendable;
+  }
   /*! \brief Returns the length of a sendable data block
-    
+
     \return Length of the sendable data block returned by
     sendableData() (in bytes) */
-  int sendableDataLength();
-  
+  int sendableDataLength() {
+    if(m_bIsPingPacket) {
+      return 1;
+    } else {
+      return m_cData.size() + 1;//2;
+    }
+  }
+
   /*! \brief Set the copter port to send the payload data to
-    
+
     The port identifies the purpose of the packet on the copter. This
     function sets the port that is later used in sendableData().
-    
+
     \param nPort Port number to set */
   void setPort(int nPort) {
     m_nPort = nPort;
@@ -138,11 +165,11 @@ class CCRTPPacket {
     return m_nPort;
   }
   /*! \brief Set the copter channel to send the payload data to
-    
+
     The channel identifies the purpose of the packet on the
     copter. This function sets the channel that is later used in
     sendableData().
-    
+
     \param nChannel Channel number to set */
   void setChannel(int nChannel) {
     m_nChannel = nChannel;
