@@ -80,6 +80,12 @@ class CCRTPPacket {
     , m_nChannel(0)
     , m_bIsPingPacket(false)
   {}
+  CCRTPPacket()
+    : m_nPort(PortConsole)
+    , m_nChannel(ChannelTOC)
+    , m_bIsPingPacket(false)
+  {}
+
 
   /*! \brief Convenience constructor for the CCRTPPacket communication
     packet class
