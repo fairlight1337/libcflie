@@ -89,7 +89,7 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   memcpy(&cBuffer[2 * sizeof(float)], &fYaw, sizeof(float));
   memcpy(&cBuffer[3 * sizeof(float)], &sThrust, sizeof(short));
   
-  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, 3);
+  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, PortCommander);
   CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
   
   delete crtpPacket;
