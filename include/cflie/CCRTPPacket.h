@@ -67,19 +67,8 @@ class CCRTPPacket {
   bool m_bIsPingPacket;
 
  public:
-  /*! \brief Constructor for the CCRTPPacket communication packet
-    class
-
-    Initializes the communication packet and sets the given
-    channel. The packet starts out without payload data.
-
-    \param nPort The port the payload in this packet is
-    designated for. */
-  CCRTPPacket(int nPort)
-    : m_nPort(nPort)
-    , m_nChannel(0)
-    , m_bIsPingPacket(false)
-  {}
+  /*! \brief Default constructor for the CCRTPPacket communication packet
+    class */
   CCRTPPacket()
     : m_nPort(PortConsole)
     , m_nChannel(ChannelTOC)
