@@ -367,7 +367,7 @@ CCRTPPacket *CCrazyRadio::readACK() {
       // TODO(winkler): Do internal stuff with the data received here
       // (store current link quality, etc.). For now, ignore it.
       
-      crtpPacket = new CCRTPPacket(0);
+      crtpPacket = new CCRTPPacket();
       
       if(nBytesRead > 1) {
         crtpPacket->setData(std::string(&cBuffer[1], nBytesRead - 1));
@@ -389,7 +389,7 @@ bool CCrazyRadio::usbOK() {
 CCRTPPacket *CCrazyRadio::waitForPacket() {
   bool bGoon = true;
   CCRTPPacket *crtpReceived = NULL;
-  CCRTPPacket *crtpDummy = new CCRTPPacket(0);
+  CCRTPPacket *crtpDummy = new CCRTPPacket();
   crtpDummy->setIsPingPacket(true);
   
   while(bGoon) {
@@ -453,7 +453,7 @@ list<CCRTPPacket*> CCrazyRadio::popLoggingPackets() {
 
 bool CCrazyRadio::sendDummyPacket() {
   CCRTPPacket *crtpReceived = NULL;
-  CCRTPPacket *crtpDummy = new CCRTPPacket(0);
+  CCRTPPacket *crtpDummy = new CCRTPPacket();
   crtpDummy->setIsPingPacket(true);
   
   crtpReceived = this->sendPacket(crtpDummy, true);
