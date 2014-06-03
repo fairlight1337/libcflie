@@ -2,7 +2,7 @@
 
 using namespace std;
 
-CTOC::CTOC(CCrazyRadio *crRadio, int nPort) {
+CTOC::CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort) {
   m_crRadio = crRadio;
   m_nPort = nPort;
   m_nItemCount = 0;
@@ -13,7 +13,7 @@ CTOC::~CTOC() {
 
 bool CTOC::sendTOCPointerReset() {
   CCRTPPacket *crtpPacket = new CCRTPPacket(0x00, m_nPort);
-  crtpPacket->setChannel(ChannelTOC);
+  crtpPacket->setChannel(CCRTPPacket::ChannelTOC);
   CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket, true);
   
   if(crtpReceived) {
@@ -28,7 +28,7 @@ bool CTOC::requestMetaData() {
   bool bReturnvalue = false;
   
   CCRTPPacket *crtpPacket = new CCRTPPacket(0x01, m_nPort);
-  crtpPacket->setChannel(ChannelTOC);
+  crtpPacket->setChannel(CCRTPPacket::ChannelTOC);
   CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpPacket);
   
   if(crtpReceived->data()[1] == 0x01) {
@@ -50,7 +50,7 @@ bool CTOC::requestItem(int nID, bool bInitial) {
   CCRTPPacket *crtpPacket = new CCRTPPacket(cRequest,
 					    (bInitial ? 1 : 2),
 					    m_nPort);
-  crtpPacket->setChannel(ChannelTOC);
+  crtpPacket->setChannel(CCRTPPacket::ChannelTOC);
   CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpPacket);
   
   bReturnvalue = this->processItem(crtpReceived);
@@ -70,7 +70,7 @@ bool CTOC::requestItems() {
 
 bool CTOC::processItem(CCRTPPacket *crtpItem) {
   if(crtpItem->port() == m_nPort) {
-    if(crtpItem->channel() == ChannelTOC) {
+    if(crtpItem->channel() == CCRTPPacket::ChannelTOC) {
       const char *cData = crtpItem->data();
       int nLength = crtpItem->dataLength();
       
@@ -180,7 +180,7 @@ bool CTOC::startLogging(const std::string& strName, const std::string& strBlockN
     if(bFound) {
       char cPayload[5] = {0x01, lbCurrent.nID, teCurrent.nType, teCurrent.nID};
       CCRTPPacket *crtpLogVariable = new CCRTPPacket(cPayload, 4, m_nPort);
-      crtpLogVariable->setChannel(ChannelRead);
+      crtpLogVariable->setChannel(CCRTPPacket::ChannelRead);
       CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpLogVariable, true);
       
       const char *cData = crtpReceived->data();
@@ -296,7 +296,7 @@ bool CTOC::registerLoggingBlock(const std::string& strName, double dFrequency) {
     //    char cPayload[4] = {0x00, (nID >> 16) & 0x00ff, nID & 0x00ff, d10thOfMS};
     char cPayload[4] = {0x00, nID, d10thOfMS};
     CCRTPPacket *crtpRegisterBlock = new CCRTPPacket(cPayload, 3, m_nPort);
-    crtpRegisterBlock->setChannel(ChannelRead);
+    crtpRegisterBlock->setChannel(CCRTPPacket::ChannelRead);
     
     CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpRegisterBlock, true);
     
@@ -337,7 +337,7 @@ bool CTOC::enableLogging(const std::string& strBlockName) {
     char cPayload[3] = {0x03, lbCurrent.nID, d10thOfMS};
     
     CCRTPPacket *crtpEnable = new CCRTPPacket(cPayload, 3, m_nPort);
-    crtpEnable->setChannel(ChannelRead);
+    crtpEnable->setChannel(CCRTPPacket::ChannelRead);
     
     CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpEnable);
     delete crtpReceived;
@@ -362,7 +362,7 @@ bool CTOC::unregisterLoggingBlock(const std::string& strName) {
 bool CTOC::unregisterLoggingBlockID(int nID) {
   char cPayload[2] = {0x02, nID};
   CCRTPPacket *crtpUnregisterBlock = new CCRTPPacket(cPayload, 2, m_nPort);
-  crtpUnregisterBlock->setChannel(ChannelRead);
+  crtpUnregisterBlock->setChannel(CCRTPPacket::ChannelRead);
   CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpUnregisterBlock, true);
   
   if(crtpReceived) {

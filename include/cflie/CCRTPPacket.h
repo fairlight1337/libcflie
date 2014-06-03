@@ -37,13 +37,16 @@
 #include <cstring> // memcpy
 
 
-enum Channel {
-  ChannelTOC,
-  ChannelRead,
-  ChannelWrite,
-};
-
-enum Port {
+/*! \brief Class to hold and process communication-related data for
+  the CRTProtocol */
+class CCRTPPacket {
+ public:
+  enum Channel {
+    ChannelTOC,
+    ChannelRead,
+    ChannelWrite,
+  };
+  enum Port {
     PortConsole = 0x00,
     PortParam = 0x02,
     PortCommander = 0x03,
@@ -51,19 +54,16 @@ enum Port {
     PortDebugDriver = 0x0E,
     PortLinkeCtrl = 0x0F,
     PortAll = 0xFF,
-};
+  };
 
-/*! \brief Class to hold and process communication-related data for
-  the CRTProtocol */
-class CCRTPPacket {
  private:
   // Variables
   /*! \brief payload */
   std::string m_cData;
   /*! \brief The copter port the packet will be delivered to */
-  int m_nPort;
+  Port m_nPort;
   /*! \brief The copter channel the packet will be delivered to */
-  int m_nChannel;
+  Channel m_nChannel;
   bool m_bIsPingPacket;
 
  public:
@@ -87,16 +87,16 @@ class CCRTPPacket {
     cData
     \param nPort The port the payload in this packet is
     designated for. */
-  CCRTPPacket(const char *cData, int nDataLength, int nPort)
+  CCRTPPacket(const char *cData, int nDataLength, Port nPort)
     : m_cData(cData, nDataLength)
     , m_nPort(nPort)
-    , m_nChannel(0)
+    , m_nChannel(ChannelTOC)
     , m_bIsPingPacket(false)
   {}
-  CCRTPPacket(char cData, int nPort)
+  CCRTPPacket(char cData, Port nPort)
     : m_cData(&cData, 1)
     , m_nPort(nPort)
-    , m_nChannel(0)
+    , m_nChannel(ChannelTOC)
     , m_bIsPingPacket(false)
   {}
 
@@ -168,11 +168,11 @@ class CCRTPPacket {
     function sets the port that is later used in sendableData().
 
     \param nPort Port number to set */
-  void setPort(int nPort) {
+  void setPort(Port nPort) {
     m_nPort = nPort;
   }
   /*! \brief Returns the currently set port number */
-  int port(void) const {
+  Port port(void) const {
     return m_nPort;
   }
   /*! \brief Set the copter channel to send the payload data to
@@ -182,11 +182,11 @@ class CCRTPPacket {
     sendableData().
 
     \param nChannel Channel number to set */
-  void setChannel(int nChannel) {
+  void setChannel(Channel nChannel) {
     m_nChannel = nChannel;
   }
   /*! \brief Returns the currently set channel number */
-  int channel(void) const {
+  Channel channel(void) const {
     return m_nChannel;
   }
 

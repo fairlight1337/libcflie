@@ -67,7 +67,7 @@ struct LoggingBlock {
 
 class CTOC {
  private:
-  int m_nPort;
+  CCRTPPacket::Port m_nPort;
   CCrazyRadio *m_crRadio;
   int m_nItemCount;
   std::list<struct TOCElement> m_lstTOCElements;
@@ -82,10 +82,10 @@ class CTOC {
   }
   bool processItem(CCRTPPacket *crtpItem);
   
-  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nChannel);
-  
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, CCRTPPacket::Channel nChannel);
+
  public:
-  CTOC(CCrazyRadio *crRadio, int nPort);
+  CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort);
   ~CTOC();
   
   bool sendTOCPointerReset();

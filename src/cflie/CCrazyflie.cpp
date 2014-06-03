@@ -30,8 +30,8 @@
 using namespace std;
 
 CCrazyflie::CCrazyflie(CCrazyRadio *crRadio)
-  : m_tocParameters(crRadio, 2)
-  , m_tocLogs(crRadio, 5)
+  : m_tocParameters(crRadio, CCRTPPacket::PortParam)
+  , m_tocLogs(crRadio, CCRTPPacket::PortLogging)
 {
   m_crRadio = crRadio;
   
@@ -89,7 +89,7 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
   memcpy(&cBuffer[2 * sizeof(float)], &fYaw, sizeof(float));
   memcpy(&cBuffer[3 * sizeof(float)], &sThrust, sizeof(short));
   
-  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, PortCommander);
+  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, CCRTPPacket::PortCommander);
   CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
   
   delete crtpPacket;

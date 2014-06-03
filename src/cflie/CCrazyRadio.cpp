@@ -319,9 +319,9 @@ CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwar
     
     if(nLength > 0) {
       short sPort = (cData[0] & 0xf0) >> 4;
-      crtpPacket->setPort(sPort);
+      crtpPacket->setPort(CCRTPPacket::Port(sPort));
       short sChannel = cData[0] & 0b00000011;
-      crtpPacket->setChannel(sChannel);
+      crtpPacket->setChannel(CCRTPPacket::Channel(sChannel));
       
       switch(sPort) {
       case 0: { // Console
