@@ -43,8 +43,17 @@ sudo apt-get install libglfw-dev libglfw2 cmake
 ```
 
 
-How to build the library
-------------------------
+How to install from binaries
+----------------------------
+
+Add the PPA to your debian sources:
+```sudo add-apt-repository ppa:jan-winkler-84 && sudo apt-get update```
+Install the binary package:
+```sudo apt-get install libcflie```
+
+
+How to build the library form source
+------------------------------------
 
 First, clone the repository:
 ```
