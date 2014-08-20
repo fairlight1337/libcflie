@@ -36,13 +36,15 @@ target_link_libraries(ex-replugging ${PROJECT_NAME})
 target_link_libraries(ex-simple ${PROJECT_NAME})
 target_link_libraries(ex-gui ${PROJECT_NAME} ${GLFW_LIB} GL GLU)
 
-install(FILES include/cflie/*.h DESTINATION include)
-install(FILES lib/* DESTINATION lib)
+install(DIRECTORY include/cflie
+  DESTINATION include
+  FILES_MATCHING
+  PATTERN "*.h"
+  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 install(
   TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
   COMPONENT library
 )
