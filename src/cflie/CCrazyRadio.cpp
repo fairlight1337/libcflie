@@ -239,16 +239,6 @@ bool CCrazyRadio::writeControl(void *vdData, int nLength, uint8_t u8Request, uin
   return true;
 }
 
-void CCrazyRadio::setARC(int nARC) {
-  m_nARC = nARC;
-  this->writeControl(NULL, 0, 0x06, nARC, 0);
-}
-
-void CCrazyRadio::setChannel(int nChannel) {
-  m_nChannel = nChannel;
-  this->writeControl(NULL, 0, 0x01, nChannel, 0);
-}
-
 void CCrazyRadio::setDataRate(const std::string& strDataRate) {
   m_strDataRate = strDataRate;
   int nDataRate = -1;
@@ -275,30 +265,6 @@ void CCrazyRadio::setARDTime(int nARDTime) { // in uSec
   }
   
   this->writeControl(NULL, 0, 0x05, nT, 0);
-}
-
-void CCrazyRadio::setARDBytes(int nARDBytes) {
-  m_nARDBytes = nARDBytes;
-  
-  this->writeControl(NULL, 0, 0x05, 0x80 | nARDBytes, 0);
-}
-
-void CCrazyRadio::setPower(enum Power enumPower) {
-  m_enumPower = enumPower;
-
-  this->writeControl(NULL, 0, 0x04, enumPower, 0);
-}
-
-void CCrazyRadio::setAddress(char *cAddress) {
-  m_cAddress = cAddress;
-  
-  this->writeControl(cAddress, 5, 0x02, 0, 0);
-}
-
-void CCrazyRadio::setContCarrier(bool bContCarrier) {
-  m_bContCarrier = bContCarrier;
-  
-  this->writeControl(NULL, 0, 0x20, (bContCarrier ? 1 : 0), 0);
 }
 
 bool CCrazyRadio::claimInterface(int nInterface) {
@@ -399,10 +365,6 @@ CCRTPPacket *CCrazyRadio::waitForPacket() {
   
   delete crtpDummy;
   return crtpReceived;
-}
-
-CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards) {
-  return this->sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel(), bDeleteAfterwards);
 }
 
 CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards, int nRetries, int nMicrosecondsWait) {

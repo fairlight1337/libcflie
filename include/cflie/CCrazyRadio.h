@@ -100,13 +100,34 @@ private:
   bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
   bool readData(void *vdData, int &nMaxLength);
 
-  void setARC(int nARC);
-  void setChannel(int nChannel);
+  void setARC(int nARC) {
+    m_nARC = nARC;
+    writeControl(NULL, 0, 0x06, nARC, 0);
+  }
+
+  void setChannel(int nChannel) {
+    m_nChannel = nChannel;
+    writeControl(NULL, 0, 0x01, nChannel, 0);
+  }
+
   void setDataRate(const std::string& strDataRate);
-  void setARDBytes(int nARDBytes);
+  void setARDBytes(int nARDBytes) {
+    m_nARDBytes = nARDBytes;
+    writeControl(NULL, 0, 0x05, 0x80 | nARDBytes, 0);
+  }
+
+
   void setARDTime(int nARDTime);
-  void setAddress(char *cAddress);
-  void setContCarrier(bool bContCarrier);
+
+  void setAddress(char *cAddress) {
+    m_cAddress = cAddress;
+    writeControl(cAddress, 5, 0x02, 0, 0);
+  }
+
+  void setContCarrier(bool bContCarrier) {
+    m_bContCarrier = bContCarrier;
+    writeControl(NULL, 0, 0x20, (bContCarrier ? 1 : 0), 0);
+  }
 
 public:
   /*! \brief Constructor for the radio communication class
@@ -141,8 +162,11 @@ public:
     \param enumPower The level of power that is being used for
     communication. The integer value maps to one of the entries of the
     Power enum. */
-  void setPower(enum Power enumPower);
-  
+  void setPower(enum Power enumPower) {
+    m_enumPower = enumPower;
+    writeControl(NULL, 0, 0x04, enumPower, 0);
+  }
+
   /*! \brief Sends the given packet's payload to the copter
     
     \param crtpSend The packet which supplied header and payload
@@ -161,8 +185,10 @@ public:
     
     \return Packet containing the reply or NULL if no reply was
     received (after retrying). */
-  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
-  
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false) {
+    return sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel(), bDeleteAfterwards);
+  }
+
   /*! \brief Sends the given packet and waits for a reply.
     
     Sends out the CCRTPPacket instance denoted by crtpSend on the
