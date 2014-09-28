@@ -255,7 +255,10 @@ public:
     
     \return List of CCRTPPacket instances collected from port 5
     (logging). */
-  std::list<CCRTPPacket*> popLoggingPackets();
+  void popLoggingPackets(std::list<CCRTPPacket*>& lstPackets) {
+    lstPackets.swap(m_lstLoggingPackets);
+    m_lstLoggingPackets.clear();
+  }
 };
 
 

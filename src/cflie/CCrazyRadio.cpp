@@ -406,13 +406,6 @@ CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, int nPort, int n
   return crtpReturnvalue;
 }
 
-list<CCRTPPacket*> CCrazyRadio::popLoggingPackets() {
-  list<CCRTPPacket*> lstPackets = m_lstLoggingPackets;
-  m_lstLoggingPackets.clear();
-  
-  return lstPackets;
-}
-
 bool CCrazyRadio::sendDummyPacket() {
   CCRTPPacket *crtpReceived = NULL;
   CCRTPPacket *crtpDummy = new CCRTPPacket();
