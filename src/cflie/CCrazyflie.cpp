@@ -25,6 +25,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <chrono>
+
 #include "cflie/CCrazyflie.h"
 
 using namespace std;
@@ -50,9 +52,6 @@ CCrazyflie::CCrazyflie(CCrazyRadio *crRadio)
   m_bSendsSetpoints = false;
   
   m_enumState = STATE_ZERO;
-  
-  m_dSendSetpointPeriod = 0.01; // Seconds
-  m_dSetpointLastSent = 0;
 }
 
 CCrazyflie::~CCrazyflie() {
@@ -116,8 +115,6 @@ void CCrazyflie::setThrust(int nThrust) {
 }
 
 bool CCrazyflie::cycle() {
-  double dTimeNow = this->currentTime();
-  
   switch(m_enumState) {
   case STATE_ZERO: {
     m_enumState = STATE_READ_PARAMETERS_TOC;
@@ -165,10 +162,13 @@ bool CCrazyflie::cycle() {
 
     if(m_bSendsSetpoints) {
       // Check if it's time to send the setpoint
-      if(dTimeNow - m_dSetpointLastSent > m_dSendSetpointPeriod) {
+      std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+      static std::chrono::time_point<std::chrono::steady_clock> last;
+      static const std::chrono::milliseconds period(10);
+      if (now - last > period) {
 	// Send the current set point based on the previous calculations
 	this->sendSetpoint(m_fRoll, m_fPitch, m_fYaw, m_nThrust);
-	m_dSetpointLastSent = dTimeNow;
+	last = now;
       }
     } else {
       // Send a dummy packet for keepalive
@@ -215,13 +215,6 @@ void CCrazyflie::setYaw(float fYaw) {
   if(fabs(m_fYaw) > m_fMaxYaw){
       m_fYaw = copysign(m_fMaxYaw, m_fYaw);
   }
-}
-
-double CCrazyflie::currentTime() {
-  #define NSEC_PER_SEC 1000000000L
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC, &ts);
-  return ts.tv_sec + double(ts.tv_nsec) / NSEC_PER_SEC;
 }
 
 bool CCrazyflie::startLogging() {

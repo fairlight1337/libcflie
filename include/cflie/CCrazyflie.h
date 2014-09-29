@@ -90,8 +90,6 @@ class CCrazyflie {
   int m_nMaxThrust;
   /*! \brief Minimum thrust that will be sent to the copter. */
   int m_nMinThrust;
-  double m_dSendSetpointPeriod;
-  double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
   CTOC m_tocParameters;
   CTOC m_tocLogs;
@@ -137,8 +135,6 @@ class CCrazyflie {
 
   void enableAltimeterLogging();
   void disableAltimeterLogging();
-
-  double currentTime();
 
  public:
   /*! \brief Constructor for the copter convenience class
