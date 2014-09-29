@@ -288,12 +288,8 @@ CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwar
       crtpPacket->setChannel(CCRTPPacket::Channel(sChannel));
       
       switch(sPort) {
-      case 0: { // Console
-	char cText[nLength];
-	memcpy(cText, &cData[1], nLength - 1);
-	cText[nLength - 1] = '\0';
-	  
-	cout << "Console text: " << cText << endl;
+      case CCRTPPacket::PortConsole: {
+        cout << "Console text: " << std::string(&cData[1], nLength - 1) << std::endl;
       } break;
 	
       case 5: { // Logging
