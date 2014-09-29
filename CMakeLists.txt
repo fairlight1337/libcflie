@@ -47,3 +47,29 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
   COMPONENT library
 )
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  # enable c++11 and some other reasonable flags for gcc
+  set(MY_COMPILE_FLAGS "-std=gnu++11 -pthread -Wall -Wextra -Wno-strict-aliasing -fvisibility-inlines-hidden")
+  set(MY_LINK_FLAGS "-Wl,--as-needed ${MY_COMPILE_FLAGS}")
+  SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
+    COMPILE_FLAGS "${MY_COMPILE_FLAGS}"
+    LINK_FLAGS "${MY_LINK_FLAGS}"
+    LINK_FLAGS_RELEASE "-s"
+  )
+  SET_TARGET_PROPERTIES(ex-replugging PROPERTIES
+    COMPILE_FLAGS "${MY_COMPILE_FLAGS}"
+    LINK_FLAGS "${MY_LINK_FLAGS}"
+    LINK_FLAGS_RELEASE "-s"
+  )
+  SET_TARGET_PROPERTIES(ex-simple PROPERTIES
+    COMPILE_FLAGS "${MY_COMPILE_FLAGS}"
+    LINK_FLAGS "${MY_LINK_FLAGS}"
+    LINK_FLAGS_RELEASE "-s"
+  )
+  SET_TARGET_PROPERTIES(ex-gui PROPERTIES
+    COMPILE_FLAGS "${MY_COMPILE_FLAGS}"
+    LINK_FLAGS "${MY_LINK_FLAGS}"
+    LINK_FLAGS_RELEASE "-s"
+  )
+endif()
