@@ -117,7 +117,7 @@ class CTOC {
   
   void processPackets(std::list<CCRTPPacket*> lstPackets);
   
-  int elementIDinBlock(int nBlockID, int nElementIndex) const;
+  int elementIDinBlock(int nBlockID, unsigned nElementIndex) const;
   bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(int nBlockID, int nElementID);
   bool unregisterLoggingBlockID(int nID);
