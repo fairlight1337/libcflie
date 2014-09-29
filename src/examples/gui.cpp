@@ -68,7 +68,7 @@ void drawGL(float fX, float fY, float fZ) {
   glfwSwapBuffers();
 }
 
-int main(int argc, char **argv) {
+int main(void) {
   CCrazyRadio *crRadio = new CCrazyRadio("radio://0/10/250K");
   
   if(crRadio->startRadio()) {
