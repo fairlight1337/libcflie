@@ -333,6 +333,19 @@ class CCrazyflie {
   float magZ(void) const {
     return sensorDoubleValue("mag.z");
   }
+  // Set parameter values
+  template <typename t>
+  int setParameterValue(const std::string& strName, t value) {
+    return m_tocParameters.setParameterValue(strName, value);
+  }
+  // Get parameter values
+  template <typename t>
+  int getParameterValue(const std::string& strName, t& value) const {
+    return m_tocParameters.getParameterValue(strName, value);
+  }
+  int requestParameterValue(const std::string& strName) {
+    return m_tocParameters.requestParameterValue(strName);
+  }
 };
 
 

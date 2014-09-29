@@ -87,6 +87,7 @@ private:
   float m_fDeviceVersion;
   bool m_bAckReceived;
   std::list<CCRTPPacket*> m_lstLoggingPackets;
+  std::list<CCRTPPacket*> m_lstParameterPackets;
 
   // Functions
   std::list<libusb_device*> listDevices(int nVendorID, int nProductID);
@@ -258,6 +259,10 @@ public:
   void popLoggingPackets(std::list<CCRTPPacket*>& lstPackets) {
     lstPackets.swap(m_lstLoggingPackets);
     m_lstLoggingPackets.clear();
+  }
+  void popParameterPackets(std::list<CCRTPPacket*>& lstPackets) {
+    lstPackets.swap(m_lstParameterPackets);
+    m_lstParameterPackets.clear();
   }
 };
 

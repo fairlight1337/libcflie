@@ -292,6 +292,10 @@ CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwar
         cout << "Console text: " << std::string(&cData[1], nLength - 1) << std::endl;
       } break;
 
+      case CCRTPPacket::PortParam: {
+        m_lstParameterPackets.push_back(new CCRTPPacket(*crtpPacket));
+      } break;
+
       case CCRTPPacket::PortLogging: {
         if(crtpPacket->channel() == CCRTPPacket::ChannelWrite)
           m_lstLoggingPackets.push_back(new CCRTPPacket(*crtpPacket));

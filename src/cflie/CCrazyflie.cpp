@@ -143,12 +143,14 @@ bool CCrazyflie::cycle() {
       std::list<CCRTPPacket*> packets;
       m_crRadio->popLoggingPackets(packets);
       m_tocLogs.processPackets(packets);
+      packets.clear(); // necessary
+      m_crRadio->popParameterPackets(packets);
+      m_tocParameters.processPackets(packets);
     }
     
     // NOTE(winkler): Here, we can do measurement zero'ing. This is
     // not done at the moment, though. Reason: No readings to zero at
     // the moment. This might change when altitude becomes available.
-    
     m_enumState = STATE_NORMAL_OPERATION;
   } break;
     
@@ -158,6 +160,9 @@ bool CCrazyflie::cycle() {
       // Shove over the sensor readings from the radio to the Logs TOC.
       m_crRadio->popLoggingPackets(packets);
       m_tocLogs.processPackets(packets);
+      packets.clear(); // necessary
+      m_crRadio->popParameterPackets(packets);
+      m_tocParameters.processPackets(packets);
     }
 
     if(m_bSendsSetpoints) {

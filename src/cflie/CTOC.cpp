@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "cflie/CTOC.h"
 
 using namespace std;
@@ -91,7 +93,10 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
 	m_lstTOCElements.push_back(teNew);
 	
 	cout << strGroup << "." << strIdentifier << endl;
-	
+
+	if (m_nPort == CCRTPPacket::PortParam)
+	  requestParameterValue(nID);
+
 	return true;
       }
     }
@@ -363,12 +368,35 @@ bool CTOC::unregisterLoggingBlockID(uint8_t nID) {
   return false;
 }
 
+void CTOC::processParameterPacket(CCRTPPacket& packet)
+{
+  if (packet.port() != CCRTPPacket::PortParam)
+    return;
+  if (packet.channel() == CCRTPPacket::ChannelTOC)
+    return;
+  const char *cData = packet.payload();
+  uint8_t id = cData[1];
+  auto i = std::find_if(m_lstTOCElements.begin(), m_lstTOCElements.end(), [id] (TOCElement e) { return e.nID == id; });
+  if (i == m_lstTOCElements.end())
+    return;
+  if(packet.payloadLength() > 2 && packet.payloadLength()-2 <= sizeof(i->raw.raw))
+    std::memcpy(i->raw.raw, cData+2, packet.payloadLength() - 2);
+  else
+    std::cout << "Broken parameter packet" << std::endl;
+}
+
 void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
   if(lstPackets.size() > 0) {
     for(list<CCRTPPacket*>::iterator itPacket = lstPackets.begin();
 	itPacket != lstPackets.end();
 	itPacket++) {
       CCRTPPacket *crtpPacket = *itPacket;
+
+      if (crtpPacket->port() == CCRTPPacket::PortParam) {
+        processParameterPacket(*crtpPacket);
+        delete crtpPacket;
+        continue;
+      }
 
       const char *cData = crtpPacket->payload();
       float fValue;
@@ -515,4 +543,16 @@ bool CTOC::setFloatValueForElementID(int nElementID, float fValue) {
   }
   
   return false;
+}
+
+int CTOC::requestParameterValue(uint8_t id)
+{
+  CCRTPPacket *crtpPacket = new CCRTPPacket(id, CCRTPPacket::PortParam);
+  crtpPacket->setChannel(CCRTPPacket::ChannelRead);
+  CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpPacket);
+  if (!crtpReceived)
+    return 1;
+  processParameterPacket(*crtpReceived);
+  delete crtpReceived;
+  return 0;
 }
