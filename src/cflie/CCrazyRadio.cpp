@@ -191,7 +191,7 @@ bool CCrazyRadio::startRadio() {
   return false;
 }
 
-CCRTPPacket *CCrazyRadio::writeData(void *vdData, int nLength) {
+CCRTPPacket *CCrazyRadio::writeData(const void *vdData, int nLength) {
   CCRTPPacket *crtpPacket = NULL;
   
   int nActuallyWritten;
@@ -274,17 +274,15 @@ bool CCrazyRadio::claimInterface(int nInterface) {
 CCRTPPacket *CCrazyRadio::sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards) {
   CCRTPPacket *crtpPacket = NULL;
   
-  char *cSendable = crtpSend->sendableData();
-  crtpPacket = this->writeData(cSendable, crtpSend->sendableDataLength());
-    
-  delete[] cSendable;
-    
+  const char *cSendable = crtpSend->sendableData();
+  crtpPacket = writeData(cSendable, crtpSend->sendableDataLength());
+
   if(crtpPacket) {
-    const char *cData = crtpPacket->data();
-    int nLength = crtpPacket->dataLength();
+    const char *cData = crtpPacket->payload();
+    int nLength = crtpPacket->payloadLength();
     
     if(nLength > 0) {
-      short sPort = (cData[0] & 0xf0) >> 4;
+      short sPort = (cData[0] & 0xf0);
       crtpPacket->setPort(CCRTPPacket::Port(sPort));
       short sChannel = cData[0] & 0b00000011;
       crtpPacket->setChannel(CCRTPPacket::Channel(sChannel));
@@ -355,9 +353,8 @@ bool CCrazyRadio::usbOK() {
 CCRTPPacket *CCrazyRadio::waitForPacket() {
   bool bGoon = true;
   CCRTPPacket *crtpReceived = NULL;
-  CCRTPPacket *crtpDummy = new CCRTPPacket();
-  crtpDummy->setIsPingPacket(true);
-  
+  CCRTPPacket *crtpDummy = new CCRTPPacketPing();
+
   while(bGoon) {
     crtpReceived = this->sendPacket(crtpDummy);
     bGoon = (crtpReceived == NULL);
@@ -408,9 +405,8 @@ CCRTPPacket *CCrazyRadio::sendAndReceive(CCRTPPacket *crtpSend, int nPort, int n
 
 bool CCrazyRadio::sendDummyPacket() {
   CCRTPPacket *crtpReceived = NULL;
-  CCRTPPacket *crtpDummy = new CCRTPPacket();
-  crtpDummy->setIsPingPacket(true);
-  
+  CCRTPPacket *crtpDummy = new CCRTPPacketPing();
+
   crtpReceived = this->sendPacket(crtpDummy, true);
   if(crtpReceived) {
     delete crtpReceived;

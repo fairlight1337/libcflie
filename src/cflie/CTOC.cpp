@@ -22,8 +22,8 @@ bool CTOC::requestMetaData() {
   crtpPacket->setChannel(CCRTPPacket::ChannelTOC);
   CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpPacket);
   
-  if(crtpReceived->data()[1] == 0x01) {
-    m_nItemCount = crtpReceived->data()[2];
+  if(crtpReceived->payload()[1] == 0x01) {
+    m_nItemCount = crtpReceived->payload()[2];
     bReturnvalue = true;
   }
   
@@ -62,7 +62,7 @@ bool CTOC::requestItems() {
 bool CTOC::processItem(CCRTPPacket *crtpItem) {
   if(crtpItem->port() == m_nPort) {
     if(crtpItem->channel() == CCRTPPacket::ChannelTOC) {
-      const char *cData = crtpItem->data();
+      const char *cData = crtpItem->payload();
 
       if(cData[1] == 0x0) { // Command identification ok?
 	uint8_t nID = cData[2];
@@ -173,7 +173,7 @@ bool CTOC::startLogging(const std::string& strName, const std::string& strBlockN
       crtpLogVariable->setChannel(CCRTPPacket::ChannelRead);
       CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpLogVariable, true);
       
-      const char *cData = crtpReceived->data();
+      const char *cData = crtpReceived->payload();
       bool bCreateOK = false;
       if(cData[1] == 0x01 &&
 	 cData[2] == lbCurrent.nID &&
@@ -290,7 +290,7 @@ bool CTOC::registerLoggingBlock(const std::string& strName, double dFrequency) {
     
     CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpRegisterBlock, true);
     
-    const char *cData = crtpReceived->data();
+    const char *cData = crtpReceived->payload();
     bool bCreateOK = false;
     if(cData[1] == 0x00 &&
        cData[2] == nID &&
@@ -369,8 +369,8 @@ void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
 	itPacket != lstPackets.end();
 	itPacket++) {
       CCRTPPacket *crtpPacket = *itPacket;
-      
-      const char *cData = crtpPacket->data();
+
+      const char *cData = crtpPacket->payload();
       float fValue;
       memcpy(&fValue, &cData[5], 4);
       //cout << fValue << endl;
