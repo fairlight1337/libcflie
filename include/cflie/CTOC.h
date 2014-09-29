@@ -85,9 +85,12 @@ class CTOC {
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, CCRTPPacket::Channel nChannel);
 
  public:
-  CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort);
-  ~CTOC();
-  
+  CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort)
+    : m_nPort(nPort)
+    , m_crRadio(crRadio)
+    , m_nItemCount(0)
+  {}
+
   bool sendTOCPointerReset();
   bool requestMetaData();
   bool requestItems();

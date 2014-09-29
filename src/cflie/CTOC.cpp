@@ -2,15 +2,6 @@
 
 using namespace std;
 
-CTOC::CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort) {
-  m_crRadio = crRadio;
-  m_nPort = nPort;
-  m_nItemCount = 0;
-}
-
-CTOC::~CTOC() {
-}
-
 bool CTOC::sendTOCPointerReset() {
   CCRTPPacket *crtpPacket = new CCRTPPacket(0x00, m_nPort);
   crtpPacket->setChannel(CCRTPPacket::ChannelTOC);
