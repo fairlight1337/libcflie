@@ -45,9 +45,9 @@
 struct TOCElement {
   /*! \brief The numerical ID of the log element on the copter's
       internal table */
-  int nID;
+  uint8_t nID;
   /*! \brief The (ref) type of the log element */
-  int nType;
+  uint8_t nType;
   /*! \brief The string group name of the log element */
   std::string strGroup;
   /*! \brief The string identifier of the log element */
@@ -59,7 +59,7 @@ struct TOCElement {
 
 struct LoggingBlock {
   std::string strName;
-  int nID;
+  uint8_t nID;
   double dFrequency;
   std::list<int> lstElementIDs;
 };
@@ -122,8 +122,8 @@ class CTOC {
   
   int elementIDinBlock(int nBlockID, unsigned nElementIndex) const;
   bool setFloatValueForElementID(int nElementID, float fValue);
-  bool addElementToBlock(int nBlockID, int nElementID);
-  bool unregisterLoggingBlockID(int nID);
+  bool addElementToBlock(uint8_t nBlockID, uint8_t nElementID);
+  bool unregisterLoggingBlockID(uint8_t nID);
 };
 
 

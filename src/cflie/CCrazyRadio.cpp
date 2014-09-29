@@ -69,7 +69,7 @@ list<libusb_device*> CCrazyRadio::listDevices(int nVendorID, int nProductID) {
   libusb_device **ptDevices;
   
   szCount = libusb_get_device_list(m_ctxContext, &ptDevices);
-  for(unsigned int unI = 0; unI < szCount; unI++) {
+  for(ssize_t unI = 0; unI < szCount; ++unI) {
     libusb_device *devCurrent = ptDevices[unI];
     libusb_device_descriptor ddDescriptor;
     

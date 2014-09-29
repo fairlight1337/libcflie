@@ -65,8 +65,8 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
       const char *cData = crtpItem->data();
 
       if(cData[1] == 0x0) { // Command identification ok?
-	int nID = cData[2];
-	int nType = cData[3];
+	uint8_t nID = cData[2];
+	uint8_t nType = cData[3];
 	
 	string strGroup;
 	int nI;
@@ -198,7 +198,7 @@ bool CTOC::startLogging(const std::string& strName, const std::string& strBlockN
   return false;
 }
 
-bool CTOC::addElementToBlock(int nBlockID, int nElementID) {
+bool CTOC::addElementToBlock(uint8_t nBlockID, uint8_t nElementID) {
   for(list<struct LoggingBlock>::iterator itBlock = m_lstLoggingBlocks.begin();
       itBlock != m_lstLoggingBlocks.end();
       itBlock++) {
@@ -349,7 +349,7 @@ bool CTOC::unregisterLoggingBlock(const std::string& strName) {
   return false;
 }
 
-bool CTOC::unregisterLoggingBlockID(int nID) {
+bool CTOC::unregisterLoggingBlockID(uint8_t nID) {
   char cPayload[2] = {0x02, (char)nID};
   CCRTPPacket *crtpUnregisterBlock = new CCRTPPacket(cPayload, 2, m_nPort);
   crtpUnregisterBlock->setChannel(CCRTPPacket::ChannelRead);

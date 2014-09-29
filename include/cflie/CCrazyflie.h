@@ -112,7 +112,7 @@ class CCrazyflie {
     \param fYaw The desired yaw value.
     \param sThrust The desired thrust value.
     \return Boolean value denoting whether or not the command could be sent successfully. */
-  bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
+  bool sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sThrust);
 
   void disableLogging();
   
