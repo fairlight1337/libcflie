@@ -36,6 +36,7 @@
 #include <list>
 #include <string>
 #include <stdlib.h>
+#include <vector>
 #include <cstring> // std::memcpy
 
 #include "CCrazyRadio.h"
@@ -231,6 +232,25 @@ class CTOC {
       return 2;
     return requestParameterValue(id);
   }
+  std::string getParameterTypeName(uint8_t type) {
+    static const std::vector<std::string> names {
+      "int8_t",
+      "int16_t",
+      "int32_t",
+      "int64_t",
+      "unknown",
+      "FP16",
+      "float",
+      "double",
+      "uint8_t",
+      "uint16_t",
+      "uint32_t",
+      "uint64_t",
+    };
+    if(! (type & 0x0f) || (type & 0x0f) >= names.size())
+      return "unknown"; // throw?
+    return names[type & 0x0f];
+  }
 
   // For loggable variables only
   bool registerLoggingBlock(const std::string& strName, double dFrequency);
@@ -257,6 +277,21 @@ class CTOC {
   bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(uint8_t nBlockID, uint8_t nElementID);
   bool unregisterLoggingBlockID(uint8_t nID);
+  std::string getLogTypeName(uint8_t type) {
+    static const std::vector<std::string> names {
+      "uint8_t",
+      "uint16_t",
+      "uint32_t",
+      "int8_t",
+      "int16_t",
+      "int32_t",
+      "float",
+      "FP16",
+    };
+    if(!type || type > names.size())
+      return "unknown"; // throw?
+    return names[type-1];
+  }
 };
 
 

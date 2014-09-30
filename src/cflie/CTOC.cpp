@@ -91,8 +91,14 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
 	teNew.dValue = 0;
 	
 	m_lstTOCElements.push_back(teNew);
-	
-	cout << strGroup << "." << strIdentifier << endl;
+
+	cout << (m_nPort == CCRTPPacket::PortParam ? "Parameter" : "Log" ) << " item ID " << int(nID) << ' ' << strGroup << "." << strIdentifier;
+        if(m_nPort == CCRTPPacket::PortParam)
+	  std::cout << " (" << getParameterTypeName(nType) << ", " <<
+            (nType & 0xf0 ? "ro)" : "rw)");
+        else if(m_nPort == CCRTPPacket::PortLogging)
+	  std::cout << " (" << getLogTypeName(nType) << ')';
+        std::cout << endl;
 
 	if (m_nPort == CCRTPPacket::PortParam)
 	  requestParameterValue(nID);
