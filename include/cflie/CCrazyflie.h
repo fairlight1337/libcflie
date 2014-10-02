@@ -136,6 +136,25 @@ class CCrazyflie {
   void enableAltimeterLogging();
   void disableAltimeterLogging();
 
+  float logFloat(const std::string& val) const {
+    float f;
+    if(getLogValue(val, f))
+      return -1;
+    return f;
+  }
+  uint16_t logU16(const std::string& val) const {
+    uint16_t u16;
+    if(getLogValue(val, u16))
+      return 0;
+    return u16;
+  }
+  uint16_t logI8(const std::string& val) const {
+    int8_t i8;
+    if(getLogValue(val, i8))
+      return -1;
+    return i8;
+  }
+
  public:
   /*! \brief Constructor for the copter convenience class
 
@@ -162,8 +181,8 @@ class CCrazyflie {
   /*! \brief Returns the current thrust
     
     \return The current thrust value as reported by the copter */
-  int thrust(void) const {
-    return this->sensorDoubleValue("stabilizer.thrust");
+  uint16_t thrust(void) const {
+    return logU16("stabilizer.thrust");
   }
   /*! \brief Set the roll control set point
     
@@ -178,7 +197,7 @@ class CCrazyflie {
     
     \return The current roll value as reported by the copter */
   float roll(void) const {
-    return sensorDoubleValue("stabilizer.roll");
+    return logFloat("stabilizer.roll");
   }
   /*! \brief Set the pitch control set point
     
@@ -193,7 +212,7 @@ class CCrazyflie {
 
     \return The current pitch value as reported by the copter */
   float pitch(void) const {
-    return sensorDoubleValue("stabilizer.pitch");
+    return logFloat("stabilizer.pitch");
   }
   /*! \brief Set the yaw control set point
     
@@ -208,7 +227,7 @@ class CCrazyflie {
     
     \return The current yaw value as reported by the copter */
   float yaw(void) const {
-    return sensorDoubleValue("stabilizer.yaw");
+    return logFloat("stabilizer.yaw");
   }
   /*! \brief Manages internal calculation operations
     
@@ -263,75 +282,67 @@ class CCrazyflie {
     return m_bSendsSetpoints;
   }
 
-  /*! \brief Read back a sensor value you subscribed to
-    
-    Possible sensor values might be:
-    * stabilizer.yaw
-    * stabilizer.roll
-    * stabilizer.pitch
-    * pm.vbat
-    
-    The possible key names strongly depend on your firmware. If you
-    don't know what to do with this, just use the convience functions
-    like roll(), pitch(), yaw(), and batteryLevel().
-    
-    \return Double value denoting the current value of the requested
-    log variable. */
-  double sensorDoubleValue(const std::string& strName) const {
-    return m_tocLogs.doubleValue(strName);
+  // Get log values
+  template <typename t>
+  int getLogValue(const std::string& strName, t& value) const {
+    return m_tocLogs.getLogValue(strName, value);
   }
 
   /*! \brief Report the current battery level
     
-    \return Double value denoting the battery level as reported by the
+    \return Float value denoting the battery level as reported by the
     copter. */
-  double batteryLevel(void) const {
-    return sensorDoubleValue("pm.vbat");
+  float batteryLevel(void) const {
+    return logFloat("pm.vbat");
   }
+
   float accX(void) const {
-    return sensorDoubleValue("acc.x");
+    return logFloat("acc.x");
   }
   float accY(void) const {
-    return sensorDoubleValue("acc.y");
+    return logFloat("acc.y");
   }
   float accZ(void) const {
-    return sensorDoubleValue("acc.z");
+    return logFloat("acc.z");
   }
   float accZW(void) const {
-    return sensorDoubleValue("acc.zw");
+    return logFloat("acc.zw");
   }
   float asl(void) const {;
-    return sensorDoubleValue("alti.asl");
+    return logFloat("baro.asl");
+  }
+  float aslRaw(void) const {
+    return logFloat("baro.aslRaw");
   }
   float aslLong(void) const {
-    return sensorDoubleValue("alti.aslLong");
+    return logFloat("baro.aslLong");
   }
   float temperature(void) const {
-    return sensorDoubleValue("alti.temperature");
+    return logFloat("baro.temp");
   }
   float pressure(void) const {
-    return sensorDoubleValue("alti.pressure");
+    return logFloat("baro.pressure");
   }
   float gyroX(void) const {
-    return sensorDoubleValue("gyro.x");
+    return logFloat("gyro.x");
   }
   float gyroY(void) const {
-    return sensorDoubleValue("gyro.x");
+    return logFloat("gyro.y");
   }
   float gyroZ(void) const {
-    return sensorDoubleValue("gyro.x");
+    return logFloat("gyro.z");
   }
-  float batteryState(void) const {
-    return sensorDoubleValue("pm.state");
+  int8_t batteryState(void) const {
+    return logI8("pm.state");
   }
   float magX(void) const {
-    return sensorDoubleValue("mag.x");
+    return logFloat("mag.x");
   }
   float magY(void) const {
-    return sensorDoubleValue("mag.y");
+    return logFloat("mag.y");
   }
   float magZ(void) const {
-    return sensorDoubleValue("mag.z");
+    return logFloat("mag.z");
   }
   // Set parameter values
   template <typename t>

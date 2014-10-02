@@ -68,7 +68,6 @@ struct TOCElement {
   /*! \brief The string identifier of the log element */
   std::string strIdentifier;
   bool bIsLogging;
-  double dValue;
   RawValue raw;
 };
 
@@ -175,6 +174,114 @@ class CTOC {
 
   int requestParameterValue(uint8_t id);
 
+  unsigned sizeOfLogValue(uint8_t type) {
+    switch(type) {
+    case 0x01:
+      return sizeof(uint8_t);
+    case 0x02:
+      return sizeof(uint16_t);
+    case 0x03:
+      return sizeof(uint32_t);
+    case 0x04:
+      return sizeof(int8_t);
+    case 0x05:
+      return sizeof(int16_t);
+    case 0x06:
+      return sizeof(int32_t);
+    case 0x07:
+      return sizeof(float);
+    case 0x08:
+      return 2;
+    default:
+      return 0;
+    }
+  }
+  bool checkLogValue(uint8_t type, const uint8_t&) const {
+    return type == 0x01;
+  }
+  bool checkLogValue(uint8_t type, const uint16_t&) const {
+    return type == 0x02;
+  }
+  bool checkLogValue(uint8_t type, const uint32_t&) const {
+    return type == 0x03;
+  }
+  bool checkLogValue(uint8_t type, const int8_t&) const {
+    return type == 0x04;
+  }
+  bool checkLogValue(uint8_t type, const int16_t&) const {
+    return type == 0x05;
+  }
+  bool checkLogValue(uint8_t type, const int32_t&) const {
+    return type == 0x06;
+  }
+  bool checkLogValue(uint8_t type, const float&) const {
+    return type == 0x07;
+  }
+  // TODO: FP16 (type == 0x08)
+  bool checkAndSetLogValue(uint8_t type, const uint8_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.u8 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const uint16_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.u16 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const uint32_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.u32 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const int8_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.i8 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const int16_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.i16 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const int32_t& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.i32 = value;
+  }
+  bool checkAndSetLogValue(uint8_t type, const float& value, RawValue& r) const {
+    if (!checkLogValue(type, value))
+      return false;
+    r.f = value;
+  }
+  bool getAndCheckLogValue(uint8_t type, uint8_t& value, const RawValue& r) const {
+    value = r.u8;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, uint16_t& value, const RawValue& r) const {
+    value = r.u16;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, uint32_t& value, const RawValue& r) const {
+    value = r.u32;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, int8_t& value, const RawValue& r) const {
+    value = r.i8;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, int16_t& value, const RawValue& r) const {
+    value = r.i16;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, int32_t& value, const RawValue& r) const {
+    value = r.i32;
+    return checkLogValue(type, value);
+  }
+  bool getAndCheckLogValue(uint8_t type, float& value, const RawValue& r) const {
+    value = r.f;
+    return checkLogValue(type, value);
+  }
+
  public:
   CTOC(CCrazyRadio *crRadio, CCRTPPacket::Port nPort)
     : m_nPort(nPort)
@@ -266,15 +373,26 @@ class CTOC {
     return true; // TODO
   }
 
-  double doubleValue(const std::string& strName) const;
-  
+  // Get log values
+  template <typename t>
+  int getLogValue(const std::string& strName, t& value) const {
+    bool bFound;
+    struct TOCElement teResult = elementForName(strName, bFound);
+    if(!bFound)
+      return 1;
+    uint8_t type(typeForName(strName));
+    if (!getAndCheckLogValue(type, value, teResult.raw))
+      return 2;
+    return 0;
+  }
+
   bool enableLogging(const std::string& strBlockName);
   
   void processParameterPacket(CCRTPPacket& packet);
+  void processLogPacket(CCRTPPacket& packet);
   void processPackets(std::list<CCRTPPacket*> lstPackets);
   
   int elementIDinBlock(int nBlockID, unsigned nElementIndex) const;
-  bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(uint8_t nBlockID, uint8_t nElementID);
   bool unregisterLoggingBlockID(uint8_t nID);
   std::string getLogTypeName(uint8_t type) {

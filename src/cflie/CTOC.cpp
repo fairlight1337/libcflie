@@ -88,7 +88,6 @@ bool CTOC::processItem(CCRTPPacket *crtpItem) {
 	teNew.nID = nID;
 	teNew.nType = nType;
 	teNew.bIsLogging = false;
-	teNew.dValue = 0;
 	
 	m_lstTOCElements.push_back(teNew);
 
@@ -223,18 +222,6 @@ bool CTOC::addElementToBlock(uint8_t nBlockID, uint8_t nElementID) {
   }
   
   return false;
-}
-
-double CTOC::doubleValue(const std::string& strName) const {
-  bool bFound;
-  
-  struct TOCElement teResult = elementForName(strName, bFound);
-  
-  if(bFound) {
-    return teResult.dValue;
-  }
-  
-  return 0;
 }
 
 struct LoggingBlock CTOC::loggingBlockForName(const std::string& strName, bool &bFound) const {
@@ -391,129 +378,62 @@ void CTOC::processParameterPacket(CCRTPPacket& packet)
     std::cout << "Broken parameter packet" << std::endl;
 }
 
+void CTOC::processLogPacket(CCRTPPacket& packet)
+{
+  if (packet.port() != CCRTPPacket::PortLogging)
+    return;
+  if (packet.channel() == CCRTPPacket::ChannelTOC) {
+    std::cout << "foo" << std::endl;
+    return;
+  }
+  const char *cData = packet.payload();
+  bool bFound;
+  int nBlockID = cData[1];
+  struct LoggingBlock lbCurrent = loggingBlockForID(nBlockID, bFound);
+  if(!bFound) {
+    std::cout << "Logging block not found" << std::endl;
+    return;
+  }
+  unsigned nOffset = 0;
+  unsigned nByteLength;
+  for(unsigned nIndex = 0; nIndex < lbCurrent.lstElementIDs.size(); ++nIndex, nOffset += nByteLength) {
+    int id = elementIDinBlock(nBlockID, nIndex);
+    auto i = std::find_if(m_lstTOCElements.begin(), m_lstTOCElements.end(), [id] (TOCElement e) { return e.nID == id; });
+    if (i == m_lstTOCElements.end()) {
+      std::cout << "Logging element not found" << std::endl;
+      break;
+    }
+    nByteLength = sizeOfLogValue(i->nType);
+    if(!nByteLength) {
+      std::cout << "Should never happen" << std::endl;
+      break;
+    }
+    if(packet.payloadLength() > 5 + nOffset && nByteLength <= sizeof(i->raw.raw))
+      std::memcpy(i->raw.raw, cData+5+nOffset, nByteLength);
+    else {
+      std::cout << "Broken log packet" << std::endl;
+      break;
+    }
+  }
+}
+
 void CTOC::processPackets(list<CCRTPPacket*> lstPackets) {
-  if(lstPackets.size() > 0) {
-    for(list<CCRTPPacket*>::iterator itPacket = lstPackets.begin();
-	itPacket != lstPackets.end();
-	itPacket++) {
-      CCRTPPacket *crtpPacket = *itPacket;
+  if(lstPackets.empty())
+    return;
+  for(list<CCRTPPacket*>::iterator itPacket = lstPackets.begin();
+	itPacket != lstPackets.end(); itPacket++) {
+    CCRTPPacket *crtpPacket = *itPacket;
 
-      if (crtpPacket->port() == CCRTPPacket::PortParam) {
-        processParameterPacket(*crtpPacket);
-        delete crtpPacket;
-        continue;
-      }
-
-      const char *cData = crtpPacket->payload();
-      float fValue;
-      memcpy(&fValue, &cData[5], 4);
-      //cout << fValue << endl;
-      
-      const char *cLogdata = &cData[5];
-      int nOffset = 0;
-      unsigned nIndex = 0;
-
-      int nBlockID = cData[1];
-      bool bFound;
-      struct LoggingBlock lbCurrent = this->loggingBlockForID(nBlockID, bFound);
-      
-      if(bFound) {
-	while(nIndex < lbCurrent.lstElementIDs.size()) {
-	  int nElementID = this->elementIDinBlock(nBlockID, nIndex);
-	  bool bFound;
-	  struct TOCElement teCurrent = this->elementForID(nElementID, bFound);
-	  
-	  if(bFound) {
-	    int nByteLength = 0;
-	    
-	    // NOTE(winkler): We just copy over the incoming bytes in
-	    // their according data structures and afterwards assign
-	    // the value to fValue. This way, we let the compiler to
-	    // the magic of conversion.
-	    float fValue = 0;
-	    
-	    switch(teCurrent.nType) {
-	    case 1: { // UINT8
-	      nByteLength = 1;
-	      uint8_t uint8Value;
-	      memcpy(&uint8Value, &cLogdata[nOffset], nByteLength);
-	      fValue = uint8Value;
-	    } break;
-	      
-	    case 2: { // UINT16
-	      nByteLength = 2;
-	      uint16_t uint16Value;
-	      memcpy(&uint16Value, &cLogdata[nOffset], nByteLength);
-	      fValue = uint16Value;
-	    } break;
-	      
-	    case 3: { // UINT32
-	      nByteLength = 4;
-	      uint32_t uint32Value;
-	      memcpy(&uint32Value, &cLogdata[nOffset], nByteLength);
-	      fValue = uint32Value;
-	    } break;
-	      
-	    case 4: { // INT8
-	      nByteLength = 1;
-	      int8_t int8Value;
-	      memcpy(&int8Value, &cLogdata[nOffset], nByteLength);
-	      fValue = int8Value;
-	    } break;
-	      
-	    case 5: { // INT16
-	      nByteLength = 2;
-	      int16_t int16Value;
-	      memcpy(&int16Value, &cLogdata[nOffset], nByteLength);
-	      fValue = int16Value;
-	    } break;
-	      
-	    case 6: { // INT32
-	      nByteLength = 4;
-	      int32_t int32Value;
-	      memcpy(&int32Value, &cLogdata[nOffset], nByteLength);
-	      fValue = int32Value;
-	    } break;
-	      
-	    case 7: { // FLOAT
-	      nByteLength = 4;
-	      memcpy(&fValue, &cLogdata[nOffset], nByteLength);
-	    } break;
-	      
-	    case 8: { // FP16
-	      // NOTE(winkler): This is untested code (as no FP16
-	      // variable gets advertised yet). This has to be tested
-	      // and is to be used carefully. I will do that as soon
-	      // as I find time for it.
-	      nByteLength = 2;
-	      char cBuffer1[nByteLength];
-	      char cBuffer2[4];
-	      memcpy(cBuffer1, &cLogdata[nOffset], nByteLength);
-	      cBuffer2[0] = cBuffer1[0] & 0b10000000; // Get the sign bit
-	      cBuffer2[1] = 0;
-	      cBuffer2[2] = cBuffer1[0] & 0b01111111; // Get the magnitude
-	      cBuffer2[3] = cBuffer1[1];
-	      memcpy(&fValue, cBuffer2, 4); // Put it into the float variable
-	    } break;
-	      
-	    default: { // Unknown. This hopefully never happens.
-	    } break;
-	    }
-	    
-	    this->setFloatValueForElementID(nElementID, fValue);
-	    nOffset += nByteLength;
-	    nIndex++;
-	  } else {
-	    cerr << "Didn't find element ID " << nElementID
-		 << " in block ID " << nBlockID
-		 << " while parsing incoming logging data." << endl;
-	    cerr << "This REALLY shouldn't be happening!" << endl;
-	    exit(-1);
-	  }
-	}
-      }
-      
+    if (crtpPacket->port() == CCRTPPacket::PortParam) {
+      processParameterPacket(*crtpPacket);
       delete crtpPacket;
+      continue;
+    }
+
+    if (crtpPacket->port() == CCRTPPacket::PortLogging) {
+      processLogPacket(*crtpPacket);
+      delete crtpPacket;
+      continue;
     }
   }
 }
@@ -531,24 +451,6 @@ int CTOC::elementIDinBlock(int nBlockID, unsigned nElementIndex) const {
   }
   
   return -1;
-}
-
-bool CTOC::setFloatValueForElementID(int nElementID, float fValue) {
-  int nIndex = 0;
-  for(list<struct TOCElement>::iterator itElement = m_lstTOCElements.begin();
-      itElement != m_lstTOCElements.end();
-      itElement++, nIndex++) {
-    struct TOCElement teCurrent = *itElement;
-    
-    if(teCurrent.nID == nElementID) {
-      teCurrent.dValue = fValue; // We store floats as doubles
-      (*itElement) = teCurrent;
-      // cout << fValue << endl;
-      return true;
-    }
-  }
-  
-  return false;
 }
 
 int CTOC::requestParameterValue(uint8_t id)
