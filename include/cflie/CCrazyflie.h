@@ -65,7 +65,7 @@ class CCrazyflie {
   CCrazyRadio *m_crRadio;
   /*! \brief The current thrust to send as a set point to the
       copter. */
-  int m_nThrust;
+  uint16_t m_nThrust;
   /*! \brief The current roll to send as a set point to the copter. */
   float m_fRoll;
   /*! \brief The current pitch to send as a set point to the
@@ -73,23 +73,8 @@ class CCrazyflie {
   float m_fPitch;
   /*! \brief The current yaw to send as a set point to the copter. */
   float m_fYaw;
-  /*! \brief The current desired control set point (position/yaw to
-      reach) */
-  
+
   // Control related parameters
-  /*! \brief Maximum absolute value for the roll that will be sent to
-      the copter. */
-  float m_fMaxAbsRoll;
-  /*! \brief Maximum absolute value for the pitch that will be sent to
-      the copter. */
-  float m_fMaxAbsPitch;
-  /*! \brief Maximum absolute value for the yaw that will be sent to
-      the copter. */
-  float m_fMaxYaw;
-  /*! \brief Maximum thrust that will be sent to the copter. */
-  int m_nMaxThrust;
-  /*! \brief Minimum thrust that will be sent to the copter. */
-  int m_nMinThrust;
   bool m_bSendsSetpoints;
   CTOC m_tocParameters;
   CTOC m_tocLogs;
@@ -115,26 +100,39 @@ class CCrazyflie {
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sThrust);
 
   void disableLogging();
-  
-  void enableStabilizerLogging();
-  void enableGyroscopeLogging();
-  void enableAccelerometerLogging();
 
-  void disableStabilizerLogging();
-  void disableGyroscopeLogging();
-  void disableAccelerometerLogging();
-  
+  void enableStabilizerLogging();
+  void disableStabilizerLogging() {
+    m_tocLogs.unregisterLoggingBlock("stabilizer");
+  }
+
+  void enableGyroscopeLogging();
+  void disableGyroscopeLogging() {
+    m_tocLogs.unregisterLoggingBlock("gyroscope");
+  }
+
+  void enableAccelerometerLogging();
+  void disableAccelerometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("accelerometer");
+  }
+
   void enableBatteryLogging();
-  void disableBatteryLogging();
-  
+  void disableBatteryLogging() {
+    m_tocLogs.unregisterLoggingBlock("battery");
+  }
+
   bool startLogging();
   bool stopLogging();
 
   void enableMagnetometerLogging();
-  void disableMagnetometerLogging();
+  void disableMagnetometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("magnetometer");
+  }
 
-  void enableAltimeterLogging();
-  void disableAltimeterLogging();
+  void enableBarometerLogging();
+  void disableBarometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("barometer");
+  }
 
   float logFloat(const std::string& val) const {
     float f;
@@ -164,7 +162,18 @@ class CCrazyflie {
     \param crRadio Initialized (and started) instance of the
     CCrazyRadio class, denoting the USB dongle to communicate
     with. */
-  CCrazyflie(CCrazyRadio *crRadio);
+  CCrazyflie(CCrazyRadio *crRadio)
+    : m_crRadio(crRadio)
+    , m_nThrust(0)
+    , m_fRoll(0)
+    , m_fPitch(0)
+    , m_fYaw(0)
+    , m_bSendsSetpoints(false)
+    , m_tocParameters(crRadio, CCRTPPacket::PortParam)
+    , m_tocLogs(crRadio, CCRTPPacket::PortLogging)
+    , m_enumState(STATE_ZERO)
+  {}
+
   /*! \brief Destructor for the copter convenience class
     
     Destructor, deleting all internal variables (except for the
@@ -177,7 +186,9 @@ class CCrazyflie {
     controller as a set point.
     
     \param nThrust The thrust value to send (> 10000) */
-  void setThrust(int nThrust);
+  void setThrust(uint16_t nThrust) {
+    m_nThrust = nThrust;
+  }
   /*! \brief Returns the current thrust
     
     \return The current thrust value as reported by the copter */
@@ -190,7 +201,10 @@ class CCrazyflie {
     controller as a set point.
     
     \param fRoll The roll value to send */
-  void setRoll(float fRoll);
+  void setRoll(float fRoll) {
+    m_fRoll = fRoll;
+  }
+
   /*! \brief Returns the current roll
     
     Roll values are in degree, ranging from -180.0deg to 180.0deg.
@@ -205,7 +219,9 @@ class CCrazyflie {
     controller as a set point.
     
     \param fPitch The pitch value to send */
-  void setPitch(float fPitch);
+  void setPitch(float fPitch) {
+    m_fPitch = fPitch;
+  }
   /*! \brief Returns the current pitch
     
     Pitch values are in degree, ranging from -180.0deg to 180.0deg.
@@ -220,7 +236,9 @@ class CCrazyflie {
     controller as a set point.
     
     \param fYaw The yaw value to send */
-  void setYaw(float fYaw);
+  void setYaw(float fYaw) {
+    m_fYaw = fYaw;
+  }
   /*! \brief Returns the current yaw
 
     Yaw values are in degree, ranging from -180.0deg to 180.0deg.
@@ -251,8 +269,9 @@ class CCrazyflie {
     \return Returns 'true' is the copter is in range and radio
     communication works, and 'false' if the copter is either out of
     range or is switched off. */
-  bool copterInRange();
-  
+  bool copterInRange() {
+    return m_nAckMissCounter < m_nAckMissTolerance;
+  }
   /*! \brief Whether or not the copter was initialized successfully.
     
     \returns Boolean value denoting the initialization status of the

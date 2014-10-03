@@ -31,29 +31,6 @@
 
 using namespace std;
 
-CCrazyflie::CCrazyflie(CCrazyRadio *crRadio)
-  : m_tocParameters(crRadio, CCRTPPacket::PortParam)
-  , m_tocLogs(crRadio, CCRTPPacket::PortLogging)
-{
-  m_crRadio = crRadio;
-  
-  // Review these values
-  m_fMaxAbsRoll = 45.0f;
-  m_fMaxAbsPitch = m_fMaxAbsRoll;
-  m_fMaxYaw = 180.0f;
-  m_nMaxThrust = 60000;
-  m_nMinThrust = 0;//15000;
-
-  m_fRoll = 0;
-  m_fPitch = 0;
-  m_fYaw = 0;
-  m_nThrust = 0;
-  
-  m_bSendsSetpoints = false;
-  
-  m_enumState = STATE_ZERO;
-}
-
 CCrazyflie::~CCrazyflie() {
   this->stopLogging();
 }
@@ -97,20 +74,6 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sT
     return true;
   } else {
     return false;
-  }
-}
-
-
-
-
-
-void CCrazyflie::setThrust(int nThrust) {
-  m_nThrust = nThrust;
-  
-  if(m_nThrust < m_nMinThrust) {
-    m_nThrust = m_nMinThrust;
-  } else if(m_nThrust > m_nMaxThrust) {
-    m_nThrust = m_nMaxThrust;
   }
 }
 
@@ -194,34 +157,6 @@ bool CCrazyflie::cycle() {
   return m_crRadio->usbOK();
 }
 
-bool CCrazyflie::copterInRange() {
-  return m_nAckMissCounter < m_nAckMissTolerance;
-}
-
-void CCrazyflie::setRoll(float fRoll) {
-  m_fRoll = fRoll;
-  
-  if(fabs(m_fRoll) > m_fMaxAbsRoll) {
-    m_fRoll = copysign(m_fMaxAbsRoll, m_fRoll);
-  }
-}
-
-void CCrazyflie::setPitch(float fPitch) {
-  m_fPitch = fPitch;
-  
-  if(fabs(m_fPitch) > m_fMaxAbsPitch) {
-    m_fPitch = copysign(m_fMaxAbsPitch, m_fPitch);
-  }
-}
-
-void CCrazyflie::setYaw(float fYaw) {
-  m_fYaw = fYaw;
-
-  if(fabs(m_fYaw) > m_fMaxYaw){
-      m_fYaw = copysign(m_fMaxYaw, m_fYaw);
-  }
-}
-
 bool CCrazyflie::startLogging() {
   // Register the desired sensor readings
   this->enableStabilizerLogging();
@@ -229,7 +164,7 @@ bool CCrazyflie::startLogging() {
   this->enableAccelerometerLogging();
   this->enableBatteryLogging();
   this->enableMagnetometerLogging();
-  this->enableAltimeterLogging();
+  enableBarometerLogging();
   
   return true;
 }
@@ -240,7 +175,7 @@ bool CCrazyflie::stopLogging() {
   this->disableAccelerometerLogging();
   this->disableBatteryLogging();
   this->disableMagnetometerLogging();
-  this->disableAltimeterLogging();
+  disableBarometerLogging();
   
   return true;
 }
@@ -275,27 +210,11 @@ void CCrazyflie::enableAccelerometerLogging() {
   m_tocLogs.startLogging("acc.zw", "accelerometer");
 }
 
-void CCrazyflie::disableStabilizerLogging() {
-  m_tocLogs.unregisterLoggingBlock("stabilizer");
-}
-
-void CCrazyflie::disableGyroscopeLogging() {
-  m_tocLogs.unregisterLoggingBlock("gyroscope");
-}
-
-void CCrazyflie::disableAccelerometerLogging() {
-  m_tocLogs.unregisterLoggingBlock("accelerometer");
-}
-
 void CCrazyflie::enableBatteryLogging() {
   m_tocLogs.registerLoggingBlock("battery", 1000);
 
   m_tocLogs.startLogging("pm.vbat", "battery");
   m_tocLogs.startLogging("pm.state", "battery");
-}
-
-void CCrazyflie::disableBatteryLogging() {
-  m_tocLogs.unregisterLoggingBlock("battery");
 }
 
 void CCrazyflie::enableMagnetometerLogging() {
@@ -305,20 +224,12 @@ void CCrazyflie::enableMagnetometerLogging() {
   m_tocLogs.startLogging("mag.y", "magnetometer");
   m_tocLogs.startLogging("mag.z", "magnetometer");
 }
-void CCrazyflie::disableMagnetometerLogging() {
-  m_tocLogs.unregisterLoggingBlock("magnetometer");
-}
 
-
-
-void CCrazyflie::enableAltimeterLogging() {
-  m_tocLogs.registerLoggingBlock("altimeter", 1000);
-  m_tocLogs.startLogging("alti.asl", "altimeter");
-  m_tocLogs.startLogging("alti.aslLong", "altimeter");
-  m_tocLogs.startLogging("alti.pressure", "altimeter");
-  m_tocLogs.startLogging("alti.temperature", "altimeter");
-}
-
-void CCrazyflie::disableAltimeterLogging() {
-  m_tocLogs.unregisterLoggingBlock("altimeter");
+void CCrazyflie::enableBarometerLogging() {
+  m_tocLogs.registerLoggingBlock("barometer", 1000);
+  m_tocLogs.startLogging("baro.asl", "barometer");
+  m_tocLogs.startLogging("baro.aslRaw", "barometer");
+  m_tocLogs.startLogging("baro.aslLong", "barometer");
+  m_tocLogs.startLogging("baro.temp", "barometer");
+  m_tocLogs.startLogging("baro.pressure", "barometer");
 }
