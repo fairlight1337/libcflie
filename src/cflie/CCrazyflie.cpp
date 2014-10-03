@@ -31,10 +31,6 @@
 
 using namespace std;
 
-CCrazyflie::~CCrazyflie() {
-  this->stopLogging();
-}
-
 bool CCrazyflie::readTOCParameters() {
   if(m_tocParameters.requestMetaData()) {
     if(m_tocParameters.requestItems()) {
@@ -91,16 +87,10 @@ bool CCrazyflie::cycle() {
     
   case STATE_READ_LOGS_TOC: {
     if(this->readTOCLogs()) {
-      m_enumState = STATE_START_LOGGING;
-    }
-  } break;
-    
-  case STATE_START_LOGGING: {
-    if(this->startLogging()) {
       m_enumState = STATE_ZERO_MEASUREMENTS;
     }
   } break;
-    
+
   case STATE_ZERO_MEASUREMENTS: {
     {
       std::list<CCRTPPacket*> packets;
@@ -155,34 +145,6 @@ bool CCrazyflie::cycle() {
   }
   
   return m_crRadio->usbOK();
-}
-
-bool CCrazyflie::startLogging() {
-  // Register the desired sensor readings
-  this->enableStabilizerLogging();
-  this->enableGyroscopeLogging();
-  this->enableAccelerometerLogging();
-  this->enableBatteryLogging();
-  this->enableMagnetometerLogging();
-  enableBarometerLogging();
-  
-  return true;
-}
-
-bool CCrazyflie::stopLogging() {
-  this->disableStabilizerLogging();
-  this->disableGyroscopeLogging();
-  this->disableAccelerometerLogging();
-  this->disableBatteryLogging();
-  this->disableMagnetometerLogging();
-  disableBarometerLogging();
-  
-  return true;
-}
-
-void CCrazyflie::disableLogging() {
-  m_tocLogs.unregisterLoggingBlock("high-speed");
-  m_tocLogs.unregisterLoggingBlock("low-speed");
 }
 
 void CCrazyflie::enableStabilizerLogging() {

@@ -25,6 +25,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <chrono>
+#include <thread>
 #include <iostream>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -90,7 +92,13 @@ int main(void) {
 	float fAspectRatio = ((float)nHeight) / ((float)nWidth);
 	glFrustum(.5, -.5, -.5 * fAspectRatio, .5 * fAspectRatio, 1, 50);
 	glMatrixMode(GL_MODELVIEW);
-	
+
+	while (cflieCopter->cycle() && !cflieCopter->isInitialized())
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	std::cout << "Initialized" << std::endl;
+
+	cflieCopter->enableStabilizerLogging();
+
 	cout << "Running, exit with 'ESC'." << endl;
 	while(g_bGoon) {
 	  if(cflieCopter->cycle()) {
@@ -132,7 +140,8 @@ int main(void) {
 	    g_bGoon = false;
 	  }
 	}
-	
+	cflieCopter->disableStabilizerLogging();
+
 	glfwCloseWindow();
       }
       

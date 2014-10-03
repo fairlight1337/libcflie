@@ -41,15 +41,6 @@
 #include "CTOC.h"
 
 
-enum State {
-  STATE_ZERO = 0,
-  STATE_READ_PARAMETERS_TOC = 1,
-  STATE_READ_LOGS_TOC = 2,
-  STATE_START_LOGGING = 3,
-  STATE_ZERO_MEASUREMENTS = 4,
-  STATE_NORMAL_OPERATION = 5
-};
-
 /*! \brief Crazyflie Nano convenience controller class
 
   The class containing the mechanisms for starting sensor readings,
@@ -57,6 +48,14 @@ enum State {
   calculating information based on the current sensor readings. */
 class CCrazyflie {
  private:
+  enum State {
+    STATE_ZERO,
+    STATE_READ_PARAMETERS_TOC,
+    STATE_READ_LOGS_TOC,
+    STATE_ZERO_MEASUREMENTS,
+    STATE_NORMAL_OPERATION,
+  };
+
   // Variables
   int m_nAckMissTolerance;
   int m_nAckMissCounter;
@@ -99,41 +98,6 @@ class CCrazyflie {
     \return Boolean value denoting whether or not the command could be sent successfully. */
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sThrust);
 
-  void disableLogging();
-
-  void enableStabilizerLogging();
-  void disableStabilizerLogging() {
-    m_tocLogs.unregisterLoggingBlock("stabilizer");
-  }
-
-  void enableGyroscopeLogging();
-  void disableGyroscopeLogging() {
-    m_tocLogs.unregisterLoggingBlock("gyroscope");
-  }
-
-  void enableAccelerometerLogging();
-  void disableAccelerometerLogging() {
-    m_tocLogs.unregisterLoggingBlock("accelerometer");
-  }
-
-  void enableBatteryLogging();
-  void disableBatteryLogging() {
-    m_tocLogs.unregisterLoggingBlock("battery");
-  }
-
-  bool startLogging();
-  bool stopLogging();
-
-  void enableMagnetometerLogging();
-  void disableMagnetometerLogging() {
-    m_tocLogs.unregisterLoggingBlock("magnetometer");
-  }
-
-  void enableBarometerLogging();
-  void disableBarometerLogging() {
-    m_tocLogs.unregisterLoggingBlock("barometer");
-  }
-
   float logFloat(const std::string& val) const {
     float f;
     if(getLogValue(val, f))
@@ -174,12 +138,6 @@ class CCrazyflie {
     , m_enumState(STATE_ZERO)
   {}
 
-  /*! \brief Destructor for the copter convenience class
-    
-    Destructor, deleting all internal variables (except for the
-    CCrazyRadio radio instance given in the constructor). */
-  ~CCrazyflie();
-  
   /*! \brief Set the thrust control set point
     
     The thrust value that will be sent to the internal copter
@@ -375,6 +333,36 @@ class CCrazyflie {
   }
   int requestParameterValue(const std::string& strName) {
     return m_tocParameters.requestParameterValue(strName);
+  }
+
+  void enableStabilizerLogging();
+  void disableStabilizerLogging() {
+    m_tocLogs.unregisterLoggingBlock("stabilizer");
+  }
+
+  void enableGyroscopeLogging();
+  void disableGyroscopeLogging() {
+    m_tocLogs.unregisterLoggingBlock("gyroscope");
+  }
+
+  void enableAccelerometerLogging();
+  void disableAccelerometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("accelerometer");
+  }
+
+  void enableBatteryLogging();
+  void disableBatteryLogging() {
+    m_tocLogs.unregisterLoggingBlock("battery");
+  }
+
+  void enableMagnetometerLogging();
+  void disableMagnetometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("magnetometer");
+  }
+
+  void enableBarometerLogging();
+  void disableBarometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("barometer");
   }
 };
 
