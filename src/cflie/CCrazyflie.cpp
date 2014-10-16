@@ -1,4 +1,5 @@
 // Copyright (c) 2013, Jan Winkler <winkler@cs.uni-bremen.de>
+// Copyright (c) 2014 Alexander Holler <holler@ahsoftware.de>
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
