@@ -325,16 +325,16 @@ class CCrazyflie {
   }
   // Set parameter values
   template <typename t>
-  int setParameterValue(const std::string& strName, t value) {
-    return m_tocParameters.setParameterValue(strName, value);
+  void setParameterValue(const std::string& strName, t value) {
+    m_tocParameters.setParameterValue(strName, value);
   }
   // Get parameter values
   template <typename t>
-  int getParameterValue(const std::string& strName, t& value) const {
-    return m_tocParameters.getParameterValue(strName, value);
+  void getParameterValue(const std::string& strName, t& value) const {
+    m_tocParameters.getParameterValue(strName, value);
   }
-  int requestParameterValue(const std::string& strName) {
-    return m_tocParameters.requestParameterValue(strName);
+  void requestParameterValue(const std::string& strName) {
+    m_tocParameters.requestParameterValue(strName);
   }
 
   void enableStabilizerLogging();

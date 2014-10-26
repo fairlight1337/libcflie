@@ -402,11 +402,11 @@ void CTOC::processParameterPacket(CCRTPPacket& packet)
   uint8_t id = cData[1];
   auto i = std::find_if(m_lstTOCElements.begin(), m_lstTOCElements.end(), [id] (TOCElement e) { return e.nID == id; });
   if (i == m_lstTOCElements.end())
-    return;
+    throw std::runtime_error("Unknown parameter");
   if(packet.payloadLength() > 2 && packet.payloadLength()-2 <= sizeof(i->raw.raw))
     std::memcpy(i->raw.raw, cData+2, packet.payloadLength() - 2);
   else
-    std::cout << "Broken parameter packet" << std::endl;
+    throw std::runtime_error("Broken parameter packet");
 }
 
 void CTOC::processLogPacket(CCRTPPacket& packet)
@@ -484,14 +484,13 @@ int CTOC::elementIDinBlock(int nBlockID, unsigned nElementIndex) const {
   return -1;
 }
 
-int CTOC::requestParameterValue(uint8_t id)
+void CTOC::requestParameterValue(uint8_t id)
 {
   CCRTPPacket *crtpPacket = new CCRTPPacket(id, CCRTPPacket::PortParam);
   crtpPacket->setChannel(CCRTPPacket::ChannelRead);
   CCRTPPacket *crtpReceived = m_crRadio->sendAndReceive(crtpPacket);
   if (!crtpReceived)
-    return 1;
+    throw std::runtime_error("No ack received");
   processParameterPacket(*crtpReceived);
   delete crtpReceived;
-  return 0;
 }

@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <cstring> // std::memcpy
+#include <stdexcept>
 
 #include "CCrazyRadio.h"
 #include "CCRTPPacket.h"
@@ -101,80 +102,90 @@ class CTOC {
   
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, CCRTPPacket::Channel nChannel);
 
-  bool checkParameter(uint8_t type, const int8_t&) const {
-    return (type & 0x0f) == 0x00;
+  void checkParameter(uint8_t type, const int8_t&) const {
+    if ((type & 0x0f) != 0x00)
+      throw std::runtime_error("Parameter not an int8_t");
   }
-  bool checkParameter(uint8_t type, const int16_t&) const {
-    return (type & 0x0f) == 0x01;
+  void checkParameter(uint8_t type, const int16_t&) const {
+    if ((type & 0x0f) != 0x01)
+      throw std::runtime_error("Parameter not an int16_t");
   }
-  bool checkParameter(uint8_t type, const int32_t&) const {
-    return (type & 0x0f) == 0x02;
+  void checkParameter(uint8_t type, const int32_t&) const {
+    if ((type & 0x0f) != 0x02)
+      throw std::runtime_error("Parameter not an int32_t");
   }
-  bool checkParameter(uint8_t type, const int64_t&) const {
-    return (type & 0x0f) == 0x03;
+  void checkParameter(uint8_t type, const int64_t&) const {
+    if ((type & 0x0f) != 0x03)
+      throw std::runtime_error("Parameter not an int64_t");
   }
   // TODO: FP16 (type & 0x0f == 0x05)
-  bool checkParameter(uint8_t type, const float&) const {
-    return (type & 0x0f) == 0x06;
+  void checkParameter(uint8_t type, const float&) const {
+    if ((type & 0x0f) != 0x06)
+      throw std::runtime_error("Parameter not a float");
   }
-  bool checkParameter(uint8_t type, const double&) const {
-    return (type & 0x0f) == 0x07;
+  void checkParameter(uint8_t type, const double&) const {
+    if ((type & 0x0f) != 0x07)
+      throw std::runtime_error("Parameter not a double");
   }
-  bool checkParameter(uint8_t type, const uint8_t&) const {
-    return (type & 0x0f) == 0x08;
+  void checkParameter(uint8_t type, const uint8_t&) const {
+    if ((type & 0x0f) != 0x08)
+      throw std::runtime_error("Parameter not an uint8_t");
   }
-  bool checkParameter(uint8_t type, const uint16_t&) const {
-    return (type & 0x0f) == 0x09;
+  void checkParameter(uint8_t type, const uint16_t&) const {
+    if ((type & 0x0f) != 0x09)
+      throw std::runtime_error("Parameter not an uint16_t");
   }
-  bool checkParameter(uint8_t type, const uint32_t&) const {
-    return (type & 0x0f) == 0x0a;
+  void checkParameter(uint8_t type, const uint32_t&) const {
+    if ((type & 0x0f) != 0x0a)
+      throw std::runtime_error("Parameter not an uint32_t");
   }
-  bool checkParameter(uint8_t type, const uint64_t&) const {
-    return (type & 0x0f) == 0x0b;
+  void checkParameter(uint8_t type, const uint64_t&) const {
+    if ((type & 0x0f) != 0x0b)
+      throw std::runtime_error("Parameter not an uint64_t");
   }
 
-  bool getAndCheckParameter(uint8_t type, int8_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, int8_t& value, const RawValue& r) const {
     value = r.i8;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, int16_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, int16_t& value, const RawValue& r) const {
     value = r.i16;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, int32_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, int32_t& value, const RawValue& r) const {
     value = r.i32;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, int64_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, int64_t& value, const RawValue& r) const {
     value = r.i64;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, float& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, float& value, const RawValue& r) const {
     value = r.f;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, double& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, double& value, const RawValue& r) const {
     value = r.d;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, uint8_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, uint8_t& value, const RawValue& r) const {
     value = r.u8;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, uint16_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, uint16_t& value, const RawValue& r) const {
     value = r.u16;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, uint32_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, uint32_t& value, const RawValue& r) const {
     value = r.u32;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
-  bool getAndCheckParameter(uint8_t type, uint64_t& value, const RawValue& r) const {
+  void getAndCheckParameter(uint8_t type, uint64_t& value, const RawValue& r) const {
     value = r.u64;
-    return checkParameter(type, value);
+    checkParameter(type, value);
   }
 
-  int requestParameterValue(uint8_t id);
+  void requestParameterValue(uint8_t id);
 
   unsigned sizeOfLogValue(uint8_t type) {
     switch(type) {
@@ -302,44 +313,40 @@ class CTOC {
 
   // Set parameter values
   template <typename t>
-  int setParameterValue(const std::string& strName, t value) {
+  void setParameterValue(const std::string& strName, t value) {
     int8_t id(idForName(strName));
     if (id == -1)
-      return 1;
+      throw std::runtime_error("Parameter '" + strName + "' not found");
     int type(typeForName(strName));
     if (type & 0xf0)
-      return 2; // read only or group
-    if (!checkParameter(type, value))
-      return 3;
+      throw std::runtime_error("Parameter '" + strName + "' is read only");
+    checkParameter(type, value);
     char cData[1 + sizeof(value)];
     cData[0] = id;
     std::memcpy(cData+1, &value, sizeof(value));
     CCRTPPacket *crtpPacket = new CCRTPPacket(cData, sizeof(cData), CCRTPPacket::PortParam);
     crtpPacket->setChannel(CCRTPPacket::ChannelWrite);
     CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket, true);
-    if(crtpReceived) {
-      delete crtpReceived;
-      return 0;
-    }
-    return 4;
+    if(!crtpReceived)
+      throw std::runtime_error("No ack received");
+    delete crtpReceived;
   }
   // Get parameter values
   template <typename t>
-  int getParameterValue(const std::string& strName, t& value) const {
+  void getParameterValue(const std::string& strName, t& value) const {
     bool bFound;
     struct TOCElement teResult = elementForName(strName, bFound);
     if(!bFound)
-      return 1;
+      throw std::runtime_error("Parameter '" + strName + "' not found");
     uint8_t type(typeForName(strName));
-    if (!getAndCheckParameter(type, value, teResult.raw))
-      return 2;
-    return 0;
+    getAndCheckParameter(type, value, teResult.raw);
+    return;
   }
-  int requestParameterValue(const std::string& strName) {
+  void requestParameterValue(const std::string& strName) {
     int8_t id(idForName(strName));
     if (id == -1)
-      return 2;
-    return requestParameterValue(id);
+      throw std::runtime_error("Parameter '" + strName + "' not found");
+    requestParameterValue(id);
   }
   std::string getParameterTypeName(uint8_t type) {
     static const std::vector<std::string> names {
