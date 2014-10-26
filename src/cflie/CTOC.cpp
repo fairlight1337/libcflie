@@ -421,30 +421,22 @@ void CTOC::processLogPacket(CCRTPPacket& packet)
   bool bFound;
   int nBlockID = cData[1];
   struct LoggingBlock lbCurrent = loggingBlockForID(nBlockID, bFound);
-  if(!bFound) {
-    std::cout << "Logging block not found" << std::endl;
-    return;
-  }
+  if(!bFound)
+    throw std::runtime_error("Unknown logging block");
   unsigned nOffset = 0;
   unsigned nByteLength;
   for(unsigned nIndex = 0; nIndex < lbCurrent.lstElementIDs.size(); ++nIndex, nOffset += nByteLength) {
     int id = elementIDinBlock(nBlockID, nIndex);
     auto i = std::find_if(m_lstTOCElements.begin(), m_lstTOCElements.end(), [id] (TOCElement e) { return e.nID == id; });
-    if (i == m_lstTOCElements.end()) {
-      std::cout << "Logging element not found" << std::endl;
-      break;
-    }
+    if (i == m_lstTOCElements.end())
+      throw std::runtime_error("Unknown log element");
     nByteLength = sizeOfLogValue(i->nType);
-    if(!nByteLength) {
-      std::cout << "Should never happen" << std::endl;
-      break;
-    }
+    if(!nByteLength)
+      throw std::runtime_error("Log value without size");
     if(packet.payloadLength() > 5 + nOffset && nByteLength <= sizeof(i->raw.raw))
       std::memcpy(i->raw.raw, cData+5+nOffset, nByteLength);
-    else {
-      std::cout << "Broken log packet" << std::endl;
-      break;
-    }
+    else
+      throw std::runtime_error("Broken log packet");
   }
 }
 

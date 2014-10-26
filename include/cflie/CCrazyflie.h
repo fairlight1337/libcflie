@@ -102,20 +102,17 @@ class CCrazyflie {
 
   float logFloat(const std::string& val) const {
     float f;
-    if(getLogValue(val, f))
-      return -1;
+    getLogValue(val, f);
     return f;
   }
   uint16_t logU16(const std::string& val) const {
     uint16_t u16;
-    if(getLogValue(val, u16))
-      return 0;
+    getLogValue(val, u16);
     return u16;
   }
   uint16_t logI8(const std::string& val) const {
     int8_t i8;
-    if(getLogValue(val, i8))
-      return -1;
+    getLogValue(val, i8);
     return i8;
   }
 
@@ -263,8 +260,8 @@ class CCrazyflie {
 
   // Get log values
   template <typename t>
-  int getLogValue(const std::string& strName, t& value) const {
-    return m_tocLogs.getLogValue(strName, value);
+  void getLogValue(const std::string& strName, t& value) const {
+    m_tocLogs.getLogValue(strName, value);
   }
 
   /*! \brief Report the current battery level

@@ -209,90 +209,62 @@ class CTOC {
       return 0;
     }
   }
-  bool checkLogValue(uint8_t type, const uint8_t&) const {
-    return type == 0x01;
+  void checkLogValue(uint8_t type, const uint8_t&) const {
+    if (type != 0x01)
+      throw std::runtime_error("Parameter not an uint8_t");
   }
-  bool checkLogValue(uint8_t type, const uint16_t&) const {
-    return type == 0x02;
+  void checkLogValue(uint8_t type, const uint16_t&) const {
+    if (type != 0x02)
+      throw std::runtime_error("Parameter not an uint16_t");
   }
-  bool checkLogValue(uint8_t type, const uint32_t&) const {
-    return type == 0x03;
+  void checkLogValue(uint8_t type, const uint32_t&) const {
+    if (type != 0x03)
+      throw std::runtime_error("Parameter not an uint32_t");
   }
-  bool checkLogValue(uint8_t type, const int8_t&) const {
-    return type == 0x04;
+  void checkLogValue(uint8_t type, const int8_t&) const {
+    if (type != 0x04)
+      throw std::runtime_error("Parameter not an int8_t");
   }
-  bool checkLogValue(uint8_t type, const int16_t&) const {
-    return type == 0x05;
+  void checkLogValue(uint8_t type, const int16_t&) const {
+    if (type != 0x05)
+      throw std::runtime_error("Parameter not an int16_t");
   }
-  bool checkLogValue(uint8_t type, const int32_t&) const {
-    return type == 0x06;
+  void checkLogValue(uint8_t type, const int32_t&) const {
+    if (type != 0x06)
+      throw std::runtime_error("Parameter not an int32_t");
   }
-  bool checkLogValue(uint8_t type, const float&) const {
-    return type == 0x07;
+  void checkLogValue(uint8_t type, const float&) const {
+    if (type != 0x07)
+      throw std::runtime_error("Parameter not a float");
   }
   // TODO: FP16 (type == 0x08)
-  bool checkAndSetLogValue(uint8_t type, const uint8_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.u8 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const uint16_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.u16 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const uint32_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.u32 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const int8_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.i8 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const int16_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.i16 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const int32_t& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.i32 = value;
-  }
-  bool checkAndSetLogValue(uint8_t type, const float& value, RawValue& r) const {
-    if (!checkLogValue(type, value))
-      return false;
-    r.f = value;
-  }
-  bool getAndCheckLogValue(uint8_t type, uint8_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, uint8_t& value, const RawValue& r) const {
     value = r.u8;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, uint16_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, uint16_t& value, const RawValue& r) const {
     value = r.u16;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, uint32_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, uint32_t& value, const RawValue& r) const {
     value = r.u32;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, int8_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, int8_t& value, const RawValue& r) const {
     value = r.i8;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, int16_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, int16_t& value, const RawValue& r) const {
     value = r.i16;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, int32_t& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, int32_t& value, const RawValue& r) const {
     value = r.i32;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
-  bool getAndCheckLogValue(uint8_t type, float& value, const RawValue& r) const {
+  void getAndCheckLogValue(uint8_t type, float& value, const RawValue& r) const {
     value = r.f;
-    return checkLogValue(type, value);
+    checkLogValue(type, value);
   }
 
  public:
@@ -384,15 +356,13 @@ class CTOC {
 
   // Get log values
   template <typename t>
-  int getLogValue(const std::string& strName, t& value) const {
+  void getLogValue(const std::string& strName, t& value) const {
     bool bFound;
     struct TOCElement teResult = elementForName(strName, bFound);
     if(!bFound)
-      return 1;
+      throw std::runtime_error("Log value '" + strName + "' not found");
     uint8_t type(typeForName(strName));
-    if (!getAndCheckLogValue(type, value, teResult.raw))
-      return 2;
-    return 0;
+    getAndCheckLogValue(type, value, teResult.raw);
   }
 
   bool enableLogging(const std::string& strBlockName);
