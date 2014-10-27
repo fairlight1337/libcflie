@@ -55,14 +55,13 @@ bool CCrazyflie::readTOCLogs() {
 bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sThrust) {
   fPitch = -fPitch;
   
-  int nSize = 3 * sizeof(float) + sizeof(uint16_t);
-  char cBuffer[nSize];
+  char cBuffer[3 * sizeof(float) + sizeof(uint16_t)];
   memcpy(&cBuffer[0 * sizeof(float)], &fRoll, sizeof(float));
   memcpy(&cBuffer[1 * sizeof(float)], &fPitch, sizeof(float));
   memcpy(&cBuffer[2 * sizeof(float)], &fYaw, sizeof(float));
   memcpy(&cBuffer[3 * sizeof(float)], &sThrust, sizeof(uint16_t));
   
-  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, nSize, CCRTPPacket::PortCommander);
+  CCRTPPacket *crtpPacket = new CCRTPPacket(cBuffer, sizeof(cBuffer), CCRTPPacket::PortCommander);
   CCRTPPacket *crtpReceived = m_crRadio->sendPacket(crtpPacket);
   
   delete crtpPacket;
