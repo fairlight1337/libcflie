@@ -36,12 +36,12 @@ using namespace std;
 bool g_bGoon;
 
 
-void interruptionHandler(int dummy = 0) {
+void interruptionHandler(int) {
   g_bGoon = false;
 }
 
 
-int main(int argc, char **argv) {
+int main(void) {
   signal(SIGINT, interruptionHandler);
   
   int nReturnvalue = 0;

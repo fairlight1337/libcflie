@@ -1,4 +1,5 @@
 // Copyright (c) 2013, Jan Winkler <winkler@cs.uni-bremen.de>
+// Copyright (c) 2014 Alexander Holler <holler@ahsoftware.de>
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,6 +28,7 @@
 
 
 /* \author Jan Winkler */
+/// \author Alexander Holler
 
 
 #ifndef __C_CRAZYFLIE_H__
@@ -40,17 +42,6 @@
 #include "CCrazyRadio.h"
 #include "CTOC.h"
 
-using namespace std;
-
-
-enum State {
-  STATE_ZERO = 0,
-  STATE_READ_PARAMETERS_TOC = 1,
-  STATE_READ_LOGS_TOC = 2,
-  STATE_START_LOGGING = 3,
-  STATE_ZERO_MEASUREMENTS = 4,
-  STATE_NORMAL_OPERATION = 5
-};
 
 /*! \brief Crazyflie Nano convenience controller class
 
@@ -59,6 +50,14 @@ enum State {
   calculating information based on the current sensor readings. */
 class CCrazyflie {
  private:
+  enum State {
+    STATE_ZERO,
+    STATE_READ_PARAMETERS_TOC,
+    STATE_READ_LOGS_TOC,
+    STATE_ZERO_MEASUREMENTS,
+    STATE_NORMAL_OPERATION,
+  };
+
   // Variables
   int m_nAckMissTolerance;
   int m_nAckMissCounter;
@@ -67,7 +66,7 @@ class CCrazyflie {
   CCrazyRadio *m_crRadio;
   /*! \brief The current thrust to send as a set point to the
       copter. */
-  int m_nThrust;
+  uint16_t m_nThrust;
   /*! \brief The current roll to send as a set point to the copter. */
   float m_fRoll;
   /*! \brief The current pitch to send as a set point to the
@@ -75,28 +74,11 @@ class CCrazyflie {
   float m_fPitch;
   /*! \brief The current yaw to send as a set point to the copter. */
   float m_fYaw;
-  /*! \brief The current desired control set point (position/yaw to
-      reach) */
-  
+
   // Control related parameters
-  /*! \brief Maximum absolute value for the roll that will be sent to
-      the copter. */
-  float m_fMaxAbsRoll;
-  /*! \brief Maximum absolute value for the pitch that will be sent to
-      the copter. */
-  float m_fMaxAbsPitch;
-  /*! \brief Maximum absolute value for the yaw that will be sent to
-      the copter. */
-  float m_fMaxYaw;
-  /*! \brief Maximum thrust that will be sent to the copter. */
-  int m_nMaxThrust;
-  /*! \brief Minimum thrust that will be sent to the copter. */
-  int m_nMinThrust;
-  double m_dSendSetpointPeriod;
-  double m_dSetpointLastSent;
   bool m_bSendsSetpoints;
-  CTOC *m_tocParameters;
-  CTOC *m_tocLogs;
+  CTOC m_tocParameters;
+  CTOC m_tocLogs;
   enum State m_enumState;
   
   // Functions
@@ -116,31 +98,23 @@ class CCrazyflie {
     \param fYaw The desired yaw value.
     \param sThrust The desired thrust value.
     \return Boolean value denoting whether or not the command could be sent successfully. */
-  bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
+  bool sendSetpoint(float fRoll, float fPitch, float fYaw, uint16_t sThrust);
 
-  void disableLogging();
-  
-  void enableStabilizerLogging();
-  void enableGyroscopeLogging();
-  void enableAccelerometerLogging();
-
-  void disableStabilizerLogging();
-  void disableGyroscopeLogging();
-  void disableAccelerometerLogging();
-  
-  void enableBatteryLogging();
-  void disableBatteryLogging();
-  
-  bool startLogging();
-  bool stopLogging();
-
-  void enableMagnetometerLogging();
-  void disableMagnetometerLogging();
-
-  void enableAltimeterLogging();
-  void disableAltimeterLogging();
-
-  double currentTime();
+  float logFloat(const std::string& val) const {
+    float f;
+    getLogValue(val, f);
+    return f;
+  }
+  uint16_t logU16(const std::string& val) const {
+    uint16_t u16;
+    getLogValue(val, u16);
+    return u16;
+  }
+  uint16_t logI8(const std::string& val) const {
+    int8_t i8;
+    getLogValue(val, i8);
+    return i8;
+  }
 
  public:
   /*! \brief Constructor for the copter convenience class
@@ -151,67 +125,85 @@ class CCrazyflie {
     \param crRadio Initialized (and started) instance of the
     CCrazyRadio class, denoting the USB dongle to communicate
     with. */
-  CCrazyflie(CCrazyRadio *crRadio);
-  /*! \brief Destructor for the copter convenience class
-    
-    Destructor, deleting all internal variables (except for the
-    CCrazyRadio radio instance given in the constructor). */
-  ~CCrazyflie();
-  
+  CCrazyflie(CCrazyRadio *crRadio)
+    : m_crRadio(crRadio)
+    , m_nThrust(0)
+    , m_fRoll(0)
+    , m_fPitch(0)
+    , m_fYaw(0)
+    , m_bSendsSetpoints(false)
+    , m_tocParameters(crRadio, CCRTPPacket::PortParam)
+    , m_tocLogs(crRadio, CCRTPPacket::PortLogging)
+    , m_enumState(STATE_ZERO)
+  {}
+
   /*! \brief Set the thrust control set point
     
     The thrust value that will be sent to the internal copter
     controller as a set point.
     
     \param nThrust The thrust value to send (> 10000) */
-  void setThrust(int nThrust);
+  void setThrust(uint16_t nThrust) {
+    m_nThrust = nThrust;
+  }
   /*! \brief Returns the current thrust
     
     \return The current thrust value as reported by the copter */
-  int thrust();
-  
+  uint16_t thrust(void) const {
+    return logU16("stabilizer.thrust");
+  }
   /*! \brief Set the roll control set point
     
     The roll value that will be sent to the internal copter
     controller as a set point.
     
     \param fRoll The roll value to send */
-  void setRoll(float fRoll);
+  void setRoll(float fRoll) {
+    m_fRoll = fRoll;
+  }
+
   /*! \brief Returns the current roll
     
     Roll values are in degree, ranging from -180.0deg to 180.0deg.
     
     \return The current roll value as reported by the copter */
-  float roll();
-  
+  float roll(void) const {
+    return logFloat("stabilizer.roll");
+  }
   /*! \brief Set the pitch control set point
     
     The pitch value that will be sent to the internal copter
     controller as a set point.
     
     \param fPitch The pitch value to send */
-  void setPitch(float fPitch);
+  void setPitch(float fPitch) {
+    m_fPitch = fPitch;
+  }
   /*! \brief Returns the current pitch
     
     Pitch values are in degree, ranging from -180.0deg to 180.0deg.
 
     \return The current pitch value as reported by the copter */
-  float pitch();
-
+  float pitch(void) const {
+    return logFloat("stabilizer.pitch");
+  }
   /*! \brief Set the yaw control set point
     
     The yaw value that will be sent to the internal copter
     controller as a set point.
     
     \param fYaw The yaw value to send */
-  void setYaw(float fYaw);
+  void setYaw(float fYaw) {
+    m_fYaw = fYaw;
+  }
   /*! \brief Returns the current yaw
 
     Yaw values are in degree, ranging from -180.0deg to 180.0deg.
     
     \return The current yaw value as reported by the copter */
-  float yaw();
-  
+  float yaw(void) const {
+    return logFloat("stabilizer.yaw");
+  }
   /*! \brief Manages internal calculation operations
     
     Should be called during every 'cycle' of the main program using
@@ -234,14 +226,16 @@ class CCrazyflie {
     \return Returns 'true' is the copter is in range and radio
     communication works, and 'false' if the copter is either out of
     range or is switched off. */
-  bool copterInRange();
-  
+  bool copterInRange() {
+    return m_nAckMissCounter < m_nAckMissTolerance;
+  }
   /*! \brief Whether or not the copter was initialized successfully.
     
     \returns Boolean value denoting the initialization status of the
     copter communication. */
-  bool isInitialized();
-  
+  bool isInitialized(void) const {
+    return m_enumState == STATE_NORMAL_OPERATION;
+  }
   /*! \brief Set whether setpoints are currently sent while cycle()
     
     While performing the cycle() function, the currently set setpoint
@@ -253,52 +247,122 @@ class CCrazyflie {
     
     \param bSendSetpoints When set to `true`, the current setpoint is
     sent while cycle(). Otherwise, not. */
-  void setSendSetpoints(bool bSendSetpoints);
-  
+  void setSendSetpoints(bool bSendSetpoints) {
+    m_bSendsSetpoints = bSendSetpoints;
+  }
   /*! \brief Whether or not setpoints are currently sent to the copter
     
     \return Boolean value denoting whether or not the current setpoint
     is sent to the copter while performing cycle(). */
-  bool sendsSetpoints();
-  
-  /*! \brief Read back a sensor value you subscribed to
-    
-    Possible sensor values might be:
-    * stabilizer.yaw
-    * stabilizer.roll
-    * stabilizer.pitch
-    * pm.vbat
-    
-    The possible key names strongly depend on your firmware. If you
-    don't know what to do with this, just use the convience functions
-    like roll(), pitch(), yaw(), and batteryLevel().
-    
-    \return Double value denoting the current value of the requested
-    log variable. */
-  double sensorDoubleValue(string strName);
-  
+  bool sendsSetpoints(void) const {
+    return m_bSendsSetpoints;
+  }
+
+  // Get log values
+  template <typename t>
+  void getLogValue(const std::string& strName, t& value) const {
+    m_tocLogs.getLogValue(strName, value);
+  }
+
   /*! \brief Report the current battery level
     
-    \return Double value denoting the battery level as reported by the
+    \return Float value denoting the battery level as reported by the
     copter. */
-  double batteryLevel();
+  float batteryLevel(void) const {
+    return logFloat("pm.vbat");
+  }
 
-  float accX();
-  float accY();
-  float accZ();
-  float accZW();
-  float asl();
-  float aslLong();
-  float temperature();
-  float pressure();
-  float gyroX();
-  float gyroY();
-  float gyroZ();
-  float batteryState();
-  float magX();
-  float magY();
-  float magZ();
+  float accX(void) const {
+    return logFloat("acc.x");
+  }
+  float accY(void) const {
+    return logFloat("acc.y");
+  }
+  float accZ(void) const {
+    return logFloat("acc.z");
+  }
+  float accZW(void) const {
+    return logFloat("acc.zw");
+  }
+  float asl(void) const {;
+    return logFloat("baro.asl");
+  }
+  float aslRaw(void) const {
+    return logFloat("baro.aslRaw");
+  }
+  float aslLong(void) const {
+    return logFloat("baro.aslLong");
+  }
+  float temperature(void) const {
+    return logFloat("baro.temp");
+  }
+  float pressure(void) const {
+    return logFloat("baro.pressure");
+  }
+  float gyroX(void) const {
+    return logFloat("gyro.x");
+  }
+  float gyroY(void) const {
+    return logFloat("gyro.y");
+  }
+  float gyroZ(void) const {
+    return logFloat("gyro.z");
+  }
+  int8_t batteryState(void) const {
+    return logI8("pm.state");
+  }
+  float magX(void) const {
+    return logFloat("mag.x");
+  }
+  float magY(void) const {
+    return logFloat("mag.y");
+  }
+  float magZ(void) const {
+    return logFloat("mag.z");
+  }
+  // Set parameter values
+  template <typename t>
+  void setParameterValue(const std::string& strName, t value) {
+    m_tocParameters.setParameterValue(strName, value);
+  }
+  // Get parameter values
+  template <typename t>
+  void getParameterValue(const std::string& strName, t& value) const {
+    m_tocParameters.getParameterValue(strName, value);
+  }
+  void requestParameterValue(const std::string& strName) {
+    m_tocParameters.requestParameterValue(strName);
+  }
 
+  void enableStabilizerLogging();
+  void disableStabilizerLogging() {
+    m_tocLogs.unregisterLoggingBlock("stabilizer");
+  }
+
+  void enableGyroscopeLogging();
+  void disableGyroscopeLogging() {
+    m_tocLogs.unregisterLoggingBlock("gyroscope");
+  }
+
+  void enableAccelerometerLogging();
+  void disableAccelerometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("accelerometer");
+  }
+
+  void enableBatteryLogging();
+  void disableBatteryLogging() {
+    m_tocLogs.unregisterLoggingBlock("battery");
+  }
+
+  void enableMagnetometerLogging();
+  void disableMagnetometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("magnetometer");
+  }
+
+  void enableBarometerLogging();
+  void disableBarometerLogging() {
+    m_tocLogs.unregisterLoggingBlock("barometer");
+  }
 };
 
 

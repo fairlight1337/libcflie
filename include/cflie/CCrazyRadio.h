@@ -1,4 +1,5 @@
 // Copyright (c) 2013, Jan Winkler <winkler@cs.uni-bremen.de>
+// Copyright (c) 2014 Alexander Holler <holler@ahsoftware.de>
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,6 +28,7 @@
 
 
 /* \author Jan Winkler */
+/// \author Alexander Holler
 
 
 #ifndef __C_CRAZY_RADIO_H__
@@ -44,8 +46,6 @@
 #include <unistd.h>
 
 #include "CCRTPPacket.h"
-
-using namespace std;
 
 
 /*! \brief Power levels to configure the radio dongle with */
@@ -73,14 +73,14 @@ private:
   // Variables
   /*! \brief The radio URI as supplied when initializing the class
       instance */
-  string m_strRadioIdentifier;
+  std::string m_strRadioIdentifier;
   /*! \brief The current USB context as supplied by libusb */
   libusb_context *m_ctxContext;
   libusb_device *m_devDevice;
   libusb_device_handle *m_hndlDevice;
   int m_nARC;
   int m_nChannel;
-  string m_strDataRate;
+  std::string m_strDataRate;
   int m_nARDTime;
   int m_nARDBytes;
   enum Power m_enumPower;
@@ -88,34 +88,56 @@ private:
   int m_bContCarrier;
   float m_fDeviceVersion;
   bool m_bAckReceived;
-  list<CCRTPPacket*> m_lstLoggingPackets;
-  
+  std::list<CCRTPPacket*> m_lstLoggingPackets;
+  std::list<CCRTPPacket*> m_lstParameterPackets;
+
   // Functions
-  list<libusb_device*> listDevices(int nVendorID, int nProductID);
+  std::list<libusb_device*> listDevices(int nVendorID, int nProductID);
   bool openUSBDongle();
   bool claimInterface(int nInterface);
   void closeDevice();
 
   CCRTPPacket *readACK();
   
-  CCRTPPacket *writeData(void *vdData, int nLength);
+  CCRTPPacket *writeData(const void *vdData, int nLength);
   bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
   bool readData(void *vdData, int &nMaxLength);
 
-  void setARC(int nARC);
-  void setChannel(int nChannel);
-  void setDataRate(string strDataRate);
-  void setARDBytes(int nARDBytes);
+  void setARC(int nARC) {
+    m_nARC = nARC;
+    writeControl(NULL, 0, 0x06, nARC, 0);
+  }
+
+  void setChannel(int nChannel) {
+    m_nChannel = nChannel;
+    writeControl(NULL, 0, 0x01, nChannel, 0);
+  }
+
+  void setDataRate(const std::string& strDataRate);
+  void setARDBytes(int nARDBytes) {
+    m_nARDBytes = nARDBytes;
+    writeControl(NULL, 0, 0x05, 0x80 | nARDBytes, 0);
+  }
+
+
   void setARDTime(int nARDTime);
-  void setAddress(char *cAddress);
-  void setContCarrier(bool bContCarrier);
+
+  void setAddress(char *cAddress) {
+    m_cAddress = cAddress;
+    writeControl(cAddress, 5, 0x02, 0, 0);
+  }
+
+  void setContCarrier(bool bContCarrier) {
+    m_bContCarrier = bContCarrier;
+    writeControl(NULL, 0, 0x20, (bContCarrier ? 1 : 0), 0);
+  }
 
 public:
   /*! \brief Constructor for the radio communication class
     
     \param strRadioIdentifier URI for the radio to be opened,
     e.g. "radio://<dongle-no>/<channel-no>/<datarate>". */
-  CCrazyRadio(string strRadioIdentifier);
+  CCrazyRadio(const std::string& strRadioIdentifier);
   /*! \brief Destructor for the radio communication class */
   ~CCrazyRadio();
   
@@ -135,14 +157,19 @@ public:
     
     \return Value denoting the current power settings reserved for
     communication */
-  enum Power power();
+  enum Power power(void) const {
+    return m_enumPower;
+  }
   /*! \brief Set the power level to be used for communication purposes
     
     \param enumPower The level of power that is being used for
     communication. The integer value maps to one of the entries of the
     Power enum. */
-  void setPower(enum Power enumPower);
-  
+  void setPower(enum Power enumPower) {
+    m_enumPower = enumPower;
+    writeControl(NULL, 0, 0x04, enumPower, 0);
+  }
+
   /*! \brief Sends the given packet's payload to the copter
     
     \param crtpSend The packet which supplied header and payload
@@ -161,8 +188,10 @@ public:
     
     \return Packet containing the reply or NULL if no reply was
     received (after retrying). */
-  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
-  
+  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false) {
+    return sendAndReceive(crtpSend, crtpSend->port(), crtpSend->channel(), bDeleteAfterwards);
+  }
+
   /*! \brief Sends the given packet and waits for a reply.
     
     Sends out the CCRTPPacket instance denoted by crtpSend on the
@@ -210,7 +239,9 @@ public:
     or out of range.
     
     \return Returns true if the copter is returning the ACK flag properly, false otherwise. */
-  bool ackReceived();
+  bool ackReceived(void) const {
+    return m_bAckReceived;
+  }
   /*! \brief Whether or not the USB connection is still operational.
     
     Checks if the USB read/write calls yielded any errors.
@@ -227,7 +258,14 @@ public:
     
     \return List of CCRTPPacket instances collected from port 5
     (logging). */
-  list<CCRTPPacket*> popLoggingPackets();
+  void popLoggingPackets(std::list<CCRTPPacket*>& lstPackets) {
+    lstPackets.swap(m_lstLoggingPackets);
+    m_lstLoggingPackets.clear();
+  }
+  void popParameterPackets(std::list<CCRTPPacket*>& lstPackets) {
+    lstPackets.swap(m_lstParameterPackets);
+    m_lstParameterPackets.clear();
+  }
 };
 
 
