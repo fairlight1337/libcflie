@@ -25,9 +25,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+// System
 #include <iostream>
 #include <signal.h>
+#include <unistd.h>
 
+// Crazyflie
 #include <cflie/CCrazyflie.h>
 
 using namespace std;
@@ -56,6 +59,10 @@ int main(int argc, char **argv) {
   bool bDongleConnected = false;
   bool bDongleNotConnectedNotified = false;
   
+  struct timespec tmWait;
+  tmWait.tv_sec = 0;
+  tmWait.tv_nsec = 500000000;
+  
   while(g_bGoon) {
     // Is the dongle connected? If not, try to connect it.
     if(!bDongleConnected) {
@@ -65,7 +72,7 @@ int main(int argc, char **argv) {
 	  bDongleNotConnectedNotified = true;
 	}
 	
-	sleep(0.5);
+	nanosleep(&tmWait, NULL);
       }
       
       if(g_bGoon) {
