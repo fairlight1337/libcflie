@@ -33,14 +33,14 @@
 #define __C_TOC_H__
 
 
+// System
 #include <list>
 #include <string>
 #include <stdlib.h>
 
+// Private
 #include "CCrazyRadio.h"
 #include "CCRTPPacket.h"
-
-using namespace std;
 
 
 /*! \brief Storage element for logged variable identities */
@@ -51,19 +51,19 @@ struct TOCElement {
   /*! \brief The (ref) type of the log element */
   int nType;
   /*! \brief The string group name of the log element */
-  string strGroup;
+  std::string strGroup;
   /*! \brief The string identifier of the log element */
-  string strIdentifier;
+  std::string strIdentifier;
   bool bIsLogging;
   double dValue;
 };
 
 
 struct LoggingBlock {
-  string strName;
+  std::string strName;
   int nID;
   double dFrequency;
-  list<int> lstElementIDs;
+  std::list<int> lstElementIDs;
 };
 
 
@@ -72,44 +72,44 @@ class CTOC {
   int m_nPort;
   CCrazyRadio *m_crRadio;
   int m_nItemCount;
-  list<struct TOCElement> m_lstTOCElements;
-  list<struct LoggingBlock> m_lstLoggingBlocks;
+  std::list<struct TOCElement> m_lstTOCElements;
+  std::list<struct LoggingBlock> m_lstLoggingBlocks;
   
   bool requestInitialItem();
   bool requestItem(int nID, bool bInitial);
   bool requestItem(int nID);
-  bool processItem(CCRTPPacket *crtpItem);
+  bool processItem(CCRTPPacket* crtpItem);
   
-  CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nChannel);
+  CCRTPPacket* sendAndReceive(CCRTPPacket* crtpSend, int nChannel);
   
  public:
-  CTOC(CCrazyRadio *crRadio, int nPort);
+  CTOC(CCrazyRadio* crRadio, int nPort);
   ~CTOC();
   
   bool sendTOCPointerReset();
   bool requestMetaData();
   bool requestItems();
   
-  struct TOCElement elementForName(string strName, bool &bFound);
+  struct TOCElement elementForName(std::string strName, bool& bFound);
   struct TOCElement elementForID(int nID, bool &bFound);
-  int idForName(string strName);
-  int typeForName(string strName);
+  int idForName(std::string strName);
+  int typeForName(std::string strName);
   
   // For loggable variables only
-  bool registerLoggingBlock(string strName, double dFrequency);
-  bool unregisterLoggingBlock(string strName);
-  struct LoggingBlock loggingBlockForName(string strName, bool &bFound);
-  struct LoggingBlock loggingBlockForID(int nID, bool &bFound);
+  bool registerLoggingBlock(std::string strName, double dFrequency);
+  bool unregisterLoggingBlock(std::string strName);
+  struct LoggingBlock loggingBlockForName(std::string strName, bool& bFound);
+  struct LoggingBlock loggingBlockForID(int nID, bool& bFound);
   
-  bool startLogging(string strName, string strBlockName);
-  bool stopLogging(string strName);
-  bool isLogging(string strName);
+  bool startLogging(std::string strName, std::string strBlockName);
+  bool stopLogging(std::string strName);
+  bool isLogging(std::string strName);
   
-  double doubleValue(string strName);
+  double doubleValue(std::string strName);
   
-  bool enableLogging(string strBlockName);
+  bool enableLogging(std::string strBlockName);
   
-  void processPackets(list<CCRTPPacket*> lstPackets);
+  void processPackets(std::list<CCRTPPacket*> lstPackets);
   
   int elementIDinBlock(int nBlockID, int nElementIndex);
   bool setFloatValueForElementID(int nElementID, float fValue);
