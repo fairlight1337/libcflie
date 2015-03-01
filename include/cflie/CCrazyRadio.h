@@ -33,20 +33,11 @@
 #define __C_CRAZY_RADIO_H__
 
 
-#include <iostream>
 #include <list>
 #include <string>
-#include <sstream>
 #include <libusb-1.0/libusb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 #include "CCRTPPacket.h"
-
-using namespace std;
-
 
 /*! \brief Power levels to configure the radio dongle with */
 enum Power {
@@ -63,7 +54,7 @@ enum Power {
 
 /*! \brief Communication class to connect to and communicate via the
     CrazyRadio USB dongle.
-    
+
     The class is capable of finding the CrazyRadio USB dongle on the
     host computer, open and maintain a connection, and send/receive
     data when communicating with the Crazyflie Nano copter using the
@@ -73,14 +64,14 @@ private:
   // Variables
   /*! \brief The radio URI as supplied when initializing the class
       instance */
-  string m_strRadioIdentifier;
+  std::string m_strRadioIdentifier;
   /*! \brief The current USB context as supplied by libusb */
   libusb_context *m_ctxContext;
   libusb_device *m_devDevice;
   libusb_device_handle *m_hndlDevice;
   int m_nARC;
   int m_nChannel;
-  string m_strDataRate;
+  std::string m_strDataRate;
   int m_nARDTime;
   int m_nARDBytes;
   enum Power m_enumPower;
@@ -88,23 +79,23 @@ private:
   int m_bContCarrier;
   float m_fDeviceVersion;
   bool m_bAckReceived;
-  list<CCRTPPacket*> m_lstLoggingPackets;
-  
+  std::list<CCRTPPacket*> m_lstLoggingPackets;
+
   // Functions
-  list<libusb_device*> listDevices(int nVendorID, int nProductID);
+  std::list<libusb_device*> listDevices(int nVendorID, int nProductID);
   bool openUSBDongle();
   bool claimInterface(int nInterface);
   void closeDevice();
 
   CCRTPPacket *readACK();
-  
+
   CCRTPPacket *writeData(void *vdData, int nLength);
   bool writeControl(void *vdData, int nLength, uint8_t u8Request, uint16_t u16Value, uint16_t u16Index);
   bool readData(void *vdData, int &nMaxLength);
 
   void setARC(int nARC);
   void setChannel(int nChannel);
-  void setDataRate(string strDataRate);
+  void setDataRate(std::string strDataRate);
   void setARDBytes(int nARDBytes);
   void setARDTime(int nARDTime);
   void setAddress(char *cAddress);
@@ -112,15 +103,15 @@ private:
 
 public:
   /*! \brief Constructor for the radio communication class
-    
+
     \param strRadioIdentifier URI for the radio to be opened,
     e.g. "radio://<dongle-no>/<channel-no>/<datarate>". */
-  CCrazyRadio(string strRadioIdentifier);
+  CCrazyRadio(std::string strRadioIdentifier);
   /*! \brief Destructor for the radio communication class */
   ~CCrazyRadio();
-  
+
   /*! \brief Function to start the radio communication
-    
+
     The first available USB dongle will be opened and claimed for
     communication. The connection will be maintained and used to
     communicate with a Crazyflie Nano quadcopter in range.
@@ -129,49 +120,49 @@ public:
     made and 'false' if no dongle could be found (or any other
     USB-related error came up - this is not handled here). */
   bool startRadio();
-  
+
   /*! \brief Returns the current setting for power usage by the USB
       dongle
-    
+
     \return Value denoting the current power settings reserved for
     communication */
   enum Power power();
   /*! \brief Set the power level to be used for communication purposes
-    
+
     \param enumPower The level of power that is being used for
     communication. The integer value maps to one of the entries of the
     Power enum. */
   void setPower(enum Power enumPower);
-  
+
   /*! \brief Sends the given packet's payload to the copter
-    
+
     \param crtpSend The packet which supplied header and payload
     information to send to the copter */
   CCRTPPacket *sendPacket(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
-  
+
   /*! \brief Sends the given packet and waits for a reply.
-    
+
     Internally, this function calls the more elaborate
     sendAndReceive() function supplying parameters for retrying and
     waiting. Convenience function signature.
-    
+
     \param crtpSend Packet to send
     \param bDeleteAfterwards Whether or not the packet to send is
     deleted internally after sending it
-    
+
     \return Packet containing the reply or NULL if no reply was
     received (after retrying). */
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, bool bDeleteAfterwards = false);
-  
+
   /*! \brief Sends the given packet and waits for a reply.
-    
+
     Sends out the CCRTPPacket instance denoted by crtpSend on the
     given port and channel. Retries a number of times and waits
     between each retry whether or not an answer was received (in this
     case, dummy packets are sent in order to receive replies).
-    
+
     \param crtpSend Packet to send
-    
+
     \param nPort Port number on which to send this packet (and where
     to wait for the reply)
     \param nChannel Channel number on which to send this packet (and
@@ -181,53 +172,53 @@ public:
     \param nRetries Number of retries (re-sending) before giving up on
     an answer
     \param nMicrosecondsWait Microseconds to wait between two re-sends
-    
+
     \return Packet containing the reply or NULL if no reply was
     received (after retrying). */
   CCRTPPacket *sendAndReceive(CCRTPPacket *crtpSend, int nPort, int nChannel, bool bDeleteAfterwards = true, int nRetries = 10, int nMicrosecondsWait = 100);
-  
+
   /*! \brief Sends out an empty dummy packet
-    
+
     Only contains the payload `0xff`, as used for empty packet
     requests. Mostly used for waiting or keepalive.
-    
+
     \return Boolean value denoting whether sending the dummy packet
     worked or not. */
   bool sendDummyPacket();
-  
+
   /*! \brief Waits for the next non-empty packet.
-    
+
     Sends out dummy packets until a reply is non-empty and then
     returns this reply.
-    
+
     \return Packet contaning a non-empty reply. */
   CCRTPPacket *waitForPacket();
-  
+
   /*! \brief Whether or not the copter is answering sent packets.
-    
+
     Returns whether the copter is actually answering sent packets with
     a set ACK flag. If this is not the case, it is either switched off
     or out of range.
-    
+
     \return Returns true if the copter is returning the ACK flag properly, false otherwise. */
   bool ackReceived();
   /*! \brief Whether or not the USB connection is still operational.
-    
+
     Checks if the USB read/write calls yielded any errors.
-    
+
     \return Returns true if the connection is working properly and
     false otherwise. */
   bool usbOK();
-  
+
   /*! \brief Extracting all logging related packets
-    
+
     Returns a list of all collected logging related (i.e. originating
     from port 5) packets. This is called by the CCrazyflie class
     automatically when performing cycle().
-    
+
     \return List of CCRTPPacket instances collected from port 5
     (logging). */
-  list<CCRTPPacket*> popLoggingPackets();
+  std::list<CCRTPPacket*> popLoggingPackets();
 };
 
 

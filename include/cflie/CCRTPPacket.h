@@ -32,14 +32,6 @@
 #ifndef __C_CRTP_PACKET_H__
 #define __C_CRTP_PACKET_H__
 
-
-#include <iostream>
-#include <string>
-#include <string.h>
-
-using namespace std;
-
-
 /*! \brief Class to hold and process communication-related data for
   the CRTProtocol */
 class CCRTPPacket {
@@ -47,7 +39,7 @@ class CCRTPPacket {
   // Variables
   /*! \brief Internal storage pointer for payload data inside the
     packet
-    
+
     This data is freed when either new data is set or the class
     instance is destroyed.*/
   char *m_cData;
@@ -58,33 +50,33 @@ class CCRTPPacket {
   /*! \brief The copter channel the packet will be delivered to */
   int m_nChannel;
   bool m_bIsPingPacket;
-  
+
   // Functions
   /*! \brief Sets all internal variables to their default values.
-    
+
     The function clearData() should be called before this if it is
     used outside of the constructor. */
   void basicSetup();
   /*! \brief Deletes the internally stored data and resets the data
     length and the pointer to zero */
   void clearData();
-  
+
  public:
   /*! \brief Constructor for the CCRTPPacket communication packet
     class
-    
+
     Initializes the communication packet and sets the given
     channel. The packet starts out without payload data.
-    
+
     \param nChannel The channel the payload in this packet is
     designated for. */
   CCRTPPacket(int nChannel);
   /*! \brief Convenience constructor for the CCRTPPacket communication
     packet class
-    
+
     Initializes the communication packet and sets the given
     channel. The given data is set as the internal payload data.
-    
+
     \param cData The data pointer to read the new payload data from
     \param nDataLength The length (in bytes) of data to read from
     cData
@@ -93,71 +85,71 @@ class CCRTPPacket {
   CCRTPPacket(char *cData, int nDataLength, int nChannel);
   CCRTPPacket(char cData, int nPort);
   /*! \brief Destructor for the packet class
-    
+
     De-initializes the packet and deletes all available payload data
     stored. */
   ~CCRTPPacket();
-  
+
   /*! \brief Copies the given data of the specified length to the
     internal storage.
-    
+
     \param cData Pointer pointing to the data that should be used as
     payload
     \param nDataLength Length (in bytes) of the data that should be
     read from cData for storage */
   void setData(char *cData, int nDataLength);
   /*! \brief Gives out the pointer to the internally stored data
-    
+
     Don't manipulate the data pointed to by this pointer. Usually, you
     won't have to call this function at all as it is used by the more
     interface-designated functions.
-    
+
     \return Returns a direct pointer to the internally stored data */
   char *data();
   /*! \brief Returns the length of the currently stored data (in
       bytes)
-    
+
     \return Returns the number of bytes stored as payload data */
   int dataLength();
-  
+
   /*! \brief Prepares a sendable block of data based on the
       CCRTPPacket details
-    
+
     A block of data is prepared that contains the packet header
     (channel, port), the payload data and a finishing byte
     (0x27). This block is newly allocated and must be delete[]'d after
     usage.
-    
+
     \return Pointer to a new char[] containing a sendable block of
     payload data */
   char *sendableData();
   /*! \brief Returns the length of a sendable data block
-    
+
     \return Length of the sendable data block returned by
     sendableData() (in bytes) */
   int sendableDataLength();
-  
+
   /*! \brief Set the copter port to send the payload data to
-    
+
     The port identifies the purpose of the packet on the copter. This
     function sets the port that is later used in sendableData().
-    
+
     \param nPort Port number to set */
   void setPort(int nPort);
   /*! \brief Returns the currently set port number */
   int port();
 
   /*! \brief Set the copter channel to send the payload data to
-    
+
     The channel identifies the purpose of the packet on the
     copter. This function sets the channel that is later used in
     sendableData().
-    
+
     \param nChannel Channel number to set */
   void setChannel(int nChannel);
   /*! \brief Returns the currently set channel number */
   int channel();
-  
+
   void setIsPingPacket(bool bIsPingPacket);
   bool isPingPacket();
 };

@@ -32,57 +32,54 @@
 
 #include <cflie/CCrazyflie.h>
 
-using namespace std;
-
-
 bool g_bGoon;
 
 
 void drawGL(float fX, float fY, float fZ) {
   glLoadIdentity();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
+
   glMatrixMode(GL_MODELVIEW);
 
   /* Move down the z-axis. */
   glTranslatef(0.0, 0.0, -5.0);
-  
+
   /* Rotate. */
   glRotatef(fX - 45.0f, 1.0, 0.0, 0.0);
   glRotatef(fY, 0.0, 1.0, 0.0);
   glRotatef(fZ, 0.0, 0.0, 1.0);
-  
+
   float fQuadWidth = 2;
   float fQuadHeight = fQuadWidth;
-  
+
   glBegin(GL_QUADS); {
     glColor3f(1, 1, 1);
-    
+
     glVertex2f(fQuadWidth / 2, fQuadHeight / 2);
     glVertex2f(fQuadWidth / 2, -fQuadHeight / 2);
     glVertex2f(-fQuadWidth / 2, -fQuadHeight / 2);
     glVertex2f(-fQuadWidth / 2, fQuadHeight / 2);
   }
   glEnd();
-  
+
   glfwSwapBuffers();
 }
 
 int main(int argc, char **argv) {
   CCrazyRadio *crRadio = new CCrazyRadio("radio://0/10/250K");
-  
+
   if(crRadio->startRadio()) {
     CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
     cflieCopter->setSendSetpoints(true);
     cflieCopter->setThrust(0);
-    
+
     if(glfwInit() == GL_TRUE) {
       g_bGoon = true;
-      
+
       int nWidth = 800, nHeight = 600;
       int nBitsPerComponent = 8, nDepthBits = 0, nStencilBits = 0;
       int nOpenGLMode = GLFW_WINDOW;
-      
+
       if(glfwOpenWindow(nWidth, nHeight,
 			nBitsPerComponent, nBitsPerComponent, nBitsPerComponent, nBitsPerComponent, nDepthBits, nStencilBits, nOpenGLMode)) {
 	glMatrixMode(GL_PROJECTION);
@@ -90,14 +87,14 @@ int main(int argc, char **argv) {
 	float fAspectRatio = ((float)nHeight) / ((float)nWidth);
 	glFrustum(.5, -.5, -.5 * fAspectRatio, .5 * fAspectRatio, 1, 50);
 	glMatrixMode(GL_MODELVIEW);
-	
+
 	cout << "Running, exit with 'ESC'." << endl;
 	while(g_bGoon) {
 	  if(cflieCopter->cycle()) {
 	    drawGL(cflieCopter->roll(),
 		   cflieCopter->pitch(),
 		   cflieCopter->yaw());
-	    
+
 	    if(glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS) {
 	      cflieCopter->setThrust(0);
 	      g_bGoon = false;
@@ -107,23 +104,23 @@ int main(int argc, char **argv) {
 	      } else {
 		cflieCopter->setThrust(30000);
 	      }
-	      
+
 	      double dRoll = 0;
 	      double dPitch = 0;
 	      double dYaw = cflieCopter->yaw();
-	      
+
 	      if(glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS) {
 		dRoll = 20.0f;//dYaw += 20.0f;
 	      } else if(glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		dRoll = -20.0f;//dYaw -= 20.0f;
 	      }
-	      
+
 	      if(glfwGetKey(GLFW_KEY_UP) == GLFW_PRESS) {
 		dPitch = 20.0f;
 	      } else if(glfwGetKey(GLFW_KEY_DOWN) == GLFW_PRESS) {
 		dPitch = -20.0f;
 	      }
-	      
+
 	      cflieCopter->setRoll(dRoll);
 	      cflieCopter->setPitch(dPitch);
 	      cflieCopter->setYaw(dYaw);
@@ -132,19 +129,19 @@ int main(int argc, char **argv) {
 	    g_bGoon = false;
 	  }
 	}
-	
+
 	glfwCloseWindow();
       }
-      
+
       glfwTerminate();
     }
-    
+
     delete cflieCopter;
   } else {
     cerr << "Radio could not be started." << endl;
   }
-  
+
   delete crRadio;
-  
+
   return 0;
 }

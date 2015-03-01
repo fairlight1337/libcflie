@@ -32,16 +32,8 @@
 #ifndef __C_CRAZYFLIE_H__
 #define __C_CRAZYFLIE_H__
 
-
-#include <iostream>
-#include <sstream>
-#include <math.h>
-
 #include "CCrazyRadio.h"
 #include "CTOC.h"
-
-using namespace std;
-
 
 enum State {
   STATE_ZERO = 0,
@@ -77,7 +69,7 @@ class CCrazyflie {
   float m_fYaw;
   /*! \brief The current desired control set point (position/yaw to
       reach) */
-  
+
   // Control related parameters
   /*! \brief Maximum absolute value for the roll that will be sent to
       the copter. */
@@ -98,11 +90,11 @@ class CCrazyflie {
   CTOC *m_tocParameters;
   CTOC *m_tocLogs;
   enum State m_enumState;
-  
+
   // Functions
   bool readTOCParameters();
   bool readTOCLogs();
-  
+
   /*! \brief Send a set point to the copter controller
 
     Send the set point for the internal copter controllers. The
@@ -110,7 +102,7 @@ class CCrazyflie {
     thrust. These values can be set manually but are managed by the
     herein available controller(s) if one is switched on to reach
     desired positions.
-    
+
     \param fRoll The desired roll value.
     \param fPitch The desired pitch value.
     \param fYaw The desired yaw value.
@@ -119,7 +111,7 @@ class CCrazyflie {
   bool sendSetpoint(float fRoll, float fPitch, float fYaw, short sThrust);
 
   void disableLogging();
-  
+
   void enableStabilizerLogging();
   void enableGyroscopeLogging();
   void enableAccelerometerLogging();
@@ -127,10 +119,10 @@ class CCrazyflie {
   void disableStabilizerLogging();
   void disableGyroscopeLogging();
   void disableAccelerometerLogging();
-  
+
   void enableBatteryLogging();
   void disableBatteryLogging();
-  
+
   bool startLogging();
   bool stopLogging();
 
@@ -147,138 +139,138 @@ class CCrazyflie {
 
     Constructor for the CCrazyflie class, taking a CCrazyRadio radio
     interface instance as a parameter.
-  
+
     \param crRadio Initialized (and started) instance of the
     CCrazyRadio class, denoting the USB dongle to communicate
     with. */
   CCrazyflie(CCrazyRadio *crRadio);
   /*! \brief Destructor for the copter convenience class
-    
+
     Destructor, deleting all internal variables (except for the
     CCrazyRadio radio instance given in the constructor). */
   ~CCrazyflie();
-  
+
   /*! \brief Set the thrust control set point
-    
+
     The thrust value that will be sent to the internal copter
     controller as a set point.
-    
+
     \param nThrust The thrust value to send (> 10000) */
   void setThrust(int nThrust);
   /*! \brief Returns the current thrust
-    
+
     \return The current thrust value as reported by the copter */
   int thrust();
-  
+
   /*! \brief Set the roll control set point
-    
+
     The roll value that will be sent to the internal copter
     controller as a set point.
-    
+
     \param fRoll The roll value to send */
   void setRoll(float fRoll);
   /*! \brief Returns the current roll
-    
+
     Roll values are in degree, ranging from -180.0deg to 180.0deg.
-    
+
     \return The current roll value as reported by the copter */
   float roll();
-  
+
   /*! \brief Set the pitch control set point
-    
+
     The pitch value that will be sent to the internal copter
     controller as a set point.
-    
+
     \param fPitch The pitch value to send */
   void setPitch(float fPitch);
   /*! \brief Returns the current pitch
-    
+
     Pitch values are in degree, ranging from -180.0deg to 180.0deg.
 
     \return The current pitch value as reported by the copter */
   float pitch();
 
   /*! \brief Set the yaw control set point
-    
+
     The yaw value that will be sent to the internal copter
     controller as a set point.
-    
+
     \param fYaw The yaw value to send */
   void setYaw(float fYaw);
   /*! \brief Returns the current yaw
 
     Yaw values are in degree, ranging from -180.0deg to 180.0deg.
-    
+
     \return The current yaw value as reported by the copter */
   float yaw();
-  
+
   /*! \brief Manages internal calculation operations
-    
+
     Should be called during every 'cycle' of the main program using
     this class. Things like sensor reading processing, integral
     calculation and controller signal application are performed
     here. This function also triggers communication with the
     copter. Not calling it for too long will cause a disconnect from
     the copter's radio.
-    
+
     \return Returns a boolean value denoting the current status of the
     radio dongle. If it returns 'false', the dongle was most likely
     removed or somehow else disconnected from the host machine. If it
     returns 'true', the dongle connection works fine. */
   bool cycle();
   /*! \brief Signals whether the copter is in range or not
-    
+
     Returns whether the radio connection to the copter is currently
     active.
-    
+
     \return Returns 'true' is the copter is in range and radio
     communication works, and 'false' if the copter is either out of
     range or is switched off. */
   bool copterInRange();
-  
+
   /*! \brief Whether or not the copter was initialized successfully.
-    
+
     \returns Boolean value denoting the initialization status of the
     copter communication. */
   bool isInitialized();
-  
+
   /*! \brief Set whether setpoints are currently sent while cycle()
-    
+
     While performing the cycle() function, the currently set setpoint
     is sent to the copter regularly. If this is not the case, dummy
     packets are sent. Using this mechanism, you can effectively switch
     off sending new commands to the copter.
-    
+
     Default value: `false`
-    
+
     \param bSendSetpoints When set to `true`, the current setpoint is
     sent while cycle(). Otherwise, not. */
   void setSendSetpoints(bool bSendSetpoints);
-  
+
   /*! \brief Whether or not setpoints are currently sent to the copter
-    
+
     \return Boolean value denoting whether or not the current setpoint
     is sent to the copter while performing cycle(). */
   bool sendsSetpoints();
-  
+
   /*! \brief Read back a sensor value you subscribed to
-    
+
     Possible sensor values might be:
     * stabilizer.yaw
     * stabilizer.roll
     * stabilizer.pitch
     * pm.vbat
-    
+
     The possible key names strongly depend on your firmware. If you
     don't know what to do with this, just use the convience functions
     like roll(), pitch(), yaw(), and batteryLevel().
-    
+
     \return Double value denoting the current value of the requested
     log variable. */
-  double sensorDoubleValue(string strName);
-  
+  double sensorDoubleValue(std::string strName);
+
   /*! \brief Report the current battery level
-    
+
     \return Double value denoting the battery level as reported by the
     copter. */
   double batteryLevel();

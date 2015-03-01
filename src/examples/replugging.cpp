@@ -27,17 +27,11 @@
 
 // System
 #include <iostream>
-#include <signal.h>
-#include <unistd.h>
 
 // Crazyflie
 #include <cflie/CCrazyflie.h>
 
-using namespace std;
-
-
 bool g_bGoon;
-
 
 void interruptionHandler(int dummy = 0) {
   g_bGoon = false;
@@ -46,93 +40,93 @@ void interruptionHandler(int dummy = 0) {
 
 int main(int argc, char **argv) {
   signal(SIGINT, interruptionHandler);
-  
+
   int nReturnvalue = 0;
   int nThrust = 10001;
-  
-  string strRadioURI = "radio://0/10/250K";
-  
-  cout << "Opening radio URI '" << strRadioURI << "'" << endl;
+
+  std::string strRadioURI = "radio://0/10/250K";
+
+  std::cout << "Opening radio URI '" << strRadioURI << "'" << std::endl;
   CCrazyRadio *crRadio = new CCrazyRadio(strRadioURI);
-  
+
   g_bGoon = true;
   bool bDongleConnected = false;
   bool bDongleNotConnectedNotified = false;
-  
+
   struct timespec tmWait;
   tmWait.tv_sec = 0;
   tmWait.tv_nsec = 500000000;
-  
+
   while(g_bGoon) {
     // Is the dongle connected? If not, try to connect it.
     if(!bDongleConnected) {
       while(!crRadio->startRadio() && g_bGoon) {
 	if(!bDongleNotConnectedNotified) {
-	  cout << "Waiting for dongle." << endl;
+	  std::cout << "Waiting for dongle." << std::endl;
 	  bDongleNotConnectedNotified = true;
 	}
-	
+
 	nanosleep(&tmWait, NULL);
       }
-      
+
       if(g_bGoon) {
-	cout << "Dongle connected, radio started." << endl;
+	std::cout << "Dongle connected, radio started." << std::endl;
       }
     }
-    
+
     bool bRangeStateChangedNotified = false;
     bool bCopterWasInRange = false;
-    
+
     if(g_bGoon) {
       bDongleNotConnectedNotified = false;
       bDongleConnected = true;
-      
+
       CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
       cflieCopter->setSendSetpoints(true);
       cflieCopter->setThrust(nThrust);
-      
+
       while(g_bGoon && bDongleConnected) {
 	if(cflieCopter->cycle()) {
 	  if(cflieCopter->copterInRange()) {
 	    if(!bCopterWasInRange || !bRangeStateChangedNotified) {
 	      // Event triggered when the copter first comes in range.
-	      cout << "In range" << endl;
-	      
+	      std::cout << "In range" << std::endl;
+
 	      bCopterWasInRange = true;
 	      bRangeStateChangedNotified = true;
 	    }
-	    
+
 	    // Loop body for when the copter is in range continuously
 	  } else {
 	    if(bCopterWasInRange || !bRangeStateChangedNotified) {
 	      // Event triggered when the copter leaves the range.
-	      cout << "Not in range" << endl;
-	      
+	      std::cout << "Not in range" << std::endl;
+
 	      bCopterWasInRange = false;
 	      bRangeStateChangedNotified = true;
 	    }
-	    
+
 	    // Loop body for when the copter is not in range
 	  }
 	} else {
-	  cerr << "Connection to radio dongle lost." << endl;
-	  
+	  std::cerr << "Connection to radio dongle lost." << std::endl;
+
 	  bDongleConnected = false;
 	}
       }
-      
+
       if(!g_bGoon) {
 	// NOTE(winkler): Here would be the perfect place to initiate a
 	// landing sequence (i.e. ramping down the altitude of the
 	// copter). Right now, this is a dummy branch.
       }
-      
+
       delete cflieCopter;
     }
   }
-  
-  cout << "Cleaning up" << endl;
+
+  std::cout << "Cleaning up" << std::endl;
   delete crRadio;
-  
+
   return nReturnvalue;
 }

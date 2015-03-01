@@ -36,7 +36,6 @@
 // System
 #include <list>
 #include <string>
-#include <stdlib.h>
 
 // Private
 #include "CCrazyRadio.h"
@@ -74,43 +73,43 @@ class CTOC {
   int m_nItemCount;
   std::list<struct TOCElement> m_lstTOCElements;
   std::list<struct LoggingBlock> m_lstLoggingBlocks;
-  
+
   bool requestInitialItem();
   bool requestItem(int nID, bool bInitial);
   bool requestItem(int nID);
   bool processItem(CCRTPPacket* crtpItem);
-  
+
   CCRTPPacket* sendAndReceive(CCRTPPacket* crtpSend, int nChannel);
-  
+
  public:
   CTOC(CCrazyRadio* crRadio, int nPort);
   ~CTOC();
-  
+
   bool sendTOCPointerReset();
   bool requestMetaData();
   bool requestItems();
-  
+
   struct TOCElement elementForName(std::string strName, bool& bFound);
   struct TOCElement elementForID(int nID, bool &bFound);
   int idForName(std::string strName);
   int typeForName(std::string strName);
-  
+
   // For loggable variables only
   bool registerLoggingBlock(std::string strName, double dFrequency);
   bool unregisterLoggingBlock(std::string strName);
   struct LoggingBlock loggingBlockForName(std::string strName, bool& bFound);
   struct LoggingBlock loggingBlockForID(int nID, bool& bFound);
-  
+
   bool startLogging(std::string strName, std::string strBlockName);
   bool stopLogging(std::string strName);
   bool isLogging(std::string strName);
-  
+
   double doubleValue(std::string strName);
-  
+
   bool enableLogging(std::string strBlockName);
-  
+
   void processPackets(std::list<CCRTPPacket*> lstPackets);
-  
+
   int elementIDinBlock(int nBlockID, int nElementIndex);
   bool setFloatValueForElementID(int nElementID, float fValue);
   bool addElementToBlock(int nBlockID, int nElementID);

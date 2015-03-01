@@ -26,7 +26,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "cflie/CCRTPPacket.h"
-
+#include <cstring>
 
 CCRTPPacket::CCRTPPacket(int nPort) {
   this->basicSetup();
@@ -36,14 +36,14 @@ CCRTPPacket::CCRTPPacket(int nPort) {
 CCRTPPacket::CCRTPPacket(char *cData, int nDataLength, int nPort) {
   this->basicSetup();
   this->setPort(nPort);
-  
+
   this->setData(cData, nDataLength);
 }
 
 CCRTPPacket::CCRTPPacket(char cData, int nPort) {
   this->basicSetup();
   this->setPort(nPort);
-  
+
   this->setData(&cData, 1);
 }
 
@@ -61,9 +61,9 @@ void CCRTPPacket::basicSetup() {
 
 void CCRTPPacket::setData(char *cData, int nDataLength) {
   this->clearData();
-  
+
   m_cData = new char[nDataLength]();
-  memcpy(m_cData, cData, nDataLength);
+  std::memcpy(m_cData, cData, nDataLength);
   m_nDataLength = nDataLength;
 }
 
@@ -85,20 +85,20 @@ void CCRTPPacket::clearData() {
 
 char *CCRTPPacket::sendableData() {
   char *cSendable = new char[this->sendableDataLength()]();
-  
+
   if(m_bIsPingPacket) {
     cSendable[0] = 0xff;
   } else {
     // Header byte
     cSendable[0] = (m_nPort << 4) | 0b00001100 | (m_nChannel & 0x03);
-    
+
     // Payload
-    memcpy(&cSendable[1], m_cData, m_nDataLength);
-    
+    std::memcpy(&cSendable[1], m_cData, m_nDataLength);
+
     // Finishing byte
     //cSendable[m_nDataLength + 1] = 0x27;
   }
-  
+
   return cSendable;
 }
 

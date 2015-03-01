@@ -26,7 +26,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "cflie/CCrazyflie.h"
-
+#include <cmath>
 
 CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_crRadio = crRadio;
@@ -191,7 +191,7 @@ bool CCrazyflie::copterInRange() {
 void CCrazyflie::setRoll(float fRoll) {
   m_fRoll = fRoll;
   
-  if(fabs(m_fRoll) > m_fMaxAbsRoll) {
+  if(std::fabs(m_fRoll) > m_fMaxAbsRoll) {
     m_fRoll = copysign(m_fMaxAbsRoll, m_fRoll);
   }
 }
@@ -203,7 +203,7 @@ float CCrazyflie::roll() {
 void CCrazyflie::setPitch(float fPitch) {
   m_fPitch = fPitch;
   
-  if(fabs(m_fPitch) > m_fMaxAbsPitch) {
+  if(std::fabs(m_fPitch) > m_fMaxAbsPitch) {
     m_fPitch = copysign(m_fMaxAbsPitch, m_fPitch);
   }
 }
@@ -215,7 +215,7 @@ float CCrazyflie::pitch() {
 void CCrazyflie::setYaw(float fYaw) {
   m_fYaw = fYaw;
 
-  if(fabs(m_fYaw) > m_fMaxYaw){
+  if(std::fabs(m_fYaw) > m_fMaxYaw){
       m_fYaw = copysign(m_fMaxYaw, m_fYaw);
   }
 }
@@ -266,7 +266,7 @@ bool CCrazyflie::sendsSetpoints() {
   return m_bSendsSetpoints;
 }
 
-double CCrazyflie::sensorDoubleValue(string strName) {
+double CCrazyflie::sensorDoubleValue(std::string strName) {
   return m_tocLogs->doubleValue(strName);
 }
 
