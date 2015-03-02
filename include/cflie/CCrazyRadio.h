@@ -35,6 +35,8 @@
 
 #include <list>
 #include <string>
+#include <cstdio>
+#include <cstring>
 #include <libusb-1.0/libusb.h>
 
 #include "CCRTPPacket.h"

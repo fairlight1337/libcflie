@@ -25,11 +25,15 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+
 // System
 #include <iostream>
+#include <csignal>
 
 // Crazyflie
 #include <cflie/CCrazyflie.h>
+
+
 
 bool g_bGoon;
 
@@ -39,7 +43,7 @@ void interruptionHandler(int dummy = 0) {
 
 
 int main(int argc, char **argv) {
-  signal(SIGINT, interruptionHandler);
+  std::signal(SIGINT, interruptionHandler);
 
   int nReturnvalue = 0;
   int nThrust = 10001;

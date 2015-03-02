@@ -505,7 +505,7 @@ void CTOC::processPackets(std::list<CCRTPPacket*> lstPackets) {
 		 << " in block ID " << nBlockID
 		 << " while parsing incoming logging data." << std::endl;
 	    std::cerr << "This REALLY shouldn't be happening!" << std::endl;
-	    exit(-1);
+	    std::exit(-1);
 	  }
 	}
       }
