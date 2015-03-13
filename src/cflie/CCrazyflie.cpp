@@ -225,10 +225,10 @@ float CCrazyflie::yaw() {
 }
 
 double CCrazyflie::currentTime() {
-  #define NSEC_PER_SEC 1000000000L
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC, &ts);
-  return ts.tv_sec + double(ts.tv_nsec) / NSEC_PER_SEC;
+  struct timespec tsTime;
+  clock_gettime(CLOCK_MONOTONIC, &tsTime);
+  
+  return tsTime.tv_sec + double(tsTime.tv_nsec) / NSEC_PER_SEC;
 }
 
 bool CCrazyflie::isInitialized() {

@@ -32,6 +32,10 @@
 #ifndef __C_CRAZYFLIE_H__
 #define __C_CRAZYFLIE_H__
 
+
+#define NSEC_PER_SEC 1000000000L
+
+
 #include "CCrazyRadio.h"
 #include "CTOC.h"
 
