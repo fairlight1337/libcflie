@@ -21,26 +21,47 @@ if(${USB_LIB} STREQUAL "USB_LIB-NOTFOUND")
   message(FATAL_ERROR "On Ubuntu, do: sudo apt-get install libusb-1.0-0 libusb-1.0-0-dev")
 endif()
 
+
+### Libraries ###
+
 add_library(${PROJECT_NAME}
   src/cflie/CCrazyRadio.cpp
   src/cflie/CCrazyflie.cpp
   src/cflie/CCRTPPacket.cpp
   src/cflie/CTOC.cpp)
 
+
+### Executables ###
+
 add_executable(ex-replugging src/examples/replugging.cpp)
 add_executable(ex-simple src/examples/simple.cpp)
 add_executable(ex-gui src/examples/gui.cpp)
+
+
+### Linking ###
 
 target_link_libraries(${PROJECT_NAME} ${USB_LIB})
 target_link_libraries(ex-replugging ${PROJECT_NAME})
 target_link_libraries(ex-simple ${PROJECT_NAME})
 target_link_libraries(ex-gui ${PROJECT_NAME} ${GLFW_LIB} GL GLU)
 
+# ARM needs librt linked in
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+  target_link_libraries(${PROJECT_NAME} rt)
+  target_link_libraries(ex-replugging rt)
+  target_link_libraries(ex-simple rt)
+  target_link_libraries(ex-gui rt)
+endif()
+
+
+### Install ###
+
 install(DIRECTORY include/cflie
   DESTINATION include
   FILES_MATCHING
   PATTERN "*.h"
-  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+)
 
 install(
   TARGETS ${PROJECT_NAME}
