@@ -101,7 +101,7 @@ and `bin`.
   using the header files contained in `include/cflie/` to actually use
   it.
 
-* `bin` includes example programs. Currently, there are two:
+* `bin` includes example programs. Currently, there are three:
   * `ex-simple` shows the most simple usage example of the library
   * `ex-replugging` shows how to use the lib for allowing re-plugging
     the USB dongle and letting the copter go out of range and
@@ -120,7 +120,8 @@ How to run the examples (or you own programs)
 ---------------------------------------------
 
 When running programs linked against and using libcflie, you have to
-have access permissions for your USB devices set up correctly.
+have access permissions for your USB devices set up correctly, as USB
+devices are not per se accessible by all users on a system.
 
 You basically have two options:
 
@@ -128,6 +129,16 @@ You basically have two options:
 ```
 SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664", GROUP=="plugdev"
 ```
+For this to work, your user has to be in the group `plugdev`. To check in which groups you are, type
+```
+$ groups
+```
+If `plugdev` is in the list, you're good. If not, [let Google
+explain](https://www.google.de/search?q=add+user+to+group+linux) how
+you can add a user to a group on your specific system. You will
+probably have to log out and back in again for the changes to take
+effect.
+
 Now replug your dongle and you're set. Start the example `ex-gui` application from the `libcflie/build` (after typing `make`) with:
 ```
 $ ./../bin/ex-gui
