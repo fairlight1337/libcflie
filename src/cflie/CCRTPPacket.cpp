@@ -25,8 +25,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "cflie/CCRTPPacket.h"
-#include <cstring>
+
+#include <cflie/CCRTPPacket.h>
+
 
 CCRTPPacket::CCRTPPacket(int nPort) {
   this->basicSetup();

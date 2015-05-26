@@ -25,10 +25,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "cflie/CCrazyRadio.h"
-#include <unistd.h>
-#include <iostream>
-#include <sstream>
+
+#include <cflie/CCrazyRadio.h>
+
 
 CCrazyRadio::CCrazyRadio(std::string strRadioIdentifier) {
   m_strRadioIdentifier = strRadioIdentifier;

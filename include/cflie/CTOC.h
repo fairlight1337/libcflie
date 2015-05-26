@@ -37,6 +37,7 @@
 #include <list>
 #include <string>
 #include <cstdlib>
+#include <iostream>
 
 // Private
 #include "CCrazyRadio.h"

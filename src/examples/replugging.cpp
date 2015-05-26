@@ -26,21 +26,23 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
+/* \author Jan Winkler */
+
+
 // System
 #include <iostream>
 #include <csignal>
 
-// Crazyflie
+// libcflie
 #include <cflie/CCrazyflie.h>
-
 
 
 bool g_bGoon;
 
+
 void interruptionHandler(int dummy = 0) {
   g_bGoon = false;
 }
-
 
 int main(int argc, char **argv) {
   std::signal(SIGINT, interruptionHandler);

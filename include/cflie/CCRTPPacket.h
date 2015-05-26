@@ -32,6 +32,11 @@
 #ifndef __C_CRTP_PACKET_H__
 #define __C_CRTP_PACKET_H__
 
+
+// System
+#include <cstring>
+
+
 /*! \brief Class to hold and process communication-related data for
   the CRTProtocol */
 class CCRTPPacket {

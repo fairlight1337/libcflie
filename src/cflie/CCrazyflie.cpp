@@ -25,8 +25,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "cflie/CCrazyflie.h"
-#include <cmath>
+
+#include <cflie/CCrazyflie.h>
+
 
 CCrazyflie::CCrazyflie(CCrazyRadio *crRadio) {
   m_crRadio = crRadio;
@@ -99,10 +100,6 @@ bool CCrazyflie::sendSetpoint(float fRoll, float fPitch, float fYaw, short sThru
     return false;
   }
 }
-
-
-
-
 
 void CCrazyflie::setThrust(int nThrust) {
   m_nThrust = nThrust;
@@ -379,8 +376,6 @@ void CCrazyflie::disableMagnetometerLogging() {
   m_tocLogs->unregisterLoggingBlock("magnetometer");
 }
 
-
-
 void CCrazyflie::enableAltimeterLogging() {
   m_tocLogs->registerLoggingBlock("altimeter", 1000);
   m_tocLogs->startLogging("alti.asl", "altimeter");
@@ -401,8 +396,6 @@ float CCrazyflie::pressure() {
 float CCrazyflie::temperature() {
   return this->sensorDoubleValue("alti.temperature");
 }
-
-
 
 void CCrazyflie::disableAltimeterLogging() {
   m_tocLogs->unregisterLoggingBlock("altimeter");

@@ -25,9 +25,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+
+/* \author Jan Winkler */
+
+
+// System
 #include <iostream>
 
+// libcflie
 #include <cflie/CCrazyflie.h>
+
 
 int main(int argc, char **argv) {
   CCrazyRadio *crRadio = new CCrazyRadio("radio://0/10/250K");
@@ -44,7 +51,7 @@ int main(int argc, char **argv) {
     while(cflieCopter->cycle()) {
       // Main loop. Currently empty.
 
-      /* Examples to set thrust, and RPY:
+      /* Examples to set thrust and RPY:
 
 	 // Range: 10001 - (approx.) 60000
 	 cflieCopter->setThrust(10001);

@@ -36,8 +36,13 @@
 #define NSEC_PER_SEC 1000000000L
 
 
+// System
+#include <cmath>
+
+// Private
 #include "CCrazyRadio.h"
 #include "CTOC.h"
+
 
 enum State {
   STATE_ZERO = 0,
