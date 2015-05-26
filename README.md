@@ -34,12 +34,32 @@ You can check out the current Doxygen source code documentation
 * Bug-free
 
 
+### Where it has been tested
+
+As system architectures tend to differ in what they include and how
+they are organized, the library doesn't necessarily run out of the box
+in your system. The library is constantly being tested and built on a
+couple of Ubuntu versions (see
+[here](https://code.launchpad.net/~jan-winkler-84/+recipe/libcflie-daily)). Right
+now, these are:
+
+* Lucid (10.04)
+* Precise (12.04)
+* Trusty (14.04)
+* Utopic (14.10)
+
+So, the current state of the library might or might not run on your
+system if you differ from those. I'll be more than happy to
+incorporate pull requests that support more architectures. If you have
+it running on some architecture not listed here, let me know!
+
+
 Dependencies
 ------------
 
 The lib depends on GLFW, which you can install under Ubuntu by `apt-get install`'ing this:
 ```
-sudo apt-get install libglfw-dev libglfw2 cmake
+$ sudo apt-get install libglfw-dev libglfw2 cmake
 ```
 
 
@@ -52,8 +72,9 @@ sudo add-apt-repository ppa:jan-winkler-84 && sudo apt-get update
 ```
 Install the binary package:
 ```
-sudo apt-get install libcflie
+$ sudo apt-get install libcflie
 ```
+This will of course install the necessary dependencies automatically.
 
 
 How to build the library form source
@@ -109,14 +130,14 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE=="0664
 ```
 Now replug your dongle and you're set. Start the example `ex-gui` application from the `libcflie/build` (after typing `make`) with:
 ```
-./../bin/ex-gui
+$ ./../bin/ex-gui
 ```
 
 Exit the example by pressing `ESC`.
 
 *For testing purposes:* Run your programs as root:
 ```
-sudo ./../bin/ex-gui
+$ sudo ./../bin/ex-gui
 ```
 
 Again, exit the example by pressing `ESC`.
