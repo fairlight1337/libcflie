@@ -43,10 +43,13 @@ couple of Ubuntu versions (see
 [here](https://code.launchpad.net/~jan-winkler-84/+recipe/libcflie-daily)). Right
 now, these are:
 
-* Lucid (10.04)
-* Precise (12.04)
-* Trusty (14.04)
-* Utopic (14.10)
+| **Distribution** | **Version** | **Name**             | **Architecture** |
+|------------------|-------------|----------------------|------------------|
+| Ubuntu           | 12.04       | Precise Pangolin     | i386             |
+| Ubuntu           | 14.04       | Trusty Tahr          | i386             |
+| Ubuntu           | 14.10       | Utopic Unicorn       | i386             |
+| Ubuntu           | 15.04       | Vivid Veret          | amd64            |
+| Ubuntu           | 15.10       | Wily Werewolf        | amd64            |
 
 So, the current state of the library might or might not run on your
 system if you differ from those. I'll be more than happy to
