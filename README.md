@@ -68,7 +68,7 @@ How to install from binaries
 
 Add the PPA to your debian sources:
 ```
-sudo add-apt-repository ppa:jan-winkler-84 && sudo apt-get update
+$ sudo add-apt-repository ppa:jan-winkler-84 && sudo apt-get update
 ```
 Install the binary package:
 ```
