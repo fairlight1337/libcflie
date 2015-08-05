@@ -80,7 +80,7 @@ $ sudo apt-get install libcflie
 This will of course install the necessary dependencies automatically.
 
 
-How to build the library form source
+How to build the library from source
 ------------------------------------
 
 First, clone the repository:
