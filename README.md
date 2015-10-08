@@ -45,11 +45,11 @@ now, these are:
 
 | **Distribution** | **Version** | **Name**             | **Architecture** |
 |------------------|-------------|----------------------|------------------|
-| Ubuntu           | 12.04       | Precise Pangolin     | i386             |
-| Ubuntu           | 14.04       | Trusty Tahr          | i386             |
-| Ubuntu           | 14.10       | Utopic Unicorn       | i386             |
-| Ubuntu           | 15.04       | Vivid Veret          | amd64            |
-| Ubuntu           | 15.10       | Wily Werewolf        | amd64            |
+| Ubuntu Linux     | 12.04       | Precise Pangolin     | i386             |
+| Ubuntu Linux     | 14.04       | Trusty Tahr          | i386             |
+| Ubuntu Linux     | 14.10       | Utopic Unicorn       | i386             |
+| Ubuntu Linux     | 15.04       | Vivid Veret          | amd64            |
+| Ubuntu Linux     | 15.10       | Wily Werewolf        | amd64            |
 
 So, the current state of the library might or might not run on your
 system if you differ from those. I'll be more than happy to
@@ -60,10 +60,11 @@ it running on some architecture not listed here, let me know!
 Dependencies
 ------------
 
-The lib depends on GLFW, which you can install under Ubuntu by `apt-get install`'ing this:
+One of the examples included with the library depends on GLFW, which you can install under Ubuntu by `apt-get install`'ing this:
 ```
 $ sudo apt-get install libglfw-dev libglfw2 cmake
 ```
+If you do not wish to depend on GLFW, use the file `CMakeLists_noGUI.txt` instead of `CMakeLists.txt`. The example `ex-gui` will not be built, then.
 
 
 How to install from binaries
@@ -155,3 +156,17 @@ $ sudo ./../bin/ex-gui
 ```
 
 Again, exit the example by pressing `ESC`.
+
+
+Important Notice (concerning development and support)
+-----------------------------------------------------
+
+After developing the core parts of the library and maintaining it for
+a while, supporting users and co-developers in several projects, I
+decided to stop actively developing the library further. This is
+solely due to other time-consuming things in my life, so I won't be
+able to help you getting your project to run. By now there are lots of
+forks of the library and example programs using it (try Google'ing it
+or look at the GitHub forks). I still incorporate pull requests and
+bug fixes and look after keeping the build farms happy with the source
+(Travis CI, Launchpad), but can't help your individual projects.
