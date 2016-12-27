@@ -9,6 +9,8 @@ set(${PROJECT_NAME}_VERSION_MINOR_1)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
+link_directories("/usr/lib/x86_64-linux-gnu/")
+
 find_library(GLFW_LIB glfw)
 if(${GLFW_LIB} STREQUAL "GLFW_LIB-NOTFOUND")
   message(STATUS "The GLFW libs appear to not be installed.")
