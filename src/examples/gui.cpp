@@ -31,6 +31,7 @@
 
 // System
 #include <iostream>
+using namespace std;
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glfw.h>

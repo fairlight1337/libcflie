@@ -27,29 +27,29 @@
 
 
 /* \author Jan Winkler */
+/* Nishan Nepali */
 
 
-// System
+
+
+
 #include <iostream>
-
-// libcflie
+#include <memory>
 #include <cflie/CCrazyflie.h>
+#include <cflie/CCrazyRadio.h>
 
+bool initializeRadio(std::unique_ptr<CCrazyRadio>& crRadio) {
+    crRadio = std::make_unique<CCrazyRadio>("radio://0/10/250K");
+    return crRadio->startRadio();
+}
 
-int main(int argc, char **argv) {
-  CCrazyRadio *crRadio = new CCrazyRadio("radio://0/10/250K");
-
-  if(crRadio->startRadio()) {
-    CCrazyflie *cflieCopter = new CCrazyflie(crRadio);
+void controlCopter(CCrazyflie* cflieCopter) {
     cflieCopter->setThrust(10001);
 
-    // Enable sending the setpoints. This can be used to temporarily
-    // stop updating the internal controller setpoints and instead
-    // sending dummy packets (to keep the connection alive).
-    cflieCopter->setSendSetpoints(true);
+    // Enable sending setpoints and add control logic here.
 
-    while(cflieCopter->cycle()) {
-      // Main loop. Currently empty.
+    while (cflieCopter->cycle()) {
+         // Main loop. Currently empty.
 
       /* Examples to set thrust and RPY:
 
@@ -75,12 +75,18 @@ int main(int argc, char **argv) {
       // Other than that, this example covers pretty much everything
       // basic you will need for controlling the copter.
     }
+}
 
-    delete cflieCopter;
-  } else {
-    std::cerr << "Could not connect to dongle. Did you plug it in?" << std::endl;
-  }
+int main(int argc, char** argv) {
+    std::unique_ptr<CCrazyRadio> crRadio;
 
-  delete crRadio;
-  return 0;
+    if (initializeRadio(crRadio)) {
+        std::unique_ptr<CCrazyflie> cflieCopter(new CCrazyflie(crRadio.get()));
+        controlCopter(cflieCopter.get());
+    } else {
+        std::cerr << "Could not connect to dongle. Did you plug it in?" << std::endl;
+    }
+
+    // No need to delete, smart pointers will handle it.
+    return 0;
 }
